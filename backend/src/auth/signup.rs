@@ -4,7 +4,7 @@ use chrono::{Utc, Duration};
 use jsonwebtoken::{encode, Header, EncodingKey};
 use surrealdb::sql::Id;
 
-use crate::structures::{Signup, DB, Resp, GenString, Claims};
+use crate::structures::{Signup, DB, Resp, GenString, Claims, DbUserInfo};
 
 #[post("/sign_up")]
 pub async fn signup(info: Json<Signup>) -> HttpResponse {
@@ -26,7 +26,7 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
         ..Default::default()
     };
 
-    match db.select::<Option<Signup>>(("user", Id::String(info.username.to_string()))).await {
+    match db.select::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string()))).await {
         Ok(Some(_)) => {
             return HttpResponse::NotAcceptable().json(Resp::new("User Already exits!"));
         },
@@ -39,15 +39,14 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
 
     match hash_encoded(info.password.as_bytes(), rand_salt.as_bytes(), &arg_cfg) {
         Ok(hash) => {
-            let user_info = Signup {
+            let user_info = DbUserInfo {
                 username: info.username.clone(),
                 fullname: info.fullname.clone(),
                 password: hash,
-                pik_role: info.pik_role,
             };
-            match db.create::<Option<Signup>>(("user", Id::String(info.username.to_string()))).content(user_info).await {
+            match db.create::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string()))).content(user_info).await {
                 Ok(Some(user)) => {
-                    let exp = (Utc::now()+Duration::days(i64::MAX)).timestamp() as usize;
+                    let exp = (Utc::now()+Duration::days(9999999)).timestamp() as usize;
                     let claims = Claims {
                         username: user.username,
                         password: user.password,

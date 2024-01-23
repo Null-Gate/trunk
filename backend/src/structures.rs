@@ -34,7 +34,19 @@ pub struct Signup {
     pub username: String,
     pub fullname: String,
     pub password: String,
-    pub pik_role: Roles,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct DbUserInfo{
+    pub username: String,
+    pub fullname: String,
+    pub password: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Login {
+    pub username: String,
+    pub password: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -86,7 +98,7 @@ impl DistString for GenString {
 
 pub async fn get_cache_dir() -> String {
     let dir = format!(
-        "{}/Goals",
+        "{}/Trunk",
         BaseDirs::new().unwrap().cache_dir().to_string_lossy()
     );
     if !Path::new(&dir).exists() {

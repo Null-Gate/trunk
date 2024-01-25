@@ -1,10 +1,8 @@
 use actix_web::{post, HttpResponse, web::Json};
-use argon2::{Config, Variant, Version, hash_encoded};
-use chrono::{Utc, Duration};
-use jsonwebtoken::{encode, Header, EncodingKey};
+use argon2::hash_encoded;
 use surrealdb::sql::Id;
 
-use crate::structures::{Signup, DB, Resp, GenString, Claims, DbUserInfo};
+use crate::structures::{DbUserInfo, GenString, Resp, Signup, ARGON_CONFIG, DB};
 
 #[post("/sign_up")]
 pub async fn signup(info: Json<Signup>) -> HttpResponse {
@@ -15,16 +13,7 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
         ));
     }
 
-    let rand_salt = GenString::new().gen_string(20, 150);
-    let arg_cfg = Config {
-        variant: Variant::Argon2i,
-        version: Version::Version13,
-        mem_cost: 655_360,
-        time_cost: 2,
-        lanes: 50,
-        hash_length: 256,
-        ..Default::default()
-    };
+    let rand_salt = GenString::new().gen_string(20, 100);
 
     match db.select::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string()))).await {
         Ok(Some(_)) => {
@@ -37,7 +26,7 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
         }
     }
 
-    match hash_encoded(info.password.as_bytes(), rand_salt.as_bytes(), &arg_cfg) {
+    match hash_encoded(info.password.as_bytes(), rand_salt.as_bytes(), &ARGON_CONFIG) {
         Ok(hash) => {
             let user_info = DbUserInfo {
                 username: info.username.clone(),
@@ -45,14 +34,8 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
                 password: hash,
             };
             match db.create::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string()))).content(user_info).await {
-                Ok(Some(user)) => {
-                    let exp = usize::try_from((Utc::now()+Duration::days(9_999_999)).timestamp()).unwrap();
-                    let claims = Claims {
-                        username: user.username,
-                        password: user.password,
-                        exp
-                    };
-                    encode(&Header::default(), &claims, &EncodingKey::from_secret("kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes())).map_or_else(|_| HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem In Creating Your Account!")), |token| HttpResponse::Ok().json(Resp::new(&token)))
+                Ok(Some(_)) => {
+                    HttpResponse::Ok().json(Resp::new("All Good Account Is Created!"))
                 }
                 _ => HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem In Creating Your Account!"))
             }

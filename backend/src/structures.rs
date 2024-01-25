@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use argon2::{Config, Variant, Version};
 use async_once::AsyncOnce;
 use directories::BaseDirs;
 use lazy_static::lazy_static;
@@ -15,6 +16,20 @@ lazy_static! {
             .unwrap()
     });
 }
+
+pub static ARGON_CONFIG: Config = {
+    Config {
+        variant: Variant::Argon2i,
+        version: Version::Version13,
+        mem_cost: 6000,
+        time_cost: 1,
+        lanes: 1,
+        hash_length: 40,
+        ad: &[],
+        secret: &[],
+    }
+};
+pub const JWT_SECRET: &[u8] = "kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes();
 
 #[derive(Serialize, Deserialize, Clone, Copy)]
 pub enum Roles {

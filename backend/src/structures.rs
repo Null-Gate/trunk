@@ -55,7 +55,7 @@ pub struct Resp<'a> {
 }
 
 impl<'a> Resp<'a> {
-    pub fn new(msg: &'a str) -> Self {
+    pub const fn new(msg: &'a str) -> Self {
         Resp { msg }
     }
 }
@@ -81,7 +81,7 @@ impl GenString {
 
     pub fn gen_string(&mut self, min: usize, max: usize) -> String {
         self.sample_string(
-            &mut self.rngs.to_owned(),
+            &mut self.rngs.clone(),
             self.to_owned().rngs.gen_range(min..max),
         )
     }
@@ -102,9 +102,7 @@ pub async fn get_cache_dir() -> String {
         BaseDirs::new().unwrap().cache_dir().to_string_lossy()
     );
     if !Path::new(&dir).exists() {
-        fs::create_dir(&dir).await.unwrap()
+        fs::create_dir(&dir).await.unwrap();
     }
     dir
 }
-
-fn addone(x:i32) -> i32 { x + 1 }

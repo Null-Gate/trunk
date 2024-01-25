@@ -19,7 +19,7 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
     let arg_cfg = Config {
         variant: Variant::Argon2i,
         version: Version::Version13,
-        mem_cost: 655360,
+        mem_cost: 655_360,
         time_cost: 2,
         lanes: 50,
         hash_length: 256,
@@ -46,17 +46,13 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
             };
             match db.create::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string()))).content(user_info).await {
                 Ok(Some(user)) => {
-                    let exp = (Utc::now()+Duration::days(9999999)).timestamp() as usize;
+                    let exp = usize::try_from((Utc::now()+Duration::days(9_999_999)).timestamp()).unwrap();
                     let claims = Claims {
                         username: user.username,
                         password: user.password,
                         exp
                     };
-                    match encode(&Header::default(), &claims, &EncodingKey::from_secret("kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes())) {
-                        Ok(token) => HttpResponse::Ok().json(Resp::new(&token)),
-                        Err(_) =>   HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem In Creating Your Account!"))
-
-                    }
+                    encode(&Header::default(), &claims, &EncodingKey::from_secret("kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes())).map_or_else(|_| HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem In Creating Your Account!")), |token| HttpResponse::Ok().json(Resp::new(&token)))
                 }
                 _ => HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem In Creating Your Account!"))
             }

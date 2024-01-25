@@ -23,17 +23,13 @@ pub async fn login(info: Json<Login>) -> HttpResponse {
                         return HttpResponse::NotAcceptable().json(Resp::new("Sorry Wrong Password!"));
                     }
 
-                    let exp = (Utc::now()+Duration::days(9999999)).timestamp() as usize;
+                    let exp = usize::try_from((Utc::now()+Duration::days(9_999_999)).timestamp()).unwrap();
                     let claims = Claims {
                         username: user.username,
                         password: user.password,
                         exp
                     };
-                    match encode(&Header::default(), &claims, &EncodingKey::from_secret("kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes())) {
-                        Ok(token) => HttpResponse::Ok().json(Resp::new(&token)),
-                        Err(_) =>   HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem In Creating Your Account!"))
-
-                    }
+                    encode(&Header::default(), &claims, &EncodingKey::from_secret("kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes())).map_or_else(|_| HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem In Creating Your Account!")), |token| HttpResponse::Ok().json(Resp::new(&token)))
                 },
                 Err(_) => {
                     HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Checking Your Password!"))

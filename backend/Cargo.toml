@@ -5,11 +5,17 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lints.clippy]
+enum_glob_use = 'deny'
+pedantic = 'deny'
+nursery = 'deny'
+
 [profile.release]
-strip = true
-opt-level = 3
+strip = 'symbols'
+opt-level = 'z'
 lto = true
 codegen-units = 1
+panic = 'abort'
 
 [dependencies]
 actix-files = { version = "0.6.5" }

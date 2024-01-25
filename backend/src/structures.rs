@@ -106,3 +106,5 @@ pub async fn get_cache_dir() -> String {
     }
     dir
 }
+
+fn addone(x:i32) -> i32 { x + 1 }

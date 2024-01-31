@@ -1,12 +1,19 @@
 use std::path::Path;
 
+use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use argon2::{Config, Variant, Version};
 use async_once::AsyncOnce;
 use directories::BaseDirs;
 use lazy_static::lazy_static;
-use rand::{rngs::ThreadRng, distributions::{DistString, Distribution}, Rng};
+use rand::{
+    distributions::{DistString, Distribution},
+    rngs::ThreadRng,
+    Rng,
+};
 use serde::{Deserialize, Serialize};
-use surrealdb::{Surreal, engine::local::{File, Db}};
+use surrealdb::{
+    engine::local::{Db, File}, sql::Thing, Surreal
+};
 use tokio::fs;
 
 lazy_static! {
@@ -23,25 +30,25 @@ pub static ARGON_CONFIG: Config = {
         version: Version::Version13,
         mem_cost: 6000,
         time_cost: 1,
-        lanes: 1,
-        hash_length: 40,
+        lanes: 10,
+        hash_length: 100,
         ad: &[],
         secret: &[],
     }
 };
-pub const JWT_SECRET: &[u8] = "kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes();
+pub const JWT_SECRET: &[u8] =
+    "kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes();
 
-#[derive(Serialize, Deserialize, Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Roles {
+    Owner,
     Driver,
-    User,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Claims {
-    pub username: String,
-    pub password: String,
-    pub exp: usize
+    pub user_info: DbUserInfo,
+    pub exp: usize,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -51,11 +58,42 @@ pub struct Signup {
     pub password: String,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct DbUserInfo{
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DbUserInfo {
     pub username: String,
     pub fullname: String,
     pub password: String,
+    pub pik_role: Vec<Roles>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct DbDriverInfo {
+    pub license_num: String,
+    pub license_pic: String,
+    pub exp_details: String,
+    pub userinfo: Thing
+}
+
+#[derive(MultipartForm)]
+pub struct DriverForm {
+    pub license_num: Text<String>,
+    pub license_pic: TempFile,
+    pub exp_details: Text<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DbCarInfo {
+    pub license_num: String,
+    pub owner_proof: String,
+    pub car_details: String,
+    pub userinfo: Thing
+}
+
+#[derive(MultipartForm)]
+pub struct CarForm {
+    pub license_num: Text<String>,
+    pub owner_proof: TempFile,
+    pub car_details: Text<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -73,13 +111,6 @@ impl<'a> Resp<'a> {
     pub const fn new(msg: &'a str) -> Self {
         Resp { msg }
     }
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct UserInfo {
-    pub username: String,
-    pub fullname: String,
-    pub password: String,
 }
 
 #[derive(Clone)]

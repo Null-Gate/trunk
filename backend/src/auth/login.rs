@@ -1,7 +1,7 @@
-use actix_web::{HttpResponse, post, web::Json};
+use actix_web::{post, web::Json, HttpResponse};
 use argon2::verify_encoded;
-use chrono::{Utc, Duration};
-use jsonwebtoken::{Header, encode, EncodingKey};
+use chrono::{Duration, Utc};
+use jsonwebtoken::{encode, EncodingKey, Header};
 use surrealdb::sql::Id;
 
 use crate::structures::{Claims, DbUserInfo, Login, Resp, DB, JWT_SECRET};
@@ -15,32 +15,49 @@ pub async fn login(info: Json<Login>) -> HttpResponse {
         ));
     }
 
-    match db.select::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string()))).await {
-        Ok(Some(user)) => {
-            match verify_encoded(&user.password, info.password.as_bytes()) {
+    match db
+        .select::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string())))
+        .await
+    {
+        Ok(Some(user_info)) => {
+            match verify_encoded(&user_info.password, info.password.as_bytes()) {
                 Ok(stat) => {
                     if !stat {
-                        return HttpResponse::NotAcceptable().json(Resp::new("Sorry Wrong Password!"));
+                        return HttpResponse::NotAcceptable()
+                            .json(Resp::new("Sorry Wrong Password!"));
                     }
 
-                    let exp = usize::try_from((Utc::now()+Duration::days(9_999_999)).timestamp()).unwrap();
-                    let claims = Claims {
-                        username: user.username,
+                    let exp = usize::try_from((Utc::now() + Duration::days(9_999_999)).timestamp())
+                        .unwrap();
+                    let token_userinfo = DbUserInfo {
+                        username: user_info.username.clone(),
+                        fullname: user_info.fullname.clone(),
                         password: info.password.clone(),
-                        exp
+                        pik_role: user_info.pik_role,
                     };
-                    encode(&Header::default(), &claims, &EncodingKey::from_secret(JWT_SECRET)).map_or_else(|_| HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem In Creating Your Account!")), |token| HttpResponse::Ok().json(Resp::new(&token)))
-                },
-                Err(_) => {
-                    HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Checking Your Password!"))
+                    let claims = Claims { user_info: token_userinfo, exp };
+                    encode(
+                        &Header::default(),
+                        &claims,
+                        &EncodingKey::from_secret(JWT_SECRET),
+                    )
+                    .map_or_else(
+                        |_| {
+                            HttpResponse::InternalServerError().json(Resp::new(
+                                "Sorry We're Having Some Problem In Creating Your Account!",
+                            ))
+                        },
+                        |token| HttpResponse::Ok().json(Resp::new(&token)),
+                    )
                 }
+                Err(_) => HttpResponse::InternalServerError().json(Resp::new(
+                    "Sorry Something Went Wrong While Checking Your Password!",
+                )),
             }
-        },
-        Ok(None) => {
-            HttpResponse::Unauthorized().json(Resp::new("User Not Found!"))
-        },
-        Err(_) => {
-            HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem in Searching Your Account!"))
         }
+        Ok(None) => HttpResponse::Unauthorized().json(Resp::new("User Not Found!")),
+        Err(_) => HttpResponse::InternalServerError().json(Resp::new(
+            "Sorry We're Having Some Problem in Searching Your Account!",
+        )),
     }
 }

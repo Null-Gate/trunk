@@ -13,39 +13,60 @@ pub async fn delete(jwt: Path<String>) -> HttpResponse {
             "Sorry We are having some problem when opening our database!",
         ));
     }
-    
-    let user_info = decode::<Claims>(&jwt, &DecodingKey::from_secret(JWT_SECRET), &Validation::new(Algorithm::HS256)).unwrap();
 
-    match db.select::<Option<DbUserInfo>>(("user", Id::String(user_info.claims.username.clone()))).await {
-        Ok(Some(user)) => {
-            match verify_encoded(&user.password, user_info.claims.password.clone().as_bytes()) {
-                Ok(stat) => {
-                    if !stat {
-                        return HttpResponse::NotAcceptable().json(Resp::new("Sorry Wrong password!"));
-                    }
+    match decode::<Claims>(
+        &jwt,
+        &DecodingKey::from_secret(JWT_SECRET),
+        &Validation::new(Algorithm::HS256),
+    ) {
+        Ok(token_info) => {
+            let user_info = token_info.claims.user_info;
+            match db
+                .select::<Option<DbUserInfo>>(("user", Id::String(user_info.username.clone())))
+                .await
+            {
+                Ok(Some(user)) => {
+                    match verify_encoded(&user.password, user_info.password.as_bytes()) {
+                        Ok(stat) => {
+                            if !stat {
+                                return HttpResponse::NotAcceptable()
+                                    .json(Resp::new("Sorry Wrong password!"));
+                            }
 
-                    match db.delete::<Option<DbUserInfo>>(("user", Id::String(user_info.claims.username))).await {
-                        Ok(Some(_)) => {
-                            HttpResponse::Ok().json(Resp::new("Successfully Deleted The Account!"))
+                            if !((user.fullname, user.pik_role)
+                                == (user_info.fullname, user_info.pik_role))
+                            {
+                                return HttpResponse::NotAcceptable()
+                                    .json(Resp::new("Some Infos Are Wrong!"));
+                            }
+
+                            match db
+                                .delete::<Option<DbUserInfo>>((
+                                    "user",
+                                    Id::String(user_info.username),
+                                ))
+                                .await
+                            {
+                                Ok(Some(_)) => HttpResponse::Ok()
+                                    .json(Resp::new("Successfully Deleted The Account!")),
+                                Ok(None) => HttpResponse::NoContent()
+                                    .json(Resp::new("No Userfound Not Deleted!")),
+                                _ => HttpResponse::InternalServerError().json(Resp::new(
+                                    "Something Went Wrong While Deleting The Account!",
+                                )),
+                            }
                         }
-                        Ok(None) => {
-                            HttpResponse::NoContent().json(Resp::new("No Userfound Not Deleted!"))
-                        }
-                        _ => {
-                            HttpResponse::InternalServerError().json(Resp::new("Something Went Wrong While Deleting The Account!"))
-                        }
+                        Err(_) => HttpResponse::InternalServerError().json(Resp::new(
+                            "Something Went Wrong While Verifying Your Password!",
+                        )),
                     }
-                },
-                Err(_) => {
-                    HttpResponse::InternalServerError().json(Resp::new("Something Went Wrong While Verifying Your Password!"))
-                },
+                }
+                Ok(None) => HttpResponse::NoContent().json(Resp::new("No Userfound Not Deleted!")),
+                Err(_) => HttpResponse::InternalServerError().json(Resp::new(
+                    "Something Went Wrong While Checking Your Account Info!",
+                )),
             }
-        },
-        Ok(None) => {
-            HttpResponse::NoContent().json(Resp::new("No Userfound Not Deleted!"))
         }
-        Err(_) => {
-            HttpResponse::InternalServerError().json(Resp::new("Something Went Wrong While Checking Your Account Info!"))
-        }
+        Err(_) => HttpResponse::NotAcceptable().json(Resp::new("Sorry Wrong Token!")),
     }
 }

@@ -13,13 +13,13 @@ use surrealdb::sql::{Id, Thing};
 use tokio::fs;
 
 use crate::structures::{
-    get_cache_dir, Claims, DbDriverInfo, DbUserInfo, DriverForm, GenString, Resp, Roles, DB, JWT_SECRET
+    get_cache_dir, CarForm, Claims, DbCarInfo, DbUserInfo, GenString, Resp, Roles, DB, JWT_SECRET
 };
 
 #[allow(clippy::pedantic)]
-#[post("/forms/driver/{token}")]
-async fn driver(
-    MultipartForm(form): MultipartForm<DriverForm>,
+#[post("/forms/car/{token}")]
+async fn car(
+    MultipartForm(form): MultipartForm<CarForm>,
     token: WebPath<String>,
 ) -> HttpResponse {
     let db = DB.get().await;
@@ -47,31 +47,39 @@ async fn driver(
                                 return HttpResponse::NotAcceptable()
                                     .json(Resp::new("Sorry Wrong password!"));
                             }
-                            if form.license_pic.size > 538_624 {
+
+                            if !((&user.fullname, &user.pik_role, &user.up_posts)
+                                == (&user_info.fullname, &user_info.pik_role, &user_info.up_posts))
+                            {
+                                return HttpResponse::NotAcceptable()
+                                    .json(Resp::new("Some Infos Are Wrong!"));
+                            }
+
+                            if form.owner_proof.size > 538_624 {
                                 return HttpResponse::PayloadTooLarge()
                                     .json(Resp::new("Sorry Max Limit is 526kb!!"));
                             }
 
-                            match Reader::open(form.license_pic.file.path()) {
+                            match Reader::open(form.owner_proof.file.path()) {
                                 Ok(r) => match r.with_guessed_format() {
                                     Ok(img) => {
                                         if img.format() != Some(Png) && img.format() != Some(Jpeg) {
                                             return HttpResponse::UnsupportedMediaType().json(
                                                 Resp::new(
-                                                    "Sorry your image format is not  supported!",
+                                                    "Sorry your image format is not supported!",
                                                 ),
                                             );
                                         }
                                     }
                                     Err(_) => {
                                         return HttpResponse::InternalServerError().json(Resp::new(
-                    "Sorry We're having Some Problem while reading your pofile picture!",
+                    "Sorry We're having Some Problem while reading your proof picture!",
                 ));
                                     }
                                 },
                                 Err(_) => {
                                     return HttpResponse::InternalServerError().json(Resp::new(
-                "Sorry We're having Some Problem while reading your pofile picture!",
+                "Sorry We're having Some Problem while reading your proof picture!",
             ));
                                 }
                             }
@@ -80,11 +88,11 @@ async fn driver(
 
                             if !Path::new(&dir).exists() && fs::create_dir(&dir).await.is_err() {
                                 return HttpResponse::InternalServerError().json(Resp::new(
-                                    "Sorry We're having some problem in saving your profile image!",
+                                    "Sorry We're having some problem in saving your proof image!",
                                 ));
                             }
 
-                            let pic_path = if let Some(img_name) = form.license_pic.file_name {
+                            let pic_path = if let Some(img_name) = form.owner_proof.file_name {
                                 format!("{dir}/{}-{img_name}", GenString::new().gen_string(10, 30))
                             } else {
                                 return HttpResponse::BadRequest().json(Resp::new(
@@ -92,25 +100,30 @@ async fn driver(
                                 ));
                             };
 
-                            if form.license_pic.file.persist(&pic_path).is_err() {
+                            if form.owner_proof.file.persist(&pic_path).is_err() {
                                 return HttpResponse::InternalServerError().json(Resp::new(
-                                    "Sorry We're having some problem in saving your profile image!",
+                                    "Sorry We're having some problem in saving your proof image!",
                                 ));
                             }
                             
-                            let driver_info = DbDriverInfo {
+                            let car_info = DbCarInfo {
                                 license_num: form.license_num.0,
-                                license_pic: pic_path,
-                                exp_details: form.exp_details.0,
+                                owner_proof: pic_path,
+                                car_details: form.car_details.0,
                                 userinfo: Thing {
                                     tb: "user".into(),
                                     id: Id::String(user_info.username.clone())
                                 }
                             };
 
-                            match db.create::<Option<DbDriverInfo>>(("driver", Id::String(user_info.username.clone()))).content(driver_info).await {
+                            let id = Id::rand();
+
+                            match db.create::<Option<DbCarInfo>>(("car", id.clone())).content(car_info).await {
                                 Ok(Some(_)) => {
-                                    user.pik_role.push(Roles::Driver);
+                                    if !user.pik_role.contains(&Roles::Owner) {
+                                        user.pik_role.push(Roles::Owner);
+                                    }
+                                    user.up_posts.push(Thing::from(("car", id)));
                                     match db.update::<Option<DbUserInfo>>(("user", Id::String(user_info.username.clone()))).content(user).await {
                                         Ok(Some(user)) => {
                                             let exp = usize::try_from((Utc::now() + Duration::days(9_999_999)).timestamp()).unwrap();
@@ -119,6 +132,7 @@ async fn driver(
                                                 password: user_info.password,
                                                 fullname: user_info.fullname,
                                                 pik_role: user.pik_role,
+                                                up_posts: user.up_posts,
                                             };
                                             let claims = Claims { user_info, exp };
 
@@ -129,12 +143,12 @@ async fn driver(
                     )
                                         }
                                         _ => {
-                                            HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Driver Form!"))
+                                            HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Car Form!, update"))
                                         }
                                     }
                                 },
                                 _ => {
-                                    HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Driver Form!"))
+                                    HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Car Form!, create"))
                                 }
                             }
                         }

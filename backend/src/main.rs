@@ -2,7 +2,7 @@ use actix_cors::Cors;
 use actix_multipart::form::tempfile::TempFileConfig;
 use actix_web::{App, HttpServer};
 use auth::{delete::delete, login::login, signup::signup};
-use acc::{driver::driver, car::car};
+use post::{driver::driver, car::car, package::package};
 use structures::get_cache_dir;
 use tokio::fs;
 use std::{io::Result, path::Path};
@@ -11,7 +11,7 @@ mod auth;
 mod gen_salt;
 mod structures;
 mod fetch;
-mod acc;
+mod post;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
@@ -28,6 +28,7 @@ async fn main() -> Result<()> {
             .service(delete)
             .service(driver)
             .service(car)
+            .service(package)
             .wrap(cors)
     })
     .bind(("127.0.0.1", 8090))?

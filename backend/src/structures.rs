@@ -39,7 +39,7 @@ pub static ARGON_CONFIG: Config = {
 pub const JWT_SECRET: &[u8] =
     "kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes();
 
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum Roles {
     Owner,
     Driver,
@@ -58,12 +58,13 @@ pub struct Signup {
     pub password: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize)]
 pub struct DbUserInfo {
     pub username: String,
     pub fullname: String,
     pub password: String,
     pub pik_role: Vec<Roles>,
+    pub up_posts: Vec<Thing>
 }
 
 #[derive(Serialize, Deserialize)]
@@ -81,7 +82,7 @@ pub struct DriverForm {
     pub exp_details: Text<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize)]
 pub struct DbCarInfo {
     pub license_num: String,
     pub owner_proof: String,
@@ -94,6 +95,27 @@ pub struct CarForm {
     pub license_num: Text<String>,
     pub owner_proof: TempFile,
     pub car_details: Text<String>,
+}
+
+#[derive(MultipartForm)]
+pub struct PackageForm {
+    pub package_name: Text<String>,
+    pub package_pic: TempFile,
+    pub pkg_details: Text<String>,
+    pub location_to_send: Text<String>,
+    pub location_of_package_rn: Text<String>,
+    pub expect_date_of_delivery: Text<String>
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct DbPackageInfo {
+    pub package_name: String,
+    pub package_pic: String,
+    pub pkg_details: String,
+    pub location_to_send: String,
+    pub location_of_package_rn: String,
+    pub expect_date_of_delivery: String,
+    pub userinfo: Thing
 }
 
 #[derive(Serialize, Deserialize)]

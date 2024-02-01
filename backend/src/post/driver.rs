@@ -13,7 +13,8 @@ use surrealdb::sql::{Id, Thing};
 use tokio::fs;
 
 use crate::structures::{
-    get_cache_dir, Claims, DbDriverInfo, DbUserInfo, DriverForm, GenString, Resp, Roles, DB, JWT_SECRET
+    get_cache_dir, Claims, DbDriverInfo, DbUserInfo, DriverForm, GenString, Resp, Roles, DB,
+    JWT_SECRET,
 };
 
 #[allow(clippy::pedantic)]
@@ -42,7 +43,8 @@ async fn driver(
             {
                 Ok(Some(mut user)) => {
                     if user.pik_role.contains(&Roles::Driver) {
-                        return HttpResponse::AlreadyReported().json(Resp::new("Sorry User has been already uploaded as driver!"));
+                        return HttpResponse::AlreadyReported()
+                            .json(Resp::new("Sorry User has been already uploaded as driver!"));
                     }
                     match verify_encoded(&user.password, user_info.password.as_bytes()) {
                         Ok(stat) => {
@@ -50,9 +52,13 @@ async fn driver(
                                 return HttpResponse::NotAcceptable()
                                     .json(Resp::new("Sorry Wrong password!"));
                             }
-                            
+
                             if !((&user.fullname, &user.pik_role, &user.up_posts)
-                                == (&user_info.fullname, &user_info.pik_role, &user_info.up_posts))
+                                == (
+                                    &user_info.fullname,
+                                    &user_info.pik_role,
+                                    &user_info.up_posts,
+                                ))
                             {
                                 return HttpResponse::NotAcceptable()
                                     .json(Resp::new("Some Infos Are Wrong!"));
@@ -96,30 +102,39 @@ async fn driver(
                             }
 
                             let pic_path = if let Some(img_name) = form.license_pic.file_name {
-                                format!("{dir}/{}-{img_name}", GenString::new().gen_string(10, 30))
+                                let full_img_name =
+                                    format!("{}-{img_name}", GenString::new().gen_string(10, 30));
+                                (format!("{dir}/{full_img_name}"), full_img_name)
                             } else {
                                 return HttpResponse::BadRequest().json(Resp::new(
                                     "Sorry You have to provide the name of the image!",
                                 ));
                             };
 
-                            if form.license_pic.file.persist(&pic_path).is_err() {
+                            if form.license_pic.file.persist(&pic_path.0).is_err() {
                                 return HttpResponse::InternalServerError().json(Resp::new(
                                     "Sorry We're having some problem in saving your profile image!",
                                 ));
                             }
-                            
+
                             let driver_info = DbDriverInfo {
                                 license_num: form.license_num.0,
-                                license_pic: pic_path,
+                                license_pic: pic_path.1,
                                 exp_details: form.exp_details.0,
                                 userinfo: Thing {
                                     tb: "user".into(),
-                                    id: Id::String(user_info.username.clone())
-                                }
+                                    id: Id::String(user_info.username.clone()),
+                                },
                             };
 
-                            match db.create::<Option<DbDriverInfo>>(("driver", Id::String(user_info.username.clone()))).content(driver_info).await {
+                            match db
+                                .create::<Option<DbDriverInfo>>((
+                                    "driver",
+                                    Id::String(user_info.username.clone()),
+                                ))
+                                .content(driver_info)
+                                .await
+                            {
                                 Ok(Some(_)) => {
                                     user.pik_role.push(Roles::Driver);
                                     match db.update::<Option<DbUserInfo>>(("user", Id::String(user_info.username.clone()))).content(user).await {
@@ -144,31 +159,23 @@ async fn driver(
                                             HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Driver Form!"))
                                         }
                                     }
-                                },
-                                _ => {
-                                    HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Driver Form!"))
                                 }
+                                _ => HttpResponse::InternalServerError().json(Resp::new(
+                                    "Sorry Something Went Wrong While Uploading Driver Form!",
+                                )),
                             }
                         }
-                        Err(_) => {
-                            HttpResponse::InternalServerError().json(Resp::new(
-                                "Sorry Something Went Wrong While Checking Your Password!",
-                            ))
-                        }
+                        Err(_) => HttpResponse::InternalServerError().json(Resp::new(
+                            "Sorry Something Went Wrong While Checking Your Password!",
+                        )),
                     }
                 }
-                Ok(None) => {
-                   HttpResponse::NotFound().json(Resp::new("User Not Found!"))
-                }
-                Err(_) => {
-                     HttpResponse::InternalServerError().json(Resp::new(
-                        "Sorry Something Went Wrong While Checking Your Account!",
-                    ))
-                }
+                Ok(None) => HttpResponse::NotFound().json(Resp::new("User Not Found!")),
+                Err(_) => HttpResponse::InternalServerError().json(Resp::new(
+                    "Sorry Something Went Wrong While Checking Your Account!",
+                )),
             }
         }
-        Err(_) => {
-            HttpResponse::InternalServerError().json(Resp::new("Sorry Wrong Token!"))
-        }
+        Err(_) => HttpResponse::InternalServerError().json(Resp::new("Sorry Wrong Token!")),
     }
 }

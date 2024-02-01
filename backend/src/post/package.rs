@@ -13,7 +13,7 @@ use surrealdb::sql::{Id, Thing};
 use tokio::fs;
 
 use crate::structures::{
-    get_cache_dir, Claims, DbPackageInfo, DbUserInfo, GenString, PackageForm, Resp, DB, JWT_SECRET
+    get_cache_dir, Claims, DbPackageInfo, DbUserInfo, GenString, PackageForm, Resp, DB, JWT_SECRET,
 };
 
 #[allow(clippy::pedantic)]
@@ -49,7 +49,11 @@ async fn package(
                             }
 
                             if !((&user.fullname, &user.pik_role, &user.up_posts)
-                                == (&user_info.fullname, &user_info.pik_role, &user_info.up_posts))
+                                == (
+                                    &user_info.fullname,
+                                    &user_info.pik_role,
+                                    &user_info.up_posts,
+                                ))
                             {
                                 return HttpResponse::NotAcceptable()
                                     .json(Resp::new("Some Infos Are Wrong!"));
@@ -93,40 +97,57 @@ async fn package(
                             }
 
                             let pic_path = if let Some(img_name) = form.package_pic.file_name {
-                                format!("{dir}/{}-{img_name}", GenString::new().gen_string(10, 30))
+                                let full_img_name =
+                                    format!("{}-{img_name}", GenString::new().gen_string(10, 30));
+                                (format!("{dir}/{full_img_name}"), full_img_name)
                             } else {
                                 return HttpResponse::BadRequest().json(Resp::new(
                                     "Sorry You have to provide the name of the image!",
                                 ));
                             };
 
-                            if form.package_pic.file.persist(&pic_path).is_err() {
+                            if form.package_pic.file.persist(&pic_path.0).is_err() {
                                 return HttpResponse::InternalServerError().json(Resp::new(
                                     "Sorry We're having some problem in saving your proof image!",
                                 ));
                             }
-                            
+
                             let package_info = DbPackageInfo {
                                 package_name: form.package_name.0,
-                                package_pic: pic_path,
+                                package_pic: pic_path.1,
                                 pkg_details: form.pkg_details.0,
-                                expect_date_of_delivery: form.expect_date_of_delivery.0,
-                                location_to_send: form.location_to_send.0,
-                                location_of_package_rn: form.location_of_package_rn.0,
+                                exp_date_to_send: form.exp_date_to_send.0,
+                                to_where: form.to_where.0,
+                                from_where: form.from_where.0,
                                 userinfo: Thing {
                                     tb: "user".into(),
-                                    id: Id::String(user_info.username.clone())
-                                }
+                                    id: Id::String(user_info.username.clone()),
+                                },
                             };
 
                             let id = Id::rand();
 
-                            match db.create::<Option<DbPackageInfo>>(("package", id.clone())).content(package_info).await {
+                            match db
+                                .create::<Option<DbPackageInfo>>(("package", id.clone()))
+                                .content(package_info)
+                                .await
+                            {
                                 Ok(Some(_)) => {
                                     user.up_posts.push(Thing::from(("package", id)));
-                                    match db.update::<Option<DbUserInfo>>(("user", Id::String(user_info.username.clone()))).content(user).await {
+                                    match db
+                                        .update::<Option<DbUserInfo>>((
+                                            "user",
+                                            Id::String(user_info.username.clone()),
+                                        ))
+                                        .content(user)
+                                        .await
+                                    {
                                         Ok(Some(user)) => {
-                                            let exp = usize::try_from((Utc::now() + Duration::days(9_999_999)).timestamp()).unwrap();
+                                            let exp = usize::try_from(
+                                                (Utc::now() + Duration::days(9_999_999))
+                                                    .timestamp(),
+                                            )
+                                            .unwrap();
                                             let user_info = DbUserInfo {
                                                 username: user_info.username,
                                                 password: user_info.password,
@@ -142,35 +163,27 @@ async fn package(
                                             |token| HttpResponse::Ok().json(Resp::new(&token)),
                     )
                                         }
-                                        _ => {
-                                            HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Car Form!"))
-                                        }
+                                        _ => HttpResponse::InternalServerError().json(Resp::new(
+                                            "Sorry Something Went Wrong While Uploading Car Form!",
+                                        )),
                                     }
-                                },
-                                _ => {
-                                    HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Car Form!"))
                                 }
+                                _ => HttpResponse::InternalServerError().json(Resp::new(
+                                    "Sorry Something Went Wrong While Uploading Car Form!",
+                                )),
                             }
                         }
-                        Err(_) => {
-                            HttpResponse::InternalServerError().json(Resp::new(
-                                "Sorry Something Went Wrong While Checking Your Password!",
-                            ))
-                        }
+                        Err(_) => HttpResponse::InternalServerError().json(Resp::new(
+                            "Sorry Something Went Wrong While Checking Your Password!",
+                        )),
                     }
                 }
-                Ok(None) => {
-                   HttpResponse::NotFound().json(Resp::new("User Not Found!"))
-                }
-                Err(_) => {
-                     HttpResponse::InternalServerError().json(Resp::new(
-                        "Sorry Something Went Wrong While Checking Your Account!",
-                    ))
-                }
+                Ok(None) => HttpResponse::NotFound().json(Resp::new("User Not Found!")),
+                Err(_) => HttpResponse::InternalServerError().json(Resp::new(
+                    "Sorry Something Went Wrong While Checking Your Account!",
+                )),
             }
         }
-        Err(_) => {
-            HttpResponse::InternalServerError().json(Resp::new("Sorry Wrong Token!"))
-        }
+        Err(_) => HttpResponse::InternalServerError().json(Resp::new("Sorry Wrong Token!")),
     }
 }

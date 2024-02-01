@@ -13,15 +13,12 @@ use surrealdb::sql::{Id, Thing};
 use tokio::fs;
 
 use crate::structures::{
-    get_cache_dir, CarForm, Claims, DbCarInfo, DbUserInfo, GenString, Resp, Roles, DB, JWT_SECRET
+    get_cache_dir, CarForm, Claims, DbCarInfo, DbUserInfo, GenString, Resp, Roles, DB, JWT_SECRET,
 };
 
 #[allow(clippy::pedantic)]
 #[post("/forms/car/{token}")]
-async fn car(
-    MultipartForm(form): MultipartForm<CarForm>,
-    token: WebPath<String>,
-) -> HttpResponse {
+async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>) -> HttpResponse {
     let db = DB.get().await;
     if db.use_ns("ns").use_db("db").await.is_err() {
         return HttpResponse::InternalServerError().json(Resp::new(
@@ -49,7 +46,11 @@ async fn car(
                             }
 
                             if !((&user.fullname, &user.pik_role, &user.up_posts)
-                                == (&user_info.fullname, &user_info.pik_role, &user_info.up_posts))
+                                == (
+                                    &user_info.fullname,
+                                    &user_info.pik_role,
+                                    &user_info.up_posts,
+                                ))
                             {
                                 return HttpResponse::NotAcceptable()
                                     .json(Resp::new("Some Infos Are Wrong!"));
@@ -93,32 +94,38 @@ async fn car(
                             }
 
                             let pic_path = if let Some(img_name) = form.owner_proof.file_name {
-                                format!("{dir}/{}-{img_name}", GenString::new().gen_string(10, 30))
+                                let full_img_name =
+                                    format!("{}-{img_name}", GenString::new().gen_string(10, 30));
+                                (format!("{dir}/{full_img_name}"), full_img_name)
                             } else {
                                 return HttpResponse::BadRequest().json(Resp::new(
                                     "Sorry You have to provide the name of the image!",
                                 ));
                             };
 
-                            if form.owner_proof.file.persist(&pic_path).is_err() {
+                            if form.owner_proof.file.persist(&pic_path.0).is_err() {
                                 return HttpResponse::InternalServerError().json(Resp::new(
                                     "Sorry We're having some problem in saving your proof image!",
                                 ));
                             }
-                            
+
                             let car_info = DbCarInfo {
                                 license_num: form.license_num.0,
-                                owner_proof: pic_path,
+                                owner_proof: pic_path.1,
                                 car_details: form.car_details.0,
                                 userinfo: Thing {
                                     tb: "user".into(),
-                                    id: Id::String(user_info.username.clone())
-                                }
+                                    id: Id::String(user_info.username.clone()),
+                                },
                             };
 
                             let id = Id::rand();
 
-                            match db.create::<Option<DbCarInfo>>(("car", id.clone())).content(car_info).await {
+                            match db
+                                .create::<Option<DbCarInfo>>(("car", id.clone()))
+                                .content(car_info)
+                                .await
+                            {
                                 Ok(Some(_)) => {
                                     if !user.pik_role.contains(&Roles::Owner) {
                                         user.pik_role.push(Roles::Owner);
@@ -146,31 +153,23 @@ async fn car(
                                             HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Car Form!, update"))
                                         }
                                     }
-                                },
-                                _ => {
-                                    HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Car Form!, create"))
                                 }
+                                _ => HttpResponse::InternalServerError().json(Resp::new(
+                                    "Sorry Something Went Wrong While Uploading Car Form!, create",
+                                )),
                             }
                         }
-                        Err(_) => {
-                            HttpResponse::InternalServerError().json(Resp::new(
-                                "Sorry Something Went Wrong While Checking Your Password!",
-                            ))
-                        }
+                        Err(_) => HttpResponse::InternalServerError().json(Resp::new(
+                            "Sorry Something Went Wrong While Checking Your Password!",
+                        )),
                     }
                 }
-                Ok(None) => {
-                   HttpResponse::NotFound().json(Resp::new("User Not Found!"))
-                }
-                Err(_) => {
-                     HttpResponse::InternalServerError().json(Resp::new(
-                        "Sorry Something Went Wrong While Checking Your Account!",
-                    ))
-                }
+                Ok(None) => HttpResponse::NotFound().json(Resp::new("User Not Found!")),
+                Err(_) => HttpResponse::InternalServerError().json(Resp::new(
+                    "Sorry Something Went Wrong While Checking Your Account!",
+                )),
             }
         }
-        Err(_) => {
-            HttpResponse::InternalServerError().json(Resp::new("Sorry Wrong Token!"))
-        }
+        Err(_) => HttpResponse::InternalServerError().json(Resp::new("Sorry Wrong Token!")),
     }
 }

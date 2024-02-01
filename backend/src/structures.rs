@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
+use actix_web::HttpResponse;
 use argon2::{Config, Variant, Version};
 use async_once::AsyncOnce;
 use directories::BaseDirs;
@@ -11,6 +12,7 @@ use rand::{
     Rng,
 };
 use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
 use surrealdb::{
     engine::local::{Db, File}, sql::Thing, Surreal
 };
@@ -67,7 +69,7 @@ pub struct DbUserInfo {
     pub up_posts: Vec<Thing>
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct DbDriverInfo {
     pub license_num: String,
     pub license_pic: String,
@@ -97,14 +99,22 @@ pub struct CarForm {
     pub car_details: Text<String>,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct CarPostForm {
+    pub car_id: String,
+    pub from_where: String,
+    pub to_where: String,
+    pub date_to_go: String
+}
+
 #[derive(MultipartForm)]
 pub struct PackageForm {
     pub package_name: Text<String>,
     pub package_pic: TempFile,
     pub pkg_details: Text<String>,
-    pub location_to_send: Text<String>,
-    pub location_of_package_rn: Text<String>,
-    pub expect_date_of_delivery: Text<String>
+    pub to_where: Text<String>,
+    pub from_where: Text<String>,
+    pub exp_date_to_send: Text<String>
 }
 
 #[derive(Serialize, Deserialize)]
@@ -112,9 +122,9 @@ pub struct DbPackageInfo {
     pub package_name: String,
     pub package_pic: String,
     pub pkg_details: String,
-    pub location_to_send: String,
-    pub location_of_package_rn: String,
-    pub expect_date_of_delivery: String,
+    pub to_where: String,
+    pub from_where: String,
+    pub exp_date_to_send: String,
     pub userinfo: Thing
 }
 
@@ -173,4 +183,36 @@ pub async fn get_cache_dir() -> String {
         fs::create_dir(&dir).await.unwrap();
     }
     dir
+}
+
+pub trait DbtoResp {
+    fn to_resp(&self) -> Value;
+    fn to_hresp(&self) -> HttpResponse {
+        HttpResponse::Ok().json(self.to_resp())
+    }
+}
+
+impl DbtoResp for DbDriverInfo {
+    fn to_resp(&self) -> Value {
+        json! ({
+            "username": self.userinfo.id,
+            "license_num": self.license_num,
+            "license_pic": format!("http://localhost:8090/pics/{}", self.license_pic),
+            "exp_details": self.exp_details
+        })
+    }
+}
+
+impl DbtoResp for DbPackageInfo {
+    fn to_resp(&self) -> Value {
+        json!({
+            "username": self.userinfo.id,
+            "package_name": self.package_name,
+            "package_pic": format!("http://localhost:8090/pics/{}", self.package_pic),
+            "pkg_details": self.pkg_details,
+            "to_where": self.to_where,
+            "from_where": self.from_where,
+            "exp_date_to_send": self.exp_date_to_send,
+        })
+    }
 }

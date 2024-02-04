@@ -48,13 +48,19 @@ async fn package(
                                     .json(Resp::new("Sorry Wrong password!"));
                             }
 
-                            if !((&user.fullname, &user.pik_role, &user.up_posts)
-                                == (
-                                    &user_info.fullname,
-                                    &user_info.pik_role,
-                                    &user_info.up_posts,
-                                ))
-                            {
+                            if !((
+                                &user.fullname,
+                                &user.pik_role,
+                                &user.car_posts,
+                                &user.pkg_posts,
+                                &user.own_cars,
+                            ) == (
+                                &user_info.fullname,
+                                &user_info.pik_role,
+                                &user_info.car_posts,
+                                &user_info.pkg_posts,
+                                &user_info.own_cars,
+                            )) {
                                 return HttpResponse::NotAcceptable()
                                     .json(Resp::new("Some Infos Are Wrong!"));
                             }
@@ -133,7 +139,7 @@ async fn package(
                                 .await
                             {
                                 Ok(Some(_)) => {
-                                    user.up_posts.push(Thing::from(("package", id)));
+                                    user.pkg_posts.push(Thing::from(("package", id)));
                                     match db
                                         .update::<Option<DbUserInfo>>((
                                             "user",
@@ -153,7 +159,9 @@ async fn package(
                                                 password: user_info.password,
                                                 fullname: user_info.fullname,
                                                 pik_role: user.pik_role,
-                                                up_posts: user.up_posts,
+                                                car_posts: user.car_posts,
+                                                pkg_posts: user.pkg_posts,
+                                                own_cars: user.own_cars,
                                             };
                                             let claims = Claims { user_info, exp };
 

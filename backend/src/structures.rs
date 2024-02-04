@@ -14,7 +14,7 @@ use rand::{
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use surrealdb::{
-    engine::local::{Db, File}, sql::Thing, Surreal
+    engine::local::{Db, File}, sql::{Id, Thing}, Surreal
 };
 use tokio::fs;
 
@@ -66,7 +66,9 @@ pub struct DbUserInfo {
     pub fullname: String,
     pub password: String,
     pub pik_role: Vec<Roles>,
-    pub up_posts: Vec<Thing>
+    pub own_cars: Vec<Thing>,
+    pub pkg_posts: Vec<Thing>,
+    pub car_posts: Vec<Thing> 
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -100,11 +102,26 @@ pub struct CarForm {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct DbCarPost {
+    pub userinfo: Thing,
+    pub car_info: Thing,
+    pub from_where: String,
+    pub to_where: String,
+    pub date_to_go: String
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct CarPostForm {
     pub car_id: String,
     pub from_where: String,
     pub to_where: String,
     pub date_to_go: String
+}
+
+impl CarPostForm {
+    pub fn to_db_post(&self, userinfo: &str) -> DbCarPost {
+        DbCarPost { userinfo: Thing::from(("user", Id::String(userinfo.into()))), car_info: Thing::from(("user", Id::String(self.car_id.to_string()))), to_where: self.to_where.to_string(), from_where: self.from_where.to_string(), date_to_go: self.date_to_go.to_string() }
+    }
 }
 
 #[derive(MultipartForm)]

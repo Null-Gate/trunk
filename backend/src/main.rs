@@ -13,6 +13,7 @@ mod gen_salt;
 mod structures;
 mod fetch;
 mod post;
+mod extra;
 
 #[actix_web::main]
 async fn main() -> Result<()> {

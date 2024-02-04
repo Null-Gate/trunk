@@ -34,7 +34,9 @@ pub async fn login(info: Json<Login>) -> HttpResponse {
                         fullname: user_info.fullname.clone(),
                         password: info.password.clone(),
                         pik_role: user_info.pik_role,
-                        up_posts: user_info.up_posts,
+                        car_posts: user_info.car_posts,
+                        pkg_posts: user_info.pkg_posts,
+                        own_cars: user_info.own_cars,
                     };
                     let claims = Claims {
                         user_info: token_userinfo,

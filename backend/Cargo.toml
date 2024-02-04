@@ -17,6 +17,12 @@ lto = true
 codegen-units = 1
 panic = 'abort'
 
+#[profile.release]
+#strip = true
+#opt-level = 3
+#lto = true
+#codegen-units = 1
+
 [dependencies]
 actix-cors = "0.7.0"
 actix-files = "0.6.5"

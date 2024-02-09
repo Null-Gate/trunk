@@ -1,4 +1,4 @@
-use actix_web::HttpResponse;
+use actix_web::{get, web::Path, HttpResponse};
 use argon2::verify_encoded;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use surrealdb::{engine::local::Db, sql::Id, Surreal};
@@ -45,4 +45,9 @@ pub async fn check_user(username: &str, db: &Surreal<Db>) -> Result<DbUserInfo, 
 
 pub fn encode_token(claims: &Claims) -> Result<String, HttpResponse> {
     encode(&Header::default(), claims, &EncodingKey::from_secret(JWT_SECRET)).map_or_else(|_| Err(HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Creating Token!"))), Ok)
+}
+
+#[get("/test_token/{token}")]
+pub async fn test_token(token: Path<String>) -> HttpResponse {
+    decode_token(token.as_str()).map_or_else(|e| e, |v| HttpResponse::Ok().json(v))
 }

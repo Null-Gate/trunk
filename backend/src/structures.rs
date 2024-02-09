@@ -220,6 +220,17 @@ impl DbtoResp for DbDriverInfo {
     }
 }
 
+impl DbtoResp for DbCarInfo {
+    fn to_resp(&self) -> Value {
+        json!({
+            "username": self.userinfo.id,
+            "license_num": self.license_num,
+            "owner_proof": format!("http://localhost:8090/pics/{}", self.owner_proof),
+            "car_details": self.car_details,
+        })
+    }
+}
+
 impl DbtoResp for DbPackageInfo {
     fn to_resp(&self) -> Value {
         json!({
@@ -230,6 +241,18 @@ impl DbtoResp for DbPackageInfo {
             "to_where": self.to_where,
             "from_where": self.from_where,
             "exp_date_to_send": self.exp_date_to_send,
+        })
+    }
+}
+
+impl DbtoResp for DbCarPost {
+    fn to_resp(&self) -> Value {
+        json!({
+            "username": self.userinfo.id,
+            "car_info": self.car_info.id,
+            "from_where": self.from_where,
+            "to_where": self.to_where,
+            "date_to_go": self.date_to_go
         })
     }
 }

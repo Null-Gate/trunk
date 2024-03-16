@@ -8,10 +8,13 @@ import {
   Box,
   Flex,
   PasswordInput,
+  Alert,
+  Text,
 } from "@mantine/core";
 
 import { signUp } from "../service/api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { IoIosWarning } from "react-icons/io";
 
 const SignUp = () => {
   const form = useForm({
@@ -48,7 +51,13 @@ const SignUp = () => {
   };
 
   return (
-    <Flex h={"100vh"} justify={"center"} align={"center"}>
+    <Flex
+      gap={15}
+      direction={"column"}
+      h={"70vh"}
+      justify={"center"}
+      align={"center"}
+    >
       <Box style={{ width: "100vw", maxWidth: 340 }} mx="auto">
         <form onSubmit={handleSubmit}>
           <TextInput
@@ -69,7 +78,7 @@ const SignUp = () => {
             {...form.getInputProps("password")}
           />
           <Group justify="center" mt="xl">
-            <Button type="submit" w={"100%"} disabled={isLoading}>
+            <Button color="lime" type="submit" w={"100%"} disabled={isLoading}>
               Sign-Up
             </Button>
           </Group>
@@ -83,6 +92,17 @@ const SignUp = () => {
           )}
         </form>
       </Box>
+      <Alert
+        variant="light"
+        color="lime"
+        title="Alert title"
+        icon={<IoIosWarning />}
+      >
+        Do you already have an account ?
+        <Text ml={"sm"} component={Link} to={"/login"} c="lime">
+          Login
+        </Text>
+      </Alert>
     </Flex>
   );
 };

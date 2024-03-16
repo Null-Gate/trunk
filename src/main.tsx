@@ -5,6 +5,8 @@ import { BrowserRouter } from "react-router-dom";
 import { MantineProvider, createTheme } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const theme = createTheme({
   breakpoints: {
@@ -20,6 +22,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <QueryClientProvider client={new QueryClient()}>
       <MantineProvider theme={theme}>
+        <ToastContainer />
         <App />
       </MantineProvider>
     </QueryClientProvider>

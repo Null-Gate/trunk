@@ -1,6 +1,6 @@
 import React from "react";
 import Path from "./routes/Path";
-import Layout from "./components/Layout";
+import Layout from "./pages/Layout";
 
 const App: React.FC = () => {
   return (

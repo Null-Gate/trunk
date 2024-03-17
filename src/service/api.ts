@@ -33,7 +33,7 @@ interface SetAvailableCarData {
   car_id: string;
   from_where: string;
   to_where: string;
-  date_to_go: string; 
+  date_to_go: string;
 }
 
 export const setAvailableCar = async ({
@@ -41,7 +41,7 @@ export const setAvailableCar = async ({
   token,
 }: {
   data: SetAvailableCarData;
-  token: string; 
+  token: string;
 }) => {
   const response = await axios.post(
     `http://127.0.0.1:8090/post/car/${token}`,
@@ -77,9 +77,14 @@ export const uploadPackage = async ({
   return response.data;
 };
 
-// Example Read (GET)
+// GET
 export const getUser = async (userName: unknown) => {
   const response = await axiosInstance.get(`fetch/user/${userName}`);
+  return response.data;
+};
+
+export const getNewFeed = async () => {
+  const response = await axiosInstance.get(`fetch/nf`);
   return response.data;
 };
 

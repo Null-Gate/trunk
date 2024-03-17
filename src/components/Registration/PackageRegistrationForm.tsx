@@ -58,7 +58,6 @@ const PackageRegistrationForm: React.FC<FunProps> = ({ close }) => {
   });
 
   const token = Cookies.get("token");
-  const userName = Cookies.get("name");
   const queryClient = useQueryClient();
 
   const {
@@ -68,8 +67,8 @@ const PackageRegistrationForm: React.FC<FunProps> = ({ close }) => {
     error,
   } = useMutation(uploadPackage, {
     onSuccess: (data) => {
-      queryClient.invalidateQueries(["userProfile", userName]);
-      // console.log(data);
+      queryClient.invalidateQueries(["userProfile"]);
+      console.log(data);
       Cookies.set("token", data.msg);
       notify("Upload your package successfully", "success");
       close();
@@ -97,6 +96,7 @@ const PackageRegistrationForm: React.FC<FunProps> = ({ close }) => {
 
       if (value instanceof Date) {
         formData.append(key, value.toISOString());
+        console.log(value.toISOString());
       } else if (value instanceof File || value instanceof Blob) {
         formData.append(key, value);
       } else if (value !== null && !(typeof value === "object")) {
@@ -169,7 +169,7 @@ const PackageRegistrationForm: React.FC<FunProps> = ({ close }) => {
         </Alert>
       )}
       <Group justify="right" mt="md">
-        <Button type="submit" loading={isLoading}>
+        <Button color="lime" type="submit" loading={isLoading}>
           Submit
         </Button>
       </Group>

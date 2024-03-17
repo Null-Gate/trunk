@@ -58,7 +58,7 @@ const CarForm: React.FC<FunProps> = ({ onSubmit }) => {
         mt="md"
       />
       <Group justify="right" mt="md">
-        <Button type="submit">Submit</Button>
+        <Button color={"lime"} type="submit">Submit</Button>
       </Group>
     </form>
   );

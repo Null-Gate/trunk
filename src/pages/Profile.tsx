@@ -29,46 +29,48 @@ const Profile = () => {
       </Text>
       {/* profile informaiton  */}
       <div className="flex flex-col gap-5 p-5">
-        <div className="flex justify-around items-center">
-          <Avatar
-            size="lg"
-            radius="sm"
-            src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png"
-          />
-
-          {/* user role  */}
-          <div className="flex gap-5">
-            {userInfo.pik_role.length === 0 ? (
-              <Badge color="red">Empty Role</Badge>
-            ) : (
-              userInfo?.pik_role?.map((el: undefined) => {
-                return (
-                  <Badge key={el} color="lime">
-                    {el}
-                  </Badge>
-                );
-              })
-            )}
+        {/* text information  */}
+        <div className="border p-5 flex justify-between shadow rounded">
+          <div className="flex justify-around items-center">
+            <Avatar
+              size="lg"
+              radius="sm"
+              src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png"
+            />
+          </div>
+          <div className="flex flex-col justify-around">
+            <Text
+              size="md"
+              fw={900}
+              variant="gradient"
+              gradient={{ from: "cyan", to: "lime", deg: 90 }}
+            >
+              Full Name - {userInfo?.fullname}
+            </Text>
+            <Text
+              size="md"
+              fw={900}
+              variant="gradient"
+              gradient={{ from: "cyan", to: "lime", deg: 90 }}
+            >
+              User Name - {userInfo?.username}
+            </Text>
           </div>
         </div>
-        {/* text information  */}
-        <div className="border p-5 flex flex-col gap-5 shadow rounded">
-          <Text
-            size="md"
-            fw={900}
-            variant="gradient"
-            gradient={{ from: "cyan", to: "lime", deg: 90 }}
-          >
-            Full Name - {userInfo?.fullname}
-          </Text>
-          <Text
-            size="md"
-            fw={900}
-            variant="gradient"
-            gradient={{ from: "cyan", to: "lime", deg: 90 }}
-          >
-            User Name - {userInfo?.username}
-          </Text>
+
+        {/* user role  */}
+        <div className="flex gap-5">
+          {userInfo.pik_role.length === 0 ? (
+            <Badge color="red">Empty Role Just User</Badge>
+          ) : (
+            userInfo?.pik_role?.map((el: undefined) => {
+              return (
+                <Badge key={el} color="lime">
+                  {el}
+                </Badge>
+              );
+            })
+          )}
         </div>
 
         <hr className="shadow-md" />

@@ -1,4 +1,6 @@
 export type NewFeedItem = {
+  exp_date_to_send: string;
+  package_pic: string;
   username: { String: string };
   pkg_details: string;
   package_name: string;

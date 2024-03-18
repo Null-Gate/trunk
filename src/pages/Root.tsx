@@ -70,7 +70,7 @@ const Root: React.FC = () => {
         return item.car_info ? (
           <CarPostCard key={index} item={item} />
         ) : item.pkg_details ? (
-          <PackageCard key={index} item={item} />
+          <PackageCard key={index}  item={item} />
         ) : null;
       })}
     </div>

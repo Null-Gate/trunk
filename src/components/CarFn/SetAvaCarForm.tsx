@@ -26,7 +26,7 @@ const SetAvaCarForm: React.FC<SetAvaCarFormProps> = ({ onSubmit }) => {
   const { userInfo } = useUserStore((state: any) => ({
     userInfo: state.userInfo,
   }));
-  //   console.log(userInfo?.own_cars);
+  // console.log(userInfo?.own_cars);
 
   // Transform `userInfo?.own_cars` into a format suitable for the Select component
   const carOptions = useMemo(
@@ -35,17 +35,18 @@ const SetAvaCarForm: React.FC<SetAvaCarFormProps> = ({ onSubmit }) => {
         ?.filter((car: { is_available: boolean }) => car.is_available === false)
         .map(
           (car: {
+            car_id: { String: string };
             id: { id: { String: string } };
             license_num: string;
             is_available: boolean;
           }) => ({
-            value: car.id.id.String,
+            value: car.car_id.String,
             label: car.license_num,
           })
         ) || [],
     [userInfo?.own_cars]
   );
-  //   console.log(carOptions);
+  console.log(carOptions);
 
   // Handle change for input fields
   const handleChange =

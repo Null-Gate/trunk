@@ -52,7 +52,7 @@ const Root: React.FC = () => {
           formattedDate: formattedDate,
         };
       });
-      console.log(combinedData);
+      console.log(formattedCombinedData);
 
       setNewFeed(formattedCombinedData);
     },
@@ -67,9 +67,9 @@ const Root: React.FC = () => {
   return (
     <div className="flex flex-col p-5 gap-5">
       {newFeed.map((item: NewFeedItem, index: number) => {
-        return item.id.tb === "car_post" ? (
+        return item.car_info ? (
           <CarPostCard key={index} item={item} />
-        ) : item.id.tb === "package" ? (
+        ) : item.pkg_details ? (
           <PackageCard key={index} item={item} />
         ) : null;
       })}

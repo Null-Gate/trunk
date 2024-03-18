@@ -11,7 +11,7 @@ const Profile = () => {
     userInfo: state.userInfo,
   }));
 
-  // console.log(userInfo);
+  console.log(userInfo);
 
   return (
     <div className="p-3">
@@ -78,6 +78,8 @@ const Profile = () => {
         <div className="flex flex-col gap-5">
           {userInfo.own_cars?.map(
             (el: {
+              owner_proof: string;
+              car_id: { String: string };
               is_available: boolean;
               car_details: string;
               license_num: string;
@@ -87,12 +89,10 @@ const Profile = () => {
             }) => {
               return (
                 <AdventureCard
-                  key={el.id.id.String}
+                  key={el.car_id.String}
                   title={el.license_num}
                   description={el.car_details}
-                  image_url={
-                    "https://i.pinimg.com/564x/89/97/bf/8997bffdcdaa9d1948ad72767c560583.jpg"
-                  }
+                  image_url={el.owner_proof}
                   linkUrl={""}
                   is_avaiable={el.is_available}
                 />

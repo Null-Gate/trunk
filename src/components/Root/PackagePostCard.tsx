@@ -17,8 +17,8 @@ export const PackageCard: React.FC<PackageCardProps> = ({ item }) => (
     </Card.Section>
 
     <Group justify="space-between" mt="md" mb="xs">
-      <Text c="lime" fw={700}>
-        {item.userinfo.id.String}
+      <Text c="gray.7" fw={700}>
+        {item?.userinfo?.id?.String}
       </Text>
       <Badge color="lime" variant="light">
         {item.from_where} to {item.to_where}

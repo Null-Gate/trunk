@@ -17,6 +17,7 @@ const AdventureCard: React.FC<AdventureCardProps> = ({
   linkUrl,
   is_avaiable,
 }) => {
+  // console.log(is_avaiable)
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder>
       <Card.Section component="a" href={linkUrl}>
@@ -24,13 +25,13 @@ const AdventureCard: React.FC<AdventureCardProps> = ({
       </Card.Section>
 
       <Group justify="space-between" mt="md" mb="xs">
-        <Text w={500}>{title}</Text>
+        <Text c={"gray.6"} fw={1000} w={500}>License Number : {title}</Text>
         <Badge color={`${is_avaiable ? "lime" : "red"}`}>
           {is_avaiable ? "avaiable" : "not avaiable"}
         </Badge>
       </Group>
 
-      <Text size="sm" color="dimmed">
+      <Text size="sm" c="dimmed">
         {description}
       </Text>
 

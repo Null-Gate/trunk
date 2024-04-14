@@ -2,7 +2,7 @@ use std::path::Path;
 
 use actix_multipart::form::MultipartForm;
 use actix_web::{post, web::Path as WebPath, HttpResponse};
-use chrono::{Duration, Utc};
+use chrono::{TimeDelta, Utc};
 use image::{
     io::Reader,
     ImageFormat::{Jpeg, Png},
@@ -35,19 +35,19 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
             match check_user(&user_info.username, db).await {
                 Ok(mut user) => match verify_password(&user_info.password, &user.password) {
                     Ok(_) => {
-                        if !((
+                        if (
                             &user.fullname,
                             &user.pik_role,
                             &user.car_posts,
                             &user.own_cars,
                             &user.pkg_posts,
-                        ) == (
+                        ) != (
                             &user_info.fullname,
                             &user_info.pik_role,
                             &user_info.car_posts,
                             &user_info.own_cars,
                             &user_info.pkg_posts,
-                        )) {
+                        ) {
                             return HttpResponse::NotAcceptable()
                                 .json(Resp::new("Some Infos Are Wrong!"));
                         }
@@ -103,17 +103,19 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                             ));
                         }
 
+                        let id = Id::rand();
+
                         let car_info = DbCarInfo {
                             license_num: form.license_num.0,
+                            car_id: id.clone(),
                             owner_proof: pic_path.1,
                             car_details: form.car_details.0,
+                            is_available: false,
                             userinfo: Thing {
                                 tb: "user".into(),
                                 id: Id::String(user_info.username.clone()),
                             },
                         };
-
-                        let id = Id::rand();
 
                         match db
                             .create::<Option<DbCarInfo>>(("car", id.clone()))
@@ -127,15 +129,15 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                                 user.own_cars.push(Thing::from(("car", id)));
                                 match db.update::<Option<DbUserInfo>>(("user", Id::String(user_info.username.clone()))).content(user).await {
                                         Ok(Some(user)) => {
-                                            let exp = usize::try_from((Utc::now() + Duration::days(9_999_999)).timestamp()).unwrap();
+                                            let exp = usize::try_from((Utc::now() + TimeDelta::try_days(9_999_999).unwrap()).timestamp()).unwrap();
                                             let user_info = DbUserInfo {
                                                 username: user_info.username,
                                                 password: user_info.password,
                                                 fullname: user_info.fullname,
                                                 pik_role: user.pik_role,
-                                                car_posts: user_info.car_posts,
+                                                car_posts: user.car_posts,
                                                 own_cars: user.own_cars,
-                                                pkg_posts: user_info.pkg_posts
+                                                pkg_posts: user.pkg_posts
                                             };
                                             let claims = Claims { user_info, exp };
 

@@ -3,7 +3,7 @@ use std::path::Path;
 use actix_multipart::form::MultipartForm;
 use actix_web::{post, web::Path as WebPath, HttpResponse};
 use argon2::verify_encoded;
-use chrono::{Duration, Utc};
+use chrono::{TimeDelta, Utc};
 use image::{
     io::Reader,
     ImageFormat::{Jpeg, Png},
@@ -48,19 +48,19 @@ async fn package(
                                     .json(Resp::new("Sorry Wrong password!"));
                             }
 
-                            if !((
+                            if (
                                 &user.fullname,
                                 &user.pik_role,
                                 &user.car_posts,
                                 &user.pkg_posts,
                                 &user.own_cars,
-                            ) == (
+                            ) != (
                                 &user_info.fullname,
                                 &user_info.pik_role,
                                 &user_info.car_posts,
                                 &user_info.pkg_posts,
                                 &user_info.own_cars,
-                            )) {
+                            ) {
                                 return HttpResponse::NotAcceptable()
                                     .json(Resp::new("Some Infos Are Wrong!"));
                             }
@@ -150,8 +150,9 @@ async fn package(
                                     {
                                         Ok(Some(user)) => {
                                             let exp = usize::try_from(
-                                                (Utc::now() + Duration::days(9_999_999))
-                                                    .timestamp(),
+                                                (Utc::now()
+                                                    + TimeDelta::try_days(9_999_999).unwrap())
+                                                .timestamp(),
                                             )
                                             .unwrap();
                                             let user_info = DbUserInfo {

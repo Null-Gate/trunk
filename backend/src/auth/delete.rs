@@ -33,19 +33,19 @@ pub async fn delete(jwt: Path<String>) -> HttpResponse {
                                     .json(Resp::new("Sorry Wrong password!"));
                             }
 
-                            if !((
+                            if (
                                 user.fullname,
                                 user.pik_role,
                                 user.car_posts,
                                 user.pkg_posts,
                                 user.own_cars,
-                            ) == (
+                            ) != (
                                 user_info.fullname,
                                 user_info.pik_role,
                                 user_info.car_posts,
                                 user_info.pkg_posts,
                                 user_info.own_cars,
-                            )) {
+                            ) {
                                 return HttpResponse::NotAcceptable()
                                     .json(Resp::new("Some Infos Are Wrong!"));
                             }

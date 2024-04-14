@@ -7,8 +7,8 @@ edition = "2021"
 
 [lints.clippy]
 enum_glob_use = 'deny'
-pedantic = 'deny'
-nursery = 'deny'
+pedantic = { level = "deny", priority = -1 }
+nursery = { level = "deny", priority = -2 }
 
 [profile.release]
 strip = 'symbols'

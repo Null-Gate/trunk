@@ -14,7 +14,9 @@ use rand::{
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use surrealdb::{
-    engine::local::{Db, File}, sql::{Id, Thing}, Surreal
+    engine::local::{Db, File},
+    sql::{Id, Thing},
+    Surreal,
 };
 use tokio::fs;
 
@@ -60,7 +62,7 @@ pub struct Signup {
     pub password: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct DbUserInfo {
     pub username: String,
     pub fullname: String,
@@ -68,7 +70,7 @@ pub struct DbUserInfo {
     pub pik_role: Vec<Roles>,
     pub own_cars: Vec<Thing>,
     pub pkg_posts: Vec<Thing>,
-    pub car_posts: Vec<Thing> 
+    pub car_posts: Vec<Thing>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -76,7 +78,7 @@ pub struct DbDriverInfo {
     pub license_num: String,
     pub license_pic: String,
     pub exp_details: String,
-    pub userinfo: Thing
+    pub userinfo: Thing,
 }
 
 #[derive(MultipartForm)]
@@ -86,12 +88,14 @@ pub struct DriverForm {
     pub exp_details: Text<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct DbCarInfo {
+    pub car_id: Id,
     pub license_num: String,
     pub owner_proof: String,
     pub car_details: String,
-    pub userinfo: Thing
+    pub is_available: bool,
+    pub userinfo: Thing,
 }
 
 #[derive(MultipartForm)]
@@ -101,13 +105,13 @@ pub struct CarForm {
     pub car_details: Text<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct DbCarPost {
     pub userinfo: Thing,
     pub car_info: Thing,
     pub from_where: String,
     pub to_where: String,
-    pub date_to_go: String
+    pub date_to_go: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -115,12 +119,18 @@ pub struct CarPostForm {
     pub car_id: String,
     pub from_where: String,
     pub to_where: String,
-    pub date_to_go: String
+    pub date_to_go: String,
 }
 
 impl CarPostForm {
     pub fn to_db_post(&self, userinfo: &str) -> DbCarPost {
-        DbCarPost { userinfo: Thing::from(("user", Id::String(userinfo.into()))), car_info: Thing::from(("user", Id::String(self.car_id.to_string()))), to_where: self.to_where.to_string(), from_where: self.from_where.to_string(), date_to_go: self.date_to_go.to_string() }
+        DbCarPost {
+            userinfo: Thing::from(("user", Id::String(userinfo.into()))),
+            car_info: Thing::from(("car", Id::String(self.car_id.to_string()))),
+            to_where: self.to_where.to_string(),
+            from_where: self.from_where.to_string(),
+            date_to_go: self.date_to_go.to_string(),
+        }
     }
 }
 
@@ -131,7 +141,13 @@ pub struct PackageForm {
     pub pkg_details: Text<String>,
     pub to_where: Text<String>,
     pub from_where: Text<String>,
-    pub exp_date_to_send: Text<String>
+    pub exp_date_to_send: Text<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct NewFeed {
+    pub car_posts: Vec<Value>,
+    pub packages: Vec<Value>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -142,7 +158,7 @@ pub struct DbPackageInfo {
     pub to_where: String,
     pub from_where: String,
     pub exp_date_to_send: String,
-    pub userinfo: Thing
+    pub userinfo: Thing,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -224,6 +240,8 @@ impl DbtoResp for DbCarInfo {
     fn to_resp(&self) -> Value {
         json!({
             "username": self.userinfo.id,
+            "car_id": self.car_id,
+            "is_available": self.is_available,
             "license_num": self.license_num,
             "owner_proof": format!("http://localhost:8090/pics/{}", self.owner_proof),
             "car_details": self.car_details,
@@ -245,14 +263,31 @@ impl DbtoResp for DbPackageInfo {
     }
 }
 
-impl DbtoResp for DbCarPost {
-    fn to_resp(&self) -> Value {
-        json!({
+impl DbCarPost {
+    pub async fn to_resp(&self) -> Result<Value, HttpResponse> {
+        let db = DB.get().await;
+        if db.use_ns("ns").use_db("db").await.is_err() {
+            return Err(HttpResponse::InternalServerError().json(Resp::new(
+                "Sorry We are having some problem when opening our database!",
+            )));
+        }
+
+        let query = "SELECT * FROM type::thing($thing);";
+
+        let mut fetch_car_info = db
+            .query(query)
+            .bind(("thing", &self.car_info))
+            .await
+            .unwrap();
+
+        let car_info = fetch_car_info.take::<Option<DbCarInfo>>(0).unwrap();
+
+        Ok(json!({
             "username": self.userinfo.id,
-            "car_info": self.car_info.id,
+            "car_info": car_info.unwrap().to_resp(),
             "from_where": self.from_where,
             "to_where": self.to_where,
             "date_to_go": self.date_to_go
-        })
+        }))
     }
 }

@@ -12,15 +12,12 @@ pub async fn fetch_car(id: Path<String>) -> HttpResponse {
         ));
     }
 
-    match db.select::<Option<DbCarInfo>>(("car", Id::from(id.as_str()))).await {
-        Ok(Some(car)) => {
-            car.to_hresp()
-        },
-        Ok(None) => {
-            HttpResponse::NotFound().json("Car Not Found")
-        },
-        Err(_) => {
-            HttpResponse::InternalServerError().json("Sorry Went Wrong While Searching Car!")
-        }
+    match db
+        .select::<Option<DbCarInfo>>(("car", Id::from(id.as_str())))
+        .await
+    {
+        Ok(Some(car)) => car.to_hresp(),
+        Ok(None) => HttpResponse::NotFound().json("Car Not Found"),
+        Err(_) => HttpResponse::InternalServerError().json("Sorry Went Wrong While Searching Car!"),
     }
 }

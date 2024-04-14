@@ -44,7 +44,19 @@ pub async fn check_user(username: &str, db: &Surreal<Db>) -> Result<DbUserInfo, 
 }
 
 pub fn encode_token(claims: &Claims) -> Result<String, HttpResponse> {
-    encode(&Header::default(), claims, &EncodingKey::from_secret(JWT_SECRET)).map_or_else(|_| Err(HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Creating Token!"))), Ok)
+    encode(
+        &Header::default(),
+        claims,
+        &EncodingKey::from_secret(JWT_SECRET),
+    )
+    .map_or_else(
+        |_| {
+            Err(HttpResponse::InternalServerError().json(Resp::new(
+                "Sorry Something Went Wrong While Creating Token!",
+            )))
+        },
+        Ok,
+    )
 }
 
 #[get("/test_token/{token}")]

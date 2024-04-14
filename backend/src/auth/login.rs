@@ -1,7 +1,8 @@
 use actix_web::{post, web::Json, HttpResponse};
 use argon2::verify_encoded;
-use chrono::{Duration, Utc};
+use chrono::{TimeDelta, Utc};
 use jsonwebtoken::{encode, EncodingKey, Header};
+use serde_json::json;
 use surrealdb::sql::Id;
 
 use crate::structures::{Claims, DbUserInfo, Login, Resp, DB, JWT_SECRET};
@@ -27,19 +28,22 @@ pub async fn login(info: Json<Login>) -> HttpResponse {
                             .json(Resp::new("Sorry Wrong Password!"));
                     }
 
-                    let exp = usize::try_from((Utc::now() + Duration::days(9_999_999)).timestamp())
-                        .unwrap();
-                    let token_userinfo = DbUserInfo {
+                    let exp = usize::try_from(
+                        (Utc::now() + TimeDelta::try_days(9_999_999).unwrap()).timestamp(),
+                    )
+                    .unwrap();
+                    let mut token_userinfo = DbUserInfo {
                         username: user_info.username.clone(),
                         fullname: user_info.fullname.clone(),
                         password: info.password.clone(),
-                        pik_role: user_info.pik_role,
-                        car_posts: user_info.car_posts,
-                        pkg_posts: user_info.pkg_posts,
-                        own_cars: user_info.own_cars,
+                        pik_role: user_info.pik_role.clone(),
+                        car_posts: user_info.car_posts.clone(),
+                        pkg_posts: user_info.pkg_posts.clone(),
+                        own_cars: user_info.own_cars.clone(),
                     };
+
                     let claims = Claims {
-                        user_info: token_userinfo,
+                        user_info: token_userinfo.clone(),
                         exp,
                     };
                     encode(
@@ -53,7 +57,14 @@ pub async fn login(info: Json<Login>) -> HttpResponse {
                                 "Sorry We're Having Some Problem In Creating Your Account!",
                             ))
                         },
-                        |token| HttpResponse::Ok().json(Resp::new(&token)),
+                        |token| {
+                            token_userinfo.password = user_info.password;
+                            let value = json! ({
+                                "user_details": token_userinfo,
+                                "token": token,
+                            });
+                            HttpResponse::Ok().json(value)
+                        },
                     )
                 }
                 Err(_) => HttpResponse::InternalServerError().json(Resp::new(

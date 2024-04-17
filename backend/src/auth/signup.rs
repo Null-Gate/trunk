@@ -2,15 +2,16 @@ use actix_web::{post, web::Json, HttpResponse};
 use argon2::hash_encoded;
 use surrealdb::sql::Id;
 
-use crate::structures::{DbUserInfo, GenString, Resp, Signup, ARGON_CONFIG, DB};
+use crate::{
+    extra::internal_error,
+    structures::{DbUserInfo, GenString, Resp, Signup, ARGON_CONFIG, DB},
+};
 
 #[post("/sign_up")]
 pub async fn signup(info: Json<Signup>) -> HttpResponse {
     let db = DB.get().await;
-    if db.use_ns("ns").use_db("db").await.is_err() {
-        return HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry We are having some problem when opening our database!",
-        ));
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return internal_error(e);
     }
 
     let rand_salt = GenString::new().gen_string(20, 100);
@@ -22,10 +23,8 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
         Ok(Some(_)) => {
             return HttpResponse::NotAcceptable().json(Resp::new("User Already exits!"));
         }
-        Err(_) => {
-            return HttpResponse::InternalServerError().json(Resp::new(
-                "Sorry We're Having Some Problem In Creating Your Account!",
-            ));
+        Err(e) => {
+            return internal_error(e);
         }
         Ok(None) => {}
     }
@@ -52,13 +51,10 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
                 .await
             {
                 Ok(Some(_)) => HttpResponse::Ok().json(Resp::new("All Good Account Is Created!")),
-                _ => HttpResponse::InternalServerError().json(Resp::new(
-                    "Sorry We're Having Some Problem In Creating Your Account!",
-                )),
+                Ok(None) => internal_error("None User Error"),
+                Err(e) => internal_error(e),
             }
         }
-        Err(_) => HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry We're Having Some Problem In Creating Your Account!",
-        )),
+        Err(e) => internal_error(e),
     }
 }

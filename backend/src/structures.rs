@@ -21,6 +21,11 @@ use surrealdb::{
 use tokio::fs;
 
 lazy_static! {
+    pub static ref DATA_PATH: String = dotenvy::var("DATA_DIR").unwrap();
+    pub static ref SEIF: (String, u16) = (
+        dotenvy::var("TRUNK_HOST").unwrap(),
+        dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap()
+    );
     pub static ref DB: AsyncOnce<Surreal<Db>> = AsyncOnce::new(async {
         Surreal::new::<File>(format!("{}/db.db", get_cache_dir().await))
             .await
@@ -62,7 +67,7 @@ pub struct Signup {
     pub password: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct DbUserInfo {
     pub username: String,
     pub fullname: String,
@@ -84,6 +89,7 @@ pub struct DbDriverInfo {
 #[derive(MultipartForm)]
 pub struct DriverForm {
     pub license_num: Text<String>,
+    #[multipart(limit = "1 MiB")]
     pub license_pic: TempFile,
     pub exp_details: Text<String>,
 }
@@ -101,6 +107,7 @@ pub struct DbCarInfo {
 #[derive(MultipartForm)]
 pub struct CarForm {
     pub license_num: Text<String>,
+    #[multipart(limit = "1 MiB")]
     pub owner_proof: TempFile,
     pub car_details: Text<String>,
 }
@@ -137,6 +144,7 @@ impl CarPostForm {
 #[derive(MultipartForm)]
 pub struct PackageForm {
     pub package_name: Text<String>,
+    #[multipart(limit = "1 MiB")]
     pub package_pic: TempFile,
     pub pkg_details: Text<String>,
     pub to_where: Text<String>,

@@ -12,8 +12,12 @@ use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, 
 use surrealdb::sql::{Id, Thing};
 use tokio::fs;
 
-use crate::structures::{
-    get_cache_dir, Claims, DbPackageInfo, DbUserInfo, GenString, PackageForm, Resp, DB, JWT_SECRET,
+use crate::{
+    extra::internal_error,
+    structures::{
+        get_cache_dir, Claims, DbPackageInfo, DbUserInfo, GenString, PackageForm, Resp, DB,
+        JWT_SECRET,
+    },
 };
 
 #[allow(clippy::pedantic)]
@@ -23,10 +27,8 @@ async fn package(
     token: WebPath<String>,
 ) -> HttpResponse {
     let db = DB.get().await;
-    if db.use_ns("ns").use_db("db").await.is_err() {
-        return HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry We are having some problem when opening our database!",
-        ));
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return internal_error(e);
     }
 
     match decode::<Claims>(
@@ -48,26 +50,9 @@ async fn package(
                                     .json(Resp::new("Sorry Wrong password!"));
                             }
 
-                            if (
-                                &user.fullname,
-                                &user.pik_role,
-                                &user.car_posts,
-                                &user.pkg_posts,
-                                &user.own_cars,
-                            ) != (
-                                &user_info.fullname,
-                                &user_info.pik_role,
-                                &user_info.car_posts,
-                                &user_info.pkg_posts,
-                                &user_info.own_cars,
-                            ) {
+                            if user != user_info {
                                 return HttpResponse::NotAcceptable()
                                     .json(Resp::new("Some Infos Are Wrong!"));
-                            }
-
-                            if form.package_pic.size > 538_624 {
-                                return HttpResponse::PayloadTooLarge()
-                                    .json(Resp::new("Sorry Max Limit is 526kb!!"));
                             }
 
                             match Reader::open(form.package_pic.file.path()) {
@@ -81,16 +66,12 @@ async fn package(
                                             );
                                         }
                                     }
-                                    Err(_) => {
-                                        return HttpResponse::InternalServerError().json(Resp::new(
-                    "Sorry We're having Some Problem while reading your proof picture!",
-                ));
+                                    Err(e) => {
+                                        return internal_error(e);
                                     }
                                 },
-                                Err(_) => {
-                                    return HttpResponse::InternalServerError().json(Resp::new(
-                "Sorry We're having Some Problem while reading your proof picture!",
-            ));
+                                Err(e) => {
+                                    return internal_error(e);
                                 }
                             }
 

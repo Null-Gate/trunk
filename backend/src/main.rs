@@ -6,9 +6,10 @@ use auth::{delete::delete, login::login, signup::signup};
 use extra::test_token;
 use fetch::scope::fetch;
 use post::{ava_car::post_car, car::car, driver::driver, package::package};
-use std::{io::Result, path::Path};
-use structures::get_cache_dir;
+use std::path::Path;
+use structures::{DATA_PATH, SEIF};
 use tokio::fs;
+use tracing::Level;
 
 mod auth;
 mod extra;
@@ -18,12 +19,19 @@ mod post;
 mod structures;
 
 #[actix_web::main]
-async fn main() -> Result<()> {
-    let dir = format!("{}/user_assets", get_cache_dir().await);
+async fn main() -> std::io::Result<()> {
+    tracing_subscriber::fmt()
+        .with_max_level(Level::ERROR)
+        .pretty()
+        .with_ansi(true)
+        .with_file(true)
+        .with_line_number(true)
+        .init();
+    let dir = format!("{}/user_assets", DATA_PATH.as_str());
     if !Path::new(&dir).exists() {
-        fs::create_dir(&dir).await.unwrap();
+        fs::create_dir_all(&dir).await.unwrap();
     }
-    HttpServer::new(move || {
+    let _ = HttpServer::new(move || {
         let cors = Cors::permissive();
         App::new()
             .app_data(TempFileConfig::default().directory(&dir))
@@ -39,7 +47,8 @@ async fn main() -> Result<()> {
             .service(test_token)
             .wrap(cors)
     })
-    .bind(("127.0.0.1", 8090))?
+    .bind((SEIF.0.as_str(), SEIF.1))?
     .run()
-    .await
+    .await;
+    Ok(())
 }

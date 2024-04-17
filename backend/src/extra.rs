@@ -1,7 +1,10 @@
+use std::fmt::Display;
+
 use actix_web::{get, web::Path, HttpResponse};
 use argon2::verify_encoded;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use surrealdb::{engine::local::Db, sql::Id, Surreal};
+use tracing::error;
 
 use crate::structures::{Claims, DbUserInfo, Resp, JWT_SECRET};
 
@@ -12,7 +15,7 @@ pub fn decode_token(token: &str) -> Result<DbUserInfo, HttpResponse> {
         &Validation::new(Algorithm::HS256),
     ) {
         Ok(token_info) => Ok(token_info.claims.user_info),
-        Err(_) => Err(HttpResponse::InternalServerError().json(Resp::new("Sorry Wrong Token!"))),
+        Err(e) => Err(internal_error(e)),
     }
 }
 
@@ -24,9 +27,7 @@ pub fn verify_password(password: &str, hash: &str) -> Result<(), HttpResponse> {
             }
             Ok(())
         }
-        Err(_) => Err(HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry Something Went Wrong While Checking Your Account!",
-        ))),
+        Err(e) => Err(internal_error(e)),
     }
 }
 
@@ -37,9 +38,7 @@ pub async fn check_user(username: &str, db: &Surreal<Db>) -> Result<DbUserInfo, 
     {
         Ok(Some(user)) => Ok(user),
         Ok(None) => Err(HttpResponse::NotFound().json(Resp::new("Sorry User Not Found!"))),
-        Err(_) => Err(HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry Something Went Wrong While Checking Your Account!",
-        ))),
+        Err(e) => Err(internal_error(e)),
     }
 }
 
@@ -49,14 +48,12 @@ pub fn encode_token(claims: &Claims) -> Result<String, HttpResponse> {
         claims,
         &EncodingKey::from_secret(JWT_SECRET),
     )
-    .map_or_else(
-        |_| {
-            Err(HttpResponse::InternalServerError().json(Resp::new(
-                "Sorry Something Went Wrong While Creating Token!",
-            )))
-        },
-        Ok,
-    )
+    .map_or_else(|e| Err(internal_error(e)), Ok)
+}
+
+pub fn internal_error<T: Display>(e: T) -> HttpResponse {
+    error!("Error: {}", e);
+    HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong!"))
 }
 
 #[get("/test_token/{token}")]

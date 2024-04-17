@@ -12,9 +12,12 @@ use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, 
 use surrealdb::sql::{Id, Thing};
 use tokio::fs;
 
-use crate::structures::{
-    get_cache_dir, Claims, DbDriverInfo, DbUserInfo, DriverForm, GenString, Resp, Roles, DB,
-    JWT_SECRET,
+use crate::{
+    extra::internal_error,
+    structures::{
+        get_cache_dir, Claims, DbDriverInfo, DbUserInfo, DriverForm, GenString, Resp, Roles, DB,
+        JWT_SECRET,
+    },
 };
 
 #[allow(clippy::pedantic)]
@@ -24,10 +27,8 @@ async fn driver(
     token: WebPath<String>,
 ) -> HttpResponse {
     let db = DB.get().await;
-    if db.use_ns("ns").use_db("db").await.is_err() {
-        return HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry We are having some problem when opening our database!",
-        ));
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return internal_error(e);
     }
 
     match decode::<Claims>(
@@ -53,26 +54,9 @@ async fn driver(
                                     .json(Resp::new("Sorry Wrong password!"));
                             }
 
-                            if (
-                                &user.fullname,
-                                &user.pik_role,
-                                &user.car_posts,
-                                &user.pkg_posts,
-                                &user.own_cars,
-                            ) != (
-                                &user_info.fullname,
-                                &user_info.pik_role,
-                                &user_info.car_posts,
-                                &user_info.pkg_posts,
-                                &user_info.own_cars,
-                            ) {
+                            if user != user_info {
                                 return HttpResponse::NotAcceptable()
                                     .json(Resp::new("Some Infos Are Wrong!"));
-                            }
-
-                            if form.license_pic.size > 538_624 {
-                                return HttpResponse::PayloadTooLarge()
-                                    .json(Resp::new("Sorry Max Limit is 526kb!!"));
                             }
 
                             match Reader::open(form.license_pic.file.path()) {
@@ -86,25 +70,21 @@ async fn driver(
                                             );
                                         }
                                     }
-                                    Err(_) => {
-                                        return HttpResponse::InternalServerError().json(Resp::new(
-                    "Sorry We're having Some Problem while reading your pofile picture!",
-                ));
+                                    Err(e) => {
+                                        return internal_error(e);
                                     }
                                 },
-                                Err(_) => {
-                                    return HttpResponse::InternalServerError().json(Resp::new(
-                "Sorry We're having Some Problem while reading your pofile picture!",
-            ));
+                                Err(e) => {
+                                    return internal_error(e);
                                 }
                             }
 
                             let dir = format!("{}/user_assets", get_cache_dir().await);
 
-                            if !Path::new(&dir).exists() && fs::create_dir(&dir).await.is_err() {
-                                return HttpResponse::InternalServerError().json(Resp::new(
-                                    "Sorry We're having some problem in saving your profile image!",
-                                ));
+                            if !Path::new(&dir).exists() {
+                                if let Err(e) = fs::create_dir(&dir).await {
+                                    return internal_error(e);
+                                }
                             }
 
                             let pic_path = if let Some(img_name) = form.license_pic.file_name {
@@ -117,10 +97,8 @@ async fn driver(
                                 ));
                             };
 
-                            if form.license_pic.file.persist(&pic_path.0).is_err() {
-                                return HttpResponse::InternalServerError().json(Resp::new(
-                                    "Sorry We're having some problem in saving your profile image!",
-                                ));
+                            if let Err(e) = form.license_pic.file.persist(&pic_path.0) {
+                                return internal_error(e);
                             }
 
                             let driver_info = DbDriverInfo {
@@ -143,9 +121,21 @@ async fn driver(
                             {
                                 Ok(Some(_)) => {
                                     user.pik_role.push(Roles::Driver);
-                                    match db.update::<Option<DbUserInfo>>(("user", Id::String(user_info.username.clone()))).content(user).await {
+                                    match db
+                                        .update::<Option<DbUserInfo>>((
+                                            "user",
+                                            Id::String(user_info.username.clone()),
+                                        ))
+                                        .content(user)
+                                        .await
+                                    {
                                         Ok(Some(user)) => {
-                                            let exp = usize::try_from((Utc::now() + TimeDelta::try_days(9_999_999).unwrap()).timestamp()).unwrap();
+                                            let exp = usize::try_from(
+                                                (Utc::now()
+                                                    + TimeDelta::try_days(9_999_999).unwrap())
+                                                .timestamp(),
+                                            )
+                                            .unwrap();
                                             let user_info = DbUserInfo {
                                                 username: user_info.username,
                                                 password: user_info.password,
@@ -153,37 +143,34 @@ async fn driver(
                                                 pik_role: user.pik_role,
                                                 car_posts: user.car_posts,
                                                 pkg_posts: user.pkg_posts,
-                                                own_cars: user.own_cars
+                                                own_cars: user.own_cars,
                                             };
                                             let claims = Claims { user_info, exp };
 
-                                            encode(&Header::default(), &claims, &EncodingKey::from_secret(JWT_SECRET)).map_or_else(|_| {
-                                                HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem In Creating Your Account!"))
-                                            },
-                                            |token| HttpResponse::Ok().json(Resp::new(&token)),
-                    )
+                                            encode(
+                                                &Header::default(),
+                                                &claims,
+                                                &EncodingKey::from_secret(JWT_SECRET),
+                                            )
+                                            .map_or_else(internal_error, |token| {
+                                                HttpResponse::Ok().json(Resp::new(&token))
+                                            })
                                         }
-                                        _ => {
-                                            HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong While Uploading Driver Form!"))
-                                        }
+                                        Ok(None) => internal_error("None User Error"),
+                                        Err(e) => internal_error(e),
                                     }
                                 }
-                                _ => HttpResponse::InternalServerError().json(Resp::new(
-                                    "Sorry Something Went Wrong While Uploading Driver Form!",
-                                )),
+                                Ok(None) => internal_error("None Driver Error"),
+                                Err(e) => internal_error(e),
                             }
                         }
-                        Err(_) => HttpResponse::InternalServerError().json(Resp::new(
-                            "Sorry Something Went Wrong While Checking Your Password!",
-                        )),
+                        Err(e) => internal_error(e),
                     }
                 }
                 Ok(None) => HttpResponse::NotFound().json(Resp::new("User Not Found!")),
-                Err(_) => HttpResponse::InternalServerError().json(Resp::new(
-                    "Sorry Something Went Wrong While Checking Your Account!",
-                )),
+                Err(e) => internal_error(e),
             }
         }
-        Err(_) => HttpResponse::InternalServerError().json(Resp::new("Sorry Wrong Token!")),
+        Err(e) => internal_error(e),
     }
 }

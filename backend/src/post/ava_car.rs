@@ -7,7 +7,7 @@ use chrono::{TimeDelta, Utc};
 use surrealdb::sql::{Id, Thing};
 
 use crate::{
-    extra::{check_user, decode_token, encode_token, verify_password},
+    extra::{check_user, decode_token, encode_token, internal_error, verify_password},
     structures::{CarPostForm, Claims, DbCarPost, DbUserInfo, Resp, Roles, DB},
 };
 
@@ -15,28 +15,14 @@ use crate::{
 #[post("/post/car/{token}")]
 async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse {
     let db = DB.get().await;
-    if db.use_ns("ns").use_db("db").await.is_err() {
-        return HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry We are having some problem when opening our database!",
-        ));
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return internal_error(e);
     }
     match decode_token(&token) {
         Ok(user_info) => match check_user(&user_info.username, db).await {
             Ok(mut user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
-                    if (
-                        &user.fullname,
-                        &user.pik_role,
-                        &user.car_posts,
-                        &user.pkg_posts,
-                        &user.own_cars,
-                    ) != (
-                        &user_info.fullname,
-                        &user_info.pik_role,
-                        &user_info.car_posts,
-                        &user_info.pkg_posts,
-                        &user_info.own_cars,
-                    ) {
+                    if user != user_info {
                         return HttpResponse::NotAcceptable()
                             .json(Resp::new("Some Infos Are Wrong!"));
                     }
@@ -96,14 +82,12 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                         |token| HttpResponse::Ok().json(Resp::new(&token)),
                                     )
                                 }
-                                _ => HttpResponse::InternalServerError().json(Resp::new(
-                                    "Sorry Something Went Wrong While Updating Infos!",
-                                )),
+                                Ok(None) => internal_error("None User Error"),
+                                Err(e) => internal_error(e),
                             }
                         }
-                        _ => HttpResponse::InternalServerError().json(Resp::new(
-                            "Sorry Something Went Wrong While Uploading Your Car Post!",
-                        )),
+                        Ok(None) => internal_error("None Ava Car Error"),
+                        Err(e) => internal_error(e),
                     }
                 }
                 Err(e) => e,

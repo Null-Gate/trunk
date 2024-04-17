@@ -5,15 +5,16 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use serde_json::json;
 use surrealdb::sql::Id;
 
-use crate::structures::{Claims, DbUserInfo, Login, Resp, DB, JWT_SECRET};
+use crate::{
+    extra::internal_error,
+    structures::{Claims, DbUserInfo, Login, Resp, DB, JWT_SECRET},
+};
 
 #[post("/login")]
 pub async fn login(info: Json<Login>) -> HttpResponse {
     let db = DB.get().await;
-    if db.use_ns("ns").use_db("db").await.is_err() {
-        return HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry We are having some problem when opening our database!",
-        ));
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return internal_error(e);
     }
 
     match db
@@ -33,13 +34,13 @@ pub async fn login(info: Json<Login>) -> HttpResponse {
                     )
                     .unwrap();
                     let mut token_userinfo = DbUserInfo {
-                        username: user_info.username.clone(),
-                        fullname: user_info.fullname.clone(),
+                        username: user_info.username,
+                        fullname: user_info.fullname,
                         password: info.password.clone(),
-                        pik_role: user_info.pik_role.clone(),
-                        car_posts: user_info.car_posts.clone(),
-                        pkg_posts: user_info.pkg_posts.clone(),
-                        own_cars: user_info.own_cars.clone(),
+                        pik_role: user_info.pik_role,
+                        car_posts: user_info.car_posts,
+                        pkg_posts: user_info.pkg_posts,
+                        own_cars: user_info.own_cars,
                     };
 
                     let claims = Claims {
@@ -51,30 +52,19 @@ pub async fn login(info: Json<Login>) -> HttpResponse {
                         &claims,
                         &EncodingKey::from_secret(JWT_SECRET),
                     )
-                    .map_or_else(
-                        |_| {
-                            HttpResponse::InternalServerError().json(Resp::new(
-                                "Sorry We're Having Some Problem In Creating Your Account!",
-                            ))
-                        },
-                        |token| {
-                            token_userinfo.password = user_info.password;
-                            let value = json! ({
-                                "user_details": token_userinfo,
-                                "token": token,
-                            });
-                            HttpResponse::Ok().json(value)
-                        },
-                    )
+                    .map_or_else(internal_error, |token| {
+                        token_userinfo.password = user_info.password;
+                        let value = json! ({
+                            "user_details": token_userinfo,
+                            "token": token,
+                        });
+                        HttpResponse::Ok().json(value)
+                    })
                 }
-                Err(_) => HttpResponse::InternalServerError().json(Resp::new(
-                    "Sorry Something Went Wrong While Checking Your Password!",
-                )),
+                Err(e) => internal_error(e),
             }
         }
         Ok(None) => HttpResponse::Unauthorized().json(Resp::new("User Not Found!")),
-        Err(_) => HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry We're Having Some Problem in Searching Your Account!",
-        )),
+        Err(e) => internal_error(e),
     }
 }

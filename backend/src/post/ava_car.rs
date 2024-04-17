@@ -22,11 +22,6 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
         Ok(user_info) => match check_user(&user_info.username, db).await {
             Ok(mut user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
-                    if user != user_info {
-                        return HttpResponse::NotAcceptable()
-                            .json(Resp::new("Some Infos Are Wrong!"));
-                    }
-
                     if !(user.pik_role.contains(&Roles::Owner)
                         && user
                             .own_cars

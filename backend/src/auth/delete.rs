@@ -34,11 +34,6 @@ pub async fn delete(jwt: Path<String>) -> HttpResponse {
                                     .json(Resp::new("Sorry Wrong password!"));
                             }
 
-                            if user != user_info {
-                                return HttpResponse::NotAcceptable()
-                                    .json(Resp::new("Some Infos Are Wrong!"));
-                            }
-
                             match db
                                 .delete::<Option<DbUserInfo>>((
                                     "user",

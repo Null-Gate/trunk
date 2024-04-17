@@ -54,11 +54,6 @@ async fn driver(
                                     .json(Resp::new("Sorry Wrong password!"));
                             }
 
-                            if user != user_info {
-                                return HttpResponse::NotAcceptable()
-                                    .json(Resp::new("Some Infos Are Wrong!"));
-                            }
-
                             match Reader::open(form.license_pic.file.path()) {
                                 Ok(r) => match r.with_guessed_format() {
                                     Ok(img) => {

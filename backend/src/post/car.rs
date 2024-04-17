@@ -32,11 +32,6 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
         Ok(user_info) => match check_user(&user_info.username, db).await {
             Ok(mut user) => match verify_password(&user_info.password, &user.password) {
                 Ok(_) => {
-                    if user != user_info {
-                        return HttpResponse::NotAcceptable()
-                            .json(Resp::new("Some Infos Are Wrong!"));
-                    }
-
                     match Reader::open(form.owner_proof.file.path()) {
                         Ok(r) => match r.with_guessed_format() {
                             Ok(img) => {

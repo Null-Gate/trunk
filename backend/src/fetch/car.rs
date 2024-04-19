@@ -1,15 +1,16 @@
 use actix_web::{get, web::Path, HttpResponse};
 use surrealdb::sql::Id;
 
-use crate::structures::{DbCarInfo, DbtoResp, Resp, DB};
+use crate::{
+    extra::internal_error,
+    structures::{DbCarInfo, DbtoResp, DB},
+};
 
 #[get("/car/{id}")]
 pub async fn fetch_car(id: Path<String>) -> HttpResponse {
     let db = DB.get().await;
-    if db.use_ns("ns").use_db("db").await.is_err() {
-        return HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry We are having some problem when opening our database!",
-        ));
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return internal_error(e);
     }
 
     match db

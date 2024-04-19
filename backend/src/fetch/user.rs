@@ -2,15 +2,16 @@ use actix_web::{get, web::Path, HttpResponse};
 use serde_json::{json, Value};
 use surrealdb::sql::{Id, Thing};
 
-use crate::structures::{DbCarInfo, DbCarPost, DbPackageInfo, DbUserInfo, DbtoResp, Resp, DB};
+use crate::{
+    extra::internal_error,
+    structures::{DbCarInfo, DbCarPost, DbPackageInfo, DbUserInfo, DbtoResp, Resp, DB},
+};
 
 #[get("/user/{id}")]
 async fn fetch_user(id: Path<String>) -> HttpResponse {
     let db = DB.get().await;
-    if db.use_ns("ns").use_db("db").await.is_err() {
-        return HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry We are having some problem when opening our database!",
-        ));
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return internal_error(e);
     }
 
     match db
@@ -63,7 +64,6 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
             HttpResponse::Ok().json(ret_user)
         }
         Ok(None) => HttpResponse::NotFound().json("User Not Found!"),
-        Err(_) => HttpResponse::InternalServerError()
-            .json("Sorry Something Went Wrong While Searching User!"),
+        Err(e) => internal_error(e),
     }
 }

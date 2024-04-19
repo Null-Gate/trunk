@@ -54,9 +54,7 @@ pub async fn delete(jwt: Path<String>) -> HttpResponse {
                     }
                 }
                 Ok(None) => HttpResponse::NoContent().json(Resp::new("No Userfound Not Deleted!")),
-                Err(_) => HttpResponse::InternalServerError().json(Resp::new(
-                    "Something Went Wrong While Checking Your Account Info!",
-                )),
+                Err(e) => internal_error(e),
             }
         }
         Err(_) => HttpResponse::NotAcceptable().json(Resp::new("Sorry Wrong Token!")),

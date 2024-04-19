@@ -20,6 +20,7 @@ mod structures;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    color_eyre::install().unwrap();
     tracing_subscriber::fmt()
         .with_max_level(Level::ERROR)
         .pretty()

@@ -72,10 +72,10 @@ async fn package(
 
                             let dir = format!("{}/user_assets", get_cache_dir().await);
 
-                            if !Path::new(&dir).exists() && fs::create_dir(&dir).await.is_err() {
-                                return HttpResponse::InternalServerError().json(Resp::new(
-                                    "Sorry We're having some problem in saving your proof image!",
-                                ));
+                            if !Path::new(&dir).exists() {
+                                if let Err(e) = fs::create_dir(&dir).await {
+                                    return internal_error(e);
+                                }
                             }
 
                             let pic_path = if let Some(img_name) = form.package_pic.file_name {
@@ -88,10 +88,8 @@ async fn package(
                                 ));
                             };
 
-                            if form.package_pic.file.persist(&pic_path.0).is_err() {
-                                return HttpResponse::InternalServerError().json(Resp::new(
-                                    "Sorry We're having some problem in saving your proof image!",
-                                ));
+                            if let Err(e) = form.package_pic.file.persist(&pic_path.0) {
+                                return internal_error(e);
                             }
 
                             let package_info = DbPackageInfo {
@@ -142,33 +140,30 @@ async fn package(
                                             };
                                             let claims = Claims { user_info, exp };
 
-                                            encode(&Header::default(), &claims, &EncodingKey::from_secret(JWT_SECRET)).map_or_else(|_| {
-                                                HttpResponse::InternalServerError().json(Resp::new("Sorry We're Having Some Problem In Creating Your Account!"))
-                                            },
-                                            |token| HttpResponse::Ok().json(Resp::new(&token)),
-                    )
+                                            encode(
+                                                &Header::default(),
+                                                &claims,
+                                                &EncodingKey::from_secret(JWT_SECRET),
+                                            )
+                                            .map_or_else(internal_error, |token| {
+                                                HttpResponse::Ok().json(Resp::new(&token))
+                                            })
                                         }
-                                        _ => HttpResponse::InternalServerError().json(Resp::new(
-                                            "Sorry Something Went Wrong While Uploading Car Form!",
-                                        )),
+                                        Ok(None) => internal_error("None User Error"),
+                                        Err(e) => internal_error(e),
                                     }
                                 }
-                                _ => HttpResponse::InternalServerError().json(Resp::new(
-                                    "Sorry Something Went Wrong While Uploading Car Form!",
-                                )),
+                                Ok(None) => internal_error("None Car Error"),
+                                Err(e) => internal_error(e),
                             }
                         }
-                        Err(_) => HttpResponse::InternalServerError().json(Resp::new(
-                            "Sorry Something Went Wrong While Checking Your Password!",
-                        )),
+                        Err(e) => internal_error(e),
                     }
                 }
                 Ok(None) => HttpResponse::NotFound().json(Resp::new("User Not Found!")),
-                Err(_) => HttpResponse::InternalServerError().json(Resp::new(
-                    "Sorry Something Went Wrong While Checking Your Account!",
-                )),
+                Err(e) => internal_error(e),
             }
         }
-        Err(_) => HttpResponse::InternalServerError().json(Resp::new("Sorry Wrong Token!")),
+        Err(e) => internal_error(e),
     }
 }

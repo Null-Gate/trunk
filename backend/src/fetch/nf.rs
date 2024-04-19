@@ -1,14 +1,15 @@
 use actix_web::{get, HttpResponse};
 
-use crate::structures::{DbCarPost, NewFeed, Resp, DB};
+use crate::{
+    extra::internal_error,
+    structures::{DbCarPost, NewFeed, DB},
+};
 
 #[get("/nf")]
 pub async fn get_nf() -> HttpResponse {
     let db = DB.get().await;
-    if db.use_ns("ns").use_db("db").await.is_err() {
-        return HttpResponse::InternalServerError().json(Resp::new(
-            "Sorry We are having some problem when opening our database!",
-        ));
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return internal_error(e);
     }
 
     let car_postsql = "SELECT * FROM car_post ORDER BY RAND() LIMIT 50;";

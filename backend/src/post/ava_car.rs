@@ -25,7 +25,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                     if !(user.pik_role.contains(&Roles::Owner)
                         && user
                             .own_cars
-                            .contains(&Thing::from(("car", Id::from(&post.car_id)))))
+                            .contains(&Thing::from(("car", Id::String(post.car_id.to_string())))))
                     {
                         return HttpResponse::NotAcceptable().json("The Infos Are Wrong!");
                     }
@@ -44,14 +44,17 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                 .bind((
                                     "thing",
                                     Thing {
-                                        id: Id::from(&post.car_id),
+                                        id: Id::String(post.car_id.to_string()),
                                         tb: "car".into(),
                                     },
                                 ))
                                 .await
                                 .unwrap();
                             match db
-                                .update::<Option<DbUserInfo>>(("user", Id::from(&user.username)))
+                                .update::<Option<DbUserInfo>>((
+                                    "user",
+                                    Id::String(user.username.to_string()),
+                                ))
                                 .content(user)
                                 .await
                             {

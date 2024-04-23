@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{path::Path, sync::Arc};
 
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use actix_web::HttpResponse;
@@ -62,16 +62,16 @@ pub struct Claims {
 
 #[derive(Serialize, Deserialize)]
 pub struct Signup {
-    pub username: String,
-    pub fullname: String,
-    pub password: String,
+    pub username: Arc<str>,
+    pub fullname: Arc<str>,
+    pub password: Arc<str>,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct DbUserInfo {
-    pub username: String,
-    pub fullname: String,
-    pub password: String,
+    pub username: Arc<str>,
+    pub fullname: Arc<str>,
+    pub password: Arc<str>,
     pub pik_role: Vec<Roles>,
     pub own_cars: Vec<Thing>,
     pub pkg_posts: Vec<Thing>,
@@ -80,53 +80,53 @@ pub struct DbUserInfo {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DbDriverInfo {
-    pub license_num: String,
-    pub license_pic: String,
-    pub exp_details: String,
+    pub license_num: Arc<str>,
+    pub license_pic: Arc<str>,
+    pub exp_details: Arc<str>,
     pub userinfo: Thing,
 }
 
 #[derive(MultipartForm)]
 pub struct DriverForm {
-    pub license_num: Text<String>,
+    pub license_num: Text<Arc<str>>,
     #[multipart(limit = "1 MiB")]
     pub license_pic: TempFile,
-    pub exp_details: Text<String>,
+    pub exp_details: Text<Arc<str>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DbCarInfo {
     pub car_id: Id,
-    pub license_num: String,
-    pub owner_proof: String,
-    pub car_details: String,
+    pub license_num: Arc<str>,
+    pub owner_proof: Arc<str>,
+    pub car_details: Arc<str>,
     pub is_available: bool,
     pub userinfo: Thing,
 }
 
 #[derive(MultipartForm)]
 pub struct CarForm {
-    pub license_num: Text<String>,
+    pub license_num: Text<Arc<str>>,
     #[multipart(limit = "1 MiB")]
     pub owner_proof: TempFile,
-    pub car_details: Text<String>,
+    pub car_details: Text<Arc<str>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DbCarPost {
     pub userinfo: Thing,
     pub car_info: Thing,
-    pub from_where: String,
-    pub to_where: String,
-    pub date_to_go: String,
+    pub from_where: Arc<str>,
+    pub to_where: Arc<str>,
+    pub date_to_go: Arc<str>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct CarPostForm {
-    pub car_id: String,
-    pub from_where: String,
-    pub to_where: String,
-    pub date_to_go: String,
+    pub car_id: Arc<str>,
+    pub from_where: Arc<str>,
+    pub to_where: Arc<str>,
+    pub date_to_go: Arc<str>,
 }
 
 impl CarPostForm {
@@ -134,22 +134,22 @@ impl CarPostForm {
         DbCarPost {
             userinfo: Thing::from(("user", Id::String(userinfo.into()))),
             car_info: Thing::from(("car", Id::String(self.car_id.to_string()))),
-            to_where: self.to_where.to_string(),
-            from_where: self.from_where.to_string(),
-            date_to_go: self.date_to_go.to_string(),
+            to_where: self.to_where.clone(),
+            from_where: self.from_where.clone(),
+            date_to_go: self.date_to_go.clone(),
         }
     }
 }
 
 #[derive(MultipartForm)]
 pub struct PackageForm {
-    pub package_name: Text<String>,
+    pub package_name: Text<Arc<str>>,
     #[multipart(limit = "1 MiB")]
     pub package_pic: TempFile,
-    pub pkg_details: Text<String>,
-    pub to_where: Text<String>,
-    pub from_where: Text<String>,
-    pub exp_date_to_send: Text<String>,
+    pub pkg_details: Text<Arc<str>>,
+    pub to_where: Text<Arc<str>>,
+    pub from_where: Text<Arc<str>>,
+    pub exp_date_to_send: Text<Arc<str>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -160,19 +160,19 @@ pub struct NewFeed {
 
 #[derive(Serialize, Deserialize)]
 pub struct DbPackageInfo {
-    pub package_name: String,
-    pub package_pic: String,
-    pub pkg_details: String,
-    pub to_where: String,
-    pub from_where: String,
-    pub exp_date_to_send: String,
+    pub package_name: Arc<str>,
+    pub package_pic: Arc<str>,
+    pub pkg_details: Arc<str>,
+    pub to_where: Arc<str>,
+    pub from_where: Arc<str>,
+    pub exp_date_to_send: Arc<str>,
     pub userinfo: Thing,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Login {
-    pub username: String,
-    pub password: String,
+    pub username: Arc<str>,
+    pub password: Arc<str>,
 }
 
 #[derive(Serialize, Deserialize)]

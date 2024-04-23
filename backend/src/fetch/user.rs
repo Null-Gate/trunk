@@ -4,7 +4,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::internal_error,
-    structures::{DbCarInfo, DbCarPost, DbPackageInfo, DbUserInfo, DbtoResp, Resp, DB},
+    structures::{DbCarInfo, DbCarPost, DbPackageInfo, DbUserInfo, DbtoResp, DB},
 };
 
 #[get("/user/{id}")]

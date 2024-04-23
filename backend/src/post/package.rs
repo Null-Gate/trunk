@@ -39,7 +39,7 @@ async fn package(
         Ok(token_info) => {
             let user_info = token_info.claims.user_info;
             match db
-                .select::<Option<DbUserInfo>>(("user", Id::String(user_info.username.clone())))
+                .select::<Option<DbUserInfo>>(("user", Id::String(user_info.username.to_string())))
                 .await
             {
                 Ok(Some(mut user)) => {
@@ -94,14 +94,14 @@ async fn package(
 
                             let package_info = DbPackageInfo {
                                 package_name: form.package_name.0,
-                                package_pic: pic_path.1,
+                                package_pic: pic_path.1.into(),
                                 pkg_details: form.pkg_details.0,
                                 exp_date_to_send: form.exp_date_to_send.0,
                                 to_where: form.to_where.0,
                                 from_where: form.from_where.0,
                                 userinfo: Thing {
                                     tb: "user".into(),
-                                    id: Id::String(user_info.username.clone()),
+                                    id: Id::String(user_info.username.to_string()),
                                 },
                             };
 
@@ -117,7 +117,7 @@ async fn package(
                                     match db
                                         .update::<Option<DbUserInfo>>((
                                             "user",
-                                            Id::String(user_info.username.clone()),
+                                            Id::String(user_info.username.to_string()),
                                         ))
                                         .content(user)
                                         .await

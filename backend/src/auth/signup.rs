@@ -38,7 +38,7 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
             let user_info = DbUserInfo {
                 username: info.username.clone(),
                 fullname: info.fullname.clone(),
-                password: hash,
+                password: hash.into(),
                 pik_role: vec![],
                 car_posts: vec![],
                 pkg_posts: vec![],

@@ -77,12 +77,12 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                     let car_info = DbCarInfo {
                         license_num: form.license_num.0,
                         car_id: id.clone(),
-                        owner_proof: pic_path.1,
+                        owner_proof: pic_path.1.into(),
                         car_details: form.car_details.0,
                         is_available: false,
                         userinfo: Thing {
                             tb: "user".into(),
-                            id: Id::String(user_info.username.clone()),
+                            id: Id::String(user_info.username.to_string()),
                         },
                     };
 
@@ -99,7 +99,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                             match db
                                 .update::<Option<DbUserInfo>>((
                                     "user",
-                                    Id::String(user_info.username.clone()),
+                                    Id::String(user_info.username.to_string()),
                                 ))
                                 .content(user)
                                 .await

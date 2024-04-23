@@ -39,7 +39,7 @@ async fn driver(
         Ok(token_info) => {
             let user_info = token_info.claims.user_info;
             match db
-                .select::<Option<DbUserInfo>>(("user", Id::String(user_info.username.clone())))
+                .select::<Option<DbUserInfo>>(("user", Id::String(user_info.username.to_string())))
                 .await
             {
                 Ok(Some(mut user)) => {
@@ -97,19 +97,19 @@ async fn driver(
                             }
 
                             let driver_info = DbDriverInfo {
-                                license_num: form.license_num.0,
-                                license_pic: pic_path.1,
+                                license_num: form.license_num.into_inner(),
+                                license_pic: pic_path.1.into(),
                                 exp_details: form.exp_details.0,
                                 userinfo: Thing {
                                     tb: "user".into(),
-                                    id: Id::String(user_info.username.clone()),
+                                    id: Id::String(user_info.username.to_string()),
                                 },
                             };
 
                             match db
                                 .create::<Option<DbDriverInfo>>((
                                     "driver",
-                                    Id::String(user_info.username.clone()),
+                                    Id::String(user_info.username.to_string()),
                                 ))
                                 .content(driver_info)
                                 .await
@@ -119,7 +119,7 @@ async fn driver(
                                     match db
                                         .update::<Option<DbUserInfo>>((
                                             "user",
-                                            Id::String(user_info.username.clone()),
+                                            Id::String(user_info.username.to_string()),
                                         ))
                                         .content(user)
                                         .await

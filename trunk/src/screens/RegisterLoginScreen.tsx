@@ -1,7 +1,9 @@
 import {
     View,
     StyleSheet,
-    Dimensions
+    Dimensions,
+    KeyboardAvoidingView,
+    Platform
 } from "react-native";
 
 //react
@@ -12,7 +14,6 @@ import { GlobalStyles } from "../constants/styles";
 
 //icons
 import { AntDesign } from '@expo/vector-icons';
-import { EvilIcons } from '@expo/vector-icons';
 
 //components
 import CustomButton from "../components/CustomButton";
@@ -44,55 +45,60 @@ const RegisterLoginScreen = () => {
     }
 
     return (
-        <View style={styles.container}>
-            <Circles />
-            <View style={styles.formContainer}>
-                <Segment
-                    items={segmentItems}
-                    currentActive={activeContent}
-                    onChangeActive={handleActiveContent}
-                    style={{ marginBottom: 20 }}
-                />
-                <Input
-                    title="User Name"
-                    value={userName}
-                    onChangeValue={setUserName}
-                    icon={<AntDesign name="user" size={20} color="black" />}
-                    inputStyle={{ marginBottom: 20 }}
-                    placeholder="Maung Thar Kyaw"
-                />
-
-                <Input
-                    title="Password"
-                    value={password}
-                    onChangeValue={setPassword}
-                    icon={<AntDesign name="lock1" size={20} color="black" />}
-                    inputStyle={activeContent === 2 ? { marginBottom: 20 } : { marginBottom: 35 }}
-                    placeholder="password"
-                />
-
-                {activeContent === 2 && (
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+            <View style={{ flex: 1 }}>
+                <Circles />
+                <View style={styles.formContainer}>
+                    <Segment
+                        items={segmentItems}
+                        currentActive={activeContent}
+                        onChangeActive={handleActiveContent}
+                        style={{ marginBottom: 20 }}
+                    />
                     <Input
-                        title="Email"
-                        value={email}
-                        onChangeValue={setEmail}
-                        icon={<AntDesign name="mail" size={20} color="black" />}
-                        inputStyle={{ marginBottom: 35 }}
-                        placeholder="maungtharkyaw2520@gmail.com"
-                        keyboardType="email-address"
+                        title="User Name"
+                        value={userName}
+                        onChangeValue={setUserName}
+                        icon={<AntDesign name="user" size={20} color="black" />}
+                        inputStyle={{ marginBottom: 20 }}
+                        placeholder="Maung Thar Kyaw"
                     />
-                )}
 
-                <View style={styles.buttonContainer}>
-                    <CustomButton 
-                        title={activeContent === 2 ? "Register" : "Login"} 
-                        btnStyle={styles.button} 
+                    <Input
+                        title="Password"
+                        value={password}
+                        onChangeValue={setPassword}
+                        icon={<AntDesign name="lock1" size={20} color="black" />}
+                        inputStyle={activeContent === 2 ? { marginBottom: 20 } : { marginBottom: 35 }}
+                        placeholder="password"
                     />
+
+                    {activeContent === 2 && (
+                        <Input
+                            title="Email"
+                            value={email}
+                            onChangeValue={setEmail}
+                            icon={<AntDesign name="mail" size={20} color="black" />}
+                            inputStyle={{ marginBottom: 35 }}
+                            placeholder="maungtharkyaw2520@gmail.com"
+                            keyboardType="email-address"
+                        />
+                    )}
+
+                    <View style={styles.buttonContainer}>
+                        <CustomButton
+                            title={activeContent === 2 ? "Register" : "Login"}
+                            btnStyle={styles.button}
+                        />
+                    </View>
                 </View>
             </View>
 
 
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 

@@ -30,15 +30,16 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         return HttpResponse::NotAcceptable().json("The Infos Are Wrong!");
                     }
 
-                    let id = Id::rand();
-
                     match db
-                        .create::<Option<DbCarPost>>(("car_post", id.clone()))
+                        .create::<Option<DbCarPost>>(("car_post", post.car_id.to_string()))
                         .content(post.to_db_post(&user.username))
                         .await
                     {
                         Ok(Some(_)) => {
-                            user.car_posts.push(Thing::from(("car_post", id)));
+                            user.car_posts.push(Thing::from((
+                                "car_post",
+                                Id::String(post.car_id.to_string()),
+                            )));
                             let sql = "UPDATE type::thing($thing) SET is_available = true;";
                             db.query(sql)
                                 .bind((
@@ -50,6 +51,25 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                 ))
                                 .await
                                 .unwrap();
+                            /*let sql =
+                                "RELATE type::thing($usr_thing)->post->type::thing($car_thing);";
+                            db.query(sql)
+                                .bind((
+                                    "usr_thing",
+                                    Thing {
+                                        id: Id::String(user.username.to_string()),
+                                        tb: "user".into(),
+                                    },
+                                ))
+                                .bind((
+                                    "car_thing",
+                                    Thing {
+                                        id: Id::String(post.car_id.to_string()),
+                                        tb: "car".into(),
+                                    },
+                                ))
+                                .await
+                                .unwrap();*/
                             match db
                                 .update::<Option<DbUserInfo>>((
                                     "user",

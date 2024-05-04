@@ -20,6 +20,8 @@ use surrealdb::{
 };
 use tokio::fs;
 
+use crate::extra::internal_error;
+
 lazy_static! {
     pub static ref DATA_PATH: String = dotenvy::var("DATA_DIR").unwrap();
     pub static ref SEIF: (String, u16) = (
@@ -274,10 +276,8 @@ impl DbtoResp for DbPackageInfo {
 impl DbCarPost {
     pub async fn to_resp(&self) -> Result<Value, HttpResponse> {
         let db = DB.get().await;
-        if db.use_ns("ns").use_db("db").await.is_err() {
-            return Err(HttpResponse::InternalServerError().json(Resp::new(
-                "Sorry We are having some problem when opening our database!",
-            )));
+        if let Err(e) = db.use_ns("ns").use_db("db").await {
+            return Err(internal_error(e));
         }
 
         let query = "SELECT * FROM type::thing($thing);";

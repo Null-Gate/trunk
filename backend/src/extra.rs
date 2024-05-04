@@ -3,11 +3,10 @@ use std::fmt::Display;
 use actix_web::{get, web::Path, HttpResponse};
 use argon2::verify_encoded;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use serde_json::Value;
 use surrealdb::{engine::local::Db, sql::Id, Surreal};
 use tracing::error;
 
-use crate::structures::{Claims, DbUserInfo, Resp, DB, JWT_SECRET};
+use crate::structures::{Claims, DbUserInfo, Resp, JWT_SECRET};
 
 pub fn decode_token(token: &str) -> Result<DbUserInfo, HttpResponse> {
     match decode::<Claims>(
@@ -57,27 +56,12 @@ pub fn internal_error<T: Display>(e: T) -> HttpResponse {
     HttpResponse::InternalServerError().json(Resp::new("Sorry Something Went Wrong!"))
 }
 
-#[get("/test_token/{token}")]
-pub async fn test_token(_token: Path<String>) -> HttpResponse {
-    // decode_token(token.as_str()).map_or_else(|e| e, |v| HttpResponse::Ok().json(v))
-    let db = DB.get().await;
-    if let Err(e) = db.use_ns("ns").use_db("db").await {
-        return internal_error(e);
-    }
-    let sql = "CREATE user:itsk SET name = 'idk';";
-    let sql2 = "CREATE user:rissk SET name = 'bruh';";
-    let sql3 = "RELATE user:itsk->friend->user:rissk;";
-    let sql4 = "SELECT ->friend->user FROM user;";
+pub fn wserror<T: Display>(e: T) -> tokio_tungstenite::tungstenite::Error {
+    error!("Error: {}", e);
+    tokio_tungstenite::tungstenite::Error::AttackAttempt
+}
 
-    let mut smt = db
-        .query(sql)
-        .query(sql2)
-        .query(sql3)
-        .query(sql4)
-        .await
-        .unwrap();
-    let relate = smt.take::<Option<Value>>(2).unwrap();
-    //let relate_select = smt.take::<Option<Value>>(3).unwrap();
-    println!("{relate:?}\n{smt:?}");
-    todo!()
+#[get("/test_token/{token}")]
+pub async fn test_token(token: Path<String>) -> HttpResponse {
+    decode_token(token.as_str()).map_or_else(|e| e, |v| HttpResponse::Ok().json(v))
 }

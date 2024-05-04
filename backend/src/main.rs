@@ -4,7 +4,7 @@ use actix_multipart::form::tempfile::TempFileConfig;
 use actix_web::{App, HttpServer};
 use auth::{delete::delete, login::login, signup::signup};
 use extra::test_token;
-use fetch::scope::fetch;
+use fetch::{nf, scope::fetch};
 use post::{ava_car::post_car, car::car, driver::driver, package::package};
 use std::path::Path;
 use structures::{DATA_PATH, SEIF};
@@ -32,6 +32,7 @@ async fn main() -> std::io::Result<()> {
     if !Path::new(&dir).exists() {
         fs::create_dir_all(&dir).await.unwrap();
     }
+    tokio::spawn(nf::wserver());
     let _ = HttpServer::new(move || {
         let cors = Cors::permissive();
         App::new()

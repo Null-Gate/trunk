@@ -1,6 +1,7 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, time::Duration};
 
 use futures_util::{SinkExt, StreamExt};
+use surrealdb::Notification;
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::{
     accept_hdr_async,
@@ -12,7 +13,7 @@ use tokio_tungstenite::{
 
 use crate::{
     extra::wserror,
-    structures::{DbCarPost, NewFeed, DB},
+    structures::{DbCarPost, DbUserInfo, NewFeed, DB},
 };
 
 pub async fn wserver() {
@@ -52,18 +53,33 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                     if let Some(msg) = msg {
                             let msg = msg?;
                             if (msg.is_text() || msg.is_binary()) && msg.to_text().unwrap() == "start" {
-                         let nf = fnf().await.unwrap();
-        ws_sender.send(Message::text(serde_json::to_string_pretty(&nf).unwrap())).await.unwrap();
+                                let nf = fnf().await.unwrap();
+                                ws_sender.send(Message::text(serde_json::to_string_pretty(&nf).unwrap())).await.unwrap();
                             } else if msg.is_close() {
                                 break Ok(());
                             }
                     }
-                 }
+                }
              }
     }
 }
 
-pub async fn fnf() -> Result<NewFeed, Error> {
+pub async fn live_select() -> Result<DbUserInfo, Error> {
+    let db = DB.get().await;
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return Err(wserror(e));
+    }
+    let mut stream = db.select("person").live().await.unwrap();
+
+    while let Some(res) = stream.next().await {
+        let idk: Result<Notification<DbUserInfo>, surrealdb::Error> = res;
+        println!("{:?}", idk.unwrap());
+    }
+
+    todo!()
+}
+
+pub async fn fnf() -> Result<NewFeed, tokio_tungstenite::tungstenite::Error> {
     let db = DB.get().await;
     if let Err(e) = db.use_ns("ns").use_db("db").await {
         return Err(wserror(e));

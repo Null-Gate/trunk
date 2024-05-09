@@ -50,7 +50,7 @@ pub static ARGON_CONFIG: Config = {
 pub const JWT_SECRET: &[u8] =
     "kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes();
 
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Roles {
     Owner,
     Driver,
@@ -69,7 +69,7 @@ pub struct Signup {
     pub password: Arc<str>,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
 pub struct DbUserInfo {
     pub username: Arc<str>,
     pub fullname: Arc<str>,

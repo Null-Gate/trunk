@@ -1,7 +1,6 @@
-use std::{net::SocketAddr, time::Duration};
+use std::net::SocketAddr;
 
 use futures_util::{SinkExt, StreamExt};
-use surrealdb::Notification;
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::{
     accept_hdr_async,
@@ -13,7 +12,7 @@ use tokio_tungstenite::{
 
 use crate::{
     extra::wserror,
-    structures::{DbCarPost, DbUserInfo, NewFeed, DB},
+    structures::{DbCarPost, NewFeed, DB},
 };
 
 pub async fn wserver() {
@@ -64,20 +63,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
     }
 }
 
-pub async fn live_select() -> Result<DbUserInfo, Error> {
-    let db = DB.get().await;
-    if let Err(e) = db.use_ns("ns").use_db("db").await {
-        return Err(wserror(e));
-    }
-    let mut stream = db.select("person").live().await.unwrap();
 
-    while let Some(res) = stream.next().await {
-        let idk: Result<Notification<DbUserInfo>, surrealdb::Error> = res;
-        println!("{:?}", idk.unwrap());
-    }
-
-    todo!()
-}
 
 pub async fn fnf() -> Result<NewFeed, tokio_tungstenite::tungstenite::Error> {
     let db = DB.get().await;

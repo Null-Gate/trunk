@@ -1,7 +1,8 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 
 use futures_util::{SinkExt, StreamExt};
-use tokio::net::{TcpListener, TcpStream};
+use surrealdb::Notification;
+use tokio::{net::{TcpListener, TcpStream}, sync::Mutex};
 use tokio_tungstenite::{
     accept_hdr_async,
     tungstenite::{
@@ -11,8 +12,7 @@ use tokio_tungstenite::{
 };
 
 use crate::{
-    extra::wserror,
-    structures::{DbCarPost, NewFeed, DB},
+    extra::wserror, structures::{DbCarPost, DbUserInfo, NewFeed, DB}
 };
 
 pub async fn wserver() {
@@ -45,6 +45,9 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
     let ws_stream = accept_hdr_async(stream, callback).await.unwrap();
     println!("NWS Conn: {peer:?}");
     let (mut ws_sender, mut ws_receiver) = ws_stream.split();
+    let query_state = Arc::new(Mutex::new(true));
+    let query_result = Arc::new(Mutex::new(DbUserInfo::default()));
+    tokio::spawn(live_select_test(query_state.clone(), query_result.clone()));
 
     loop {
         tokio::select! {
@@ -63,7 +66,18 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
     }
 }
 
+pub async fn live_select_test(state: Arc<Mutex<bool>>, result: Arc<Mutex<DbUserInfo>>) {
+    let db = DB.get().await;
+    db.use_ns("ns").use_db("db").await.unwrap();
+    let mut stream = db.select("user").live().await.unwrap();
 
+    while let Some(res) = stream.next().await {
+        let idk: Result<Notification<DbUserInfo>, surrealdb::Error> = res;
+        println!("{:?}", idk.unwrap());
+    }
+
+    todo!()
+}
 
 pub async fn fnf() -> Result<NewFeed, tokio_tungstenite::tungstenite::Error> {
     let db = DB.get().await;

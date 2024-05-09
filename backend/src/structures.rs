@@ -80,6 +80,20 @@ pub struct DbUserInfo {
     pub car_posts: Vec<Thing>,
 }
 
+impl Default for DbUserInfo {
+    fn default() -> Self {
+        Self {
+            username: "".into(),
+            fullname: "".into(),
+            password: "".into(),
+            pik_role: vec![],
+            own_cars: vec![],
+            car_posts: vec![],
+            pkg_posts: vec![]
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DbDriverInfo {
     pub license_num: Arc<str>,

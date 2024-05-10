@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::{net::SocketAddr, sync::Arc, time::Duration};
 
 use futures_util::{SinkExt, StreamExt};
 use surrealdb::Notification;
@@ -12,7 +12,7 @@ use tokio_tungstenite::{
 };
 
 use crate::{
-    extra::wserror, structures::{DbCarPost, DbUserInfo, NewFeed, DB}
+    extra::wserror, structures::{DbCarPost, DbUserInfo, Event, NewFeed, WSResp, DB}
 };
 
 pub async fn wserver() {
@@ -45,8 +45,9 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
     let ws_stream = accept_hdr_async(stream, callback).await.unwrap();
     println!("NWS Conn: {peer:?}");
     let (mut ws_sender, mut ws_receiver) = ws_stream.split();
-    let query_state = Arc::new(Mutex::new(true));
+    let query_state = Arc::new(Mutex::new(false));
     let query_result = Arc::new(Mutex::new(DbUserInfo::default()));
+    let mut dur = tokio::time::interval(Duration::from_millis(10));
     tokio::spawn(live_select_test(query_state.clone(), query_result.clone()));
 
     loop {
@@ -55,28 +56,40 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                     if let Some(msg) = msg {
                             let msg = msg?;
                             if (msg.is_text() || msg.is_binary()) && msg.to_text().unwrap() == "start" {
-                                let nf = fnf().await.unwrap();
+                                let nf = WSResp{
+                                    event: Event::NewFeed,
+                                    data: fnf().await.unwrap()
+                                };
                                 ws_sender.send(Message::text(serde_json::to_string_pretty(&nf).unwrap())).await.unwrap();
                             } else if msg.is_close() {
                                 break Ok(());
                             }
                     }
-                }
-             }
+                 }
+                 _ = dur.tick() => {
+                     if *query_state.lock().await {
+                         let nt = WSResp{
+                             event: Event::Notification,
+                             data: query_result.lock().await.clone()
+                         };
+                         ws_sender.send(Message::text(serde_json::to_string_pretty(&nt).unwrap())).await.unwrap();
+                         *query_state.lock().await = false;
+                     }
+                 }
+        }
     }
 }
 
-pub async fn live_select_test(_state: Arc<Mutex<bool>>, _result: Arc<Mutex<DbUserInfo>>) {
+pub async fn live_select_test(state: Arc<Mutex<bool>>, result: Arc<Mutex<DbUserInfo>>) {
     let db = DB.get().await;
     db.use_ns("ns").use_db("db").await.unwrap();
     let mut stream = db.select("user").live().await.unwrap();
 
     while let Some(res) = stream.next().await {
         let idk: Result<Notification<DbUserInfo>, surrealdb::Error> = res;
-        println!("{:?}", idk.unwrap());
+        *state.lock().await = true;
+        *result.lock().await = idk.unwrap().data;
     }
-
-    todo!()
 }
 
 pub async fn fnf() -> Result<NewFeed, tokio_tungstenite::tungstenite::Error> {

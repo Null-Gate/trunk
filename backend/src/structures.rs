@@ -192,6 +192,18 @@ pub struct Login {
 }
 
 #[derive(Serialize, Deserialize)]
+pub enum Event {
+    Notification,
+    NewFeed,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct WSResp<T> {
+    pub event: Event,
+    pub data: T,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct Resp<'a> {
     msg: &'a str,
 }

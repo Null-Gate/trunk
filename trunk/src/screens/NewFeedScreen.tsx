@@ -1,42 +1,42 @@
 import {
     FlatList,
-    Modal,
+    Pressable,
     StyleSheet
 } from "react-native";
-import { useEffect, useState } from "react";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import { useNavigation } from "@react-navigation/native";
 
 //components
 import Layout from "../components/Layout";
 import Post from "../components/NewFeed/Post";
 import ImageModal from "../components/NewFeed/ImageModal";
-import ImageSlider from "../components/NewFeed/ImageSlider";
 
 //data
 import { POST_DATA } from "../config/posts";
 
 interface ImageModalInfo {
     modalVisible: boolean;
-    postId: number | string | null;
     pressedImgIndex: number | null;
+    post: any
 }
-
 
 const NewFeedScreen = () => {
     const [imageModalInfo, setImageModalInfo] = useState<ImageModalInfo>({
         modalVisible: false,
-        postId: null,
         pressedImgIndex: null,
-      });
+        post: null
+    });
+    const navigation = useNavigation<any>();
 
     const closeImageModal = () => {
-        setImageModalInfo( prevInfo => {
+        setImageModalInfo(prevInfo => {
             const newInfo = {
                 ...prevInfo,
                 modalVisible: false,
-                postId: null,
-                pressedImgIndex: null
+                pressedImgIndex: null,
+                post: null
             }
             return newInfo;
         })
@@ -46,16 +46,23 @@ const NewFeedScreen = () => {
         postId: number | string,
         pressedImgIndex: number
     ) => {
-        setImageModalInfo( prevInfo => {
+        const selectedPost = POST_DATA.filter(post => post.id === postId)[0];
+        setImageModalInfo(prevInfo => {
             const newInfo = {
                 ...prevInfo,
                 modalVisible: true,
-                postId: postId,
-                pressedImgIndex
+                pressedImgIndex,
+                post: selectedPost
             }
             return newInfo;
         })
     };
+
+    const navigatePostDetail = (id: number | string) => {
+        navigation.navigate('PostDetail', {
+            postId: id
+        })
+    }
 
     useEffect(() => {
         console.log(imageModalInfo)
@@ -69,19 +76,25 @@ const NewFeedScreen = () => {
                     data={POST_DATA}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item }) => {
-                        return <Post
-                            id={item.id}
-                            username={item.user}
-                            description={item.descirption}
-                            imgs={item.imgs}
-                            onPressedPostImage={openImageModal}
-                        />
+                        return <Pressable
+                            onPress={() => {
+                                navigatePostDetail(item.id);
+                            }}
+                        >
+                            <Post
+                                id={item.id}
+                                username={item.user}
+                                description={item.descirption}
+                                imgs={item.imgs}
+                                onPressedPostImage={openImageModal}
+                            />
+                        </Pressable>
                     }}
                     keyExtractor={item => item.id.toString()}
-                /> 
-            </Layout> 
+                />
+            </Layout>
             <ImageModal
-                postId={imageModalInfo.postId}
+                post={imageModalInfo.post}
                 pressedImageIndex={imageModalInfo.pressedImgIndex}
                 visible={imageModalInfo.modalVisible}
                 close={closeImageModal}

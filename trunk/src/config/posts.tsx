@@ -13,7 +13,25 @@ export const POST_DATA = [
         id : "bd7acbea-c1b1-46c2-aed5-3ad53abb28458",
         url : "https://images.unsplash.com/photo-1610296669228-602fa827fc1f?q=80&w=1975&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       }
-      
+    ],
+    comments: [
+      {
+        id : Math.random(),
+        author: "1960stoaster",
+        vote: 120,
+        text: "Your grandpa is a Marine Raider, talk about a rare breed!",
+        reply: {
+          text: "Nice Bro!",
+          vote: 10
+        }
+      },
+      {
+        id : Math.random(),
+        author: "1960stoaster",
+        vote: 120,
+        text: "Test Comment",
+        reply: null
+      }
     ]
   },
   {
@@ -33,6 +51,7 @@ export const POST_DATA = [
             id : "a-view-of-the-earth-from-space-Jn2EaLLYZfY",
             url : "https://images.unsplash.com/photo-1643330683233-ff2ac89b002c?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         }
-    ]
+    ],
+    comments: []
   }
 ];

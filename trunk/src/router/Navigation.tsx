@@ -1,6 +1,6 @@
-import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
+import { StatusBar } from "react-native";
 
 import AuthStack from "./AuthStack";
 import AuthenticatedStack from "./AuthenticatedStack";

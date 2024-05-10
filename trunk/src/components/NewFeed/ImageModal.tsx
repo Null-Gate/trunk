@@ -19,10 +19,10 @@ import { Entypo } from '@expo/vector-icons';
 import { POST_DATA } from "../../config/posts";
 
 //helper functions
-import { 
-    calculateImageDimensions, 
-    ImageDimensions, 
-    calculateAspectRatioHeight 
+import {
+    calculateImageDimensions,
+    ImageDimensions,
+    calculateAspectRatioHeight
 } from "../../utils/helper";
 
 //components
@@ -55,19 +55,18 @@ const findHighestImageHeight = async (images: any): Promise<number> => {
 }
 
 type ImageModal = {
-    postId: number | string,
+    post: any,
     pressedImageIndex: number,
     visible: boolean,
     close: () => void
 }
 
 const ImageModal = ({
-    postId,
+    post,
     pressedImageIndex,
     visible,
     close
 }: ImageModal) => {
-    const [post, setPost] = useState<any>();
     const [maxImageHeight, setMaxImageHeight] = useState<number>(0);
     const [index, setIndex] = useState<number>(0);
     const scrollX = useRef(new Animated.Value(0)).current;
@@ -88,28 +87,19 @@ const ImageModal = ({
             }
         )(event);
     }
-    
+
     const handleOnViewableItemsChanged = useRef(({ viewableItems }) => {
-        // console.log("viewable item changed");
-        console.log(viewableItems);
         setIndex(viewableItems[0].index);
     }).current;
-    
+
     const viewabilityConfig = useRef({
         itemVisiblePercentThreshold: 50,
     }).current;
 
     useEffect(() => {
-        const currentPost = POST_DATA.filter(post => post.id === postId)[0];
-        setPost(currentPost);
-    }, [postId]);
-
-
-    useEffect(() => {
         if (post && post.imgs) {
             findHighestImageHeight(post.imgs)
                 .then((maxHeight: number) => {
-                    console.log(maxHeight);
                     setMaxImageHeight(maxHeight);
                 })
                 .catch((error: Error) => {
@@ -117,12 +107,14 @@ const ImageModal = ({
                 });
         }
     }, [post]);
+
     return (
         <Modal
             animationType="slide"
             visible={visible}
         >
             <View style={styles.modalContainer}>
+
                 {/* start modal header */}
                 <View style={styles.modalHeader}>
                     <View style={{
@@ -130,13 +122,21 @@ const ImageModal = ({
                         justifyContent: "space-between",
                         alignItems: "center",
                     }}>
+                        {/* close btn */}
                         <Pressable onPress={close}>
                             <AntDesign name="close" size={24} color="white" />
                         </Pressable>
-                        <Entypo name="dots-three-vertical" size={18} color="white" />
+                        {/* close btn */}
+
+                        <Pressable>
+                            <Entypo name="dots-three-vertical" size={18} color="white" />
+                        </Pressable>
+
                     </View>
                     <View style={styles.pageNumberContainer}>
-                        <CustomText textStyle={styles.pageNumber}>{`${index + 1}/${post?.imgs?.length}`}</CustomText>
+                        <CustomText textStyle={styles.pageNumber}>
+                            {`${index + 1}/${post?.imgs?.length}`}
+                        </CustomText>
                     </View>
                 </View>
                 {/* end modal header */}
@@ -144,31 +144,31 @@ const ImageModal = ({
                 {/* start image slider */}
                 {post && (
                     <View style={styles.imageSlider}>
-                    <FlatList
-                        initialScrollIndex={pressedImageIndex}
-                        data={post?.imgs}
-                        renderItem={({ item }) => {
-                            return (
-                                <View style={{
-                                    height: maxImageHeight,
-                                    justifyContent: "center",
-                                    alignItems: "center"
-                                }}>
-                                    <NetworkImage imageUrl={item.url} />
-                                </View>
-                            )
-                        }}
-                        horizontal
-                        pagingEnabled
-                        showsHorizontalScrollIndicator={false}
-                        onScroll={handleScroll}
-                        onViewableItemsChanged={handleOnViewableItemsChanged}
-                        viewabilityConfig={viewabilityConfig}
-                        getItemLayout={(data, index) => (
-                            {length: windowWidth, offset: windowWidth * index, index}
-                        )}
-                    />
-                </View>
+                        <FlatList
+                            initialScrollIndex={pressedImageIndex}
+                            data={post?.imgs}
+                            renderItem={({ item }) => {
+                                return (
+                                    <View style={{
+                                        height: maxImageHeight,
+                                        justifyContent: "center",
+                                        alignItems: "center"
+                                    }}>
+                                        <NetworkImage imageUrl={item.url} />
+                                    </View>
+                                )
+                            }}
+                            horizontal
+                            pagingEnabled
+                            showsHorizontalScrollIndicator={false}
+                            onScroll={handleScroll}
+                            onViewableItemsChanged={handleOnViewableItemsChanged}
+                            viewabilityConfig={viewabilityConfig}
+                            getItemLayout={(data, index) => (
+                                { length: windowWidth, offset: windowWidth * index, index }
+                            )}
+                        />
+                    </View>
                 )}
                 {/* end image slider */}
 
@@ -200,6 +200,7 @@ const ImageModal = ({
                     </CustomText>
                 </View>
                 {/* end modal footer */}
+
             </View>
         </Modal>
     )
@@ -217,12 +218,13 @@ const styles = StyleSheet.create({
         width: "100%",
         paddingHorizontal: 15,
         paddingVertical: 10,
+        zIndex: 2
     },
     imageSlider: {
         flex: 1,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
     },
     detailContainer: {
         paddingVertical: 10,
@@ -230,7 +232,8 @@ const styles = StyleSheet.create({
         width: "100%",
         position: "absolute",
         left: 0,
-        bottom: 0,
+        bottom: 10,
+        zIndex: 2
     },
     viewImage: {
         position: "absolute",

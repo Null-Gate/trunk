@@ -66,7 +66,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
     }
 }
 
-pub async fn live_select_test(state: Arc<Mutex<bool>>, result: Arc<Mutex<DbUserInfo>>) {
+pub async fn live_select_test(_state: Arc<Mutex<bool>>, _result: Arc<Mutex<DbUserInfo>>) {
     let db = DB.get().await;
     db.use_ns("ns").use_db("db").await.unwrap();
     let mut stream = db.select("user").live().await.unwrap();
@@ -90,13 +90,11 @@ pub async fn fnf() -> Result<NewFeed, tokio_tungstenite::tungstenite::Error> {
 
     let mut ret = db.query(car_postsql).query(packagesql).await.unwrap();
     let db_car_posts = ret.take::<Vec<DbCarPost>>(0).unwrap();
-    println!("{db_car_posts:?}");
     let mut car_posts = vec![];
 
     for x in db_car_posts {
         car_posts.push(x.to_resp().await.unwrap());
     }
-    println!("{car_posts:?}");
 
     Ok(NewFeed {
         car_posts,

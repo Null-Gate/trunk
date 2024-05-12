@@ -16,6 +16,7 @@ mod extra;
 mod wsserver;
 mod fetch;
 mod gen_salt;
+mod services;
 mod post;
 mod structures;
 

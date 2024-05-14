@@ -105,11 +105,13 @@ async fn package(
                                 },
                             };
 
+                            let post = package_info.to_post();
+
                             let id = Id::rand();
 
                             match db
                                 .create::<Option<DbPackageInfo>>(("package", id.clone()))
-                                .content(package_info)
+                                .content(post)
                                 .await
                             {
                                 Ok(Some(_)) => {

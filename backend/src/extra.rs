@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, sync::Arc};
 
 use actix_web::{get, web::Path, HttpResponse};
 use argon2::verify_encoded;
@@ -31,9 +31,9 @@ pub fn verify_password(password: &str, hash: &str) -> Result<(), HttpResponse> {
     }
 }
 
-pub async fn check_user(username: &str, db: &Surreal<Db>) -> Result<DbUserInfo, HttpResponse> {
+pub async fn check_user(username: Arc<str>, db: &Surreal<Db>) -> Result<DbUserInfo, HttpResponse> {
     match db
-        .select::<Option<DbUserInfo>>(("user", Id::from(username)))
+        .select::<Option<DbUserInfo>>(("user", Id::from(username.to_string())))
         .await
     {
         Ok(Some(user)) => Ok(user),

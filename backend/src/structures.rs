@@ -128,7 +128,7 @@ pub struct CarForm {
     pub car_details: Text<Arc<str>>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbCarPost {
     pub userinfo: Thing,
     pub car_info: Thing,
@@ -168,13 +168,26 @@ pub struct PackageForm {
     pub exp_date_to_send: Text<Arc<str>>,
 }
 
+pub trait Post {
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct PostD<T: Post> {
+    pub ptdate: u64,
+    pub data: T,
+    pub vote: u128,
+}
+
+impl Post for DbCarPost {}
+impl Post for DbPackageInfo {}
+
 #[derive(Serialize, Deserialize)]
 pub struct NewFeed {
     pub car_posts: Vec<Value>,
     pub packages: Vec<Value>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct DbPackageInfo {
     pub package_name: Arc<str>,
     pub package_pic: Arc<str>,
@@ -201,6 +214,20 @@ pub enum Event {
 pub struct WSResp<T> {
     pub event: Event,
     pub data: T,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
+pub enum Vote {
+    Up,
+    Down,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct VRelate {
+    pub id: Thing,
+    pub r#in: Thing,
+    pub out: Thing,
+    pub vote: Vote
 }
 
 #[derive(Serialize, Deserialize)]
@@ -299,7 +326,24 @@ impl DbtoResp for DbPackageInfo {
     }
 }
 
+impl DbPackageInfo {
+    pub fn to_post(&self) -> PostD<Self> {
+        PostD {
+            ptdate: 1,
+            data: self.clone(),
+            vote: 0
+        }
+    }
+}
+
 impl DbCarPost {
+    pub fn to_post(&self) -> PostD<Self> {
+        PostD {
+            ptdate: 1,
+            data: self.clone(),
+            vote: 0
+        }
+    }
     pub async fn to_resp(&self) -> Result<Value, HttpResponse> {
         let db = DB.get().await;
         if let Err(e) = db.use_ns("ns").use_db("db").await {

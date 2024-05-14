@@ -8,7 +8,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::{check_user, decode_token, encode_token, internal_error, verify_password},
-    structures::{CarPostForm, Claims, DbCarPost, DbUserInfo, Resp, Roles, DB},
+    structures::{CarPostForm, Claims, DbCarPost, DbUserInfo, PostD, Resp, Roles, DB},
 };
 
 #[allow(clippy::future_not_send)]
@@ -19,7 +19,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
         return internal_error(e);
     }
     match decode_token(&token) {
-        Ok(user_info) => match check_user(&user_info.username, db).await {
+        Ok(user_info) => match check_user(user_info.username.clone(), db).await {
             Ok(mut user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
                     if !(user.pik_role.contains(&Roles::Owner)
@@ -31,8 +31,8 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                     }
 
                     match db
-                        .create::<Option<DbCarPost>>(("car_post", post.car_id.to_string()))
-                        .content(post.to_db_post(&user.username))
+                        .create::<Option<PostD<DbCarPost>>>(("car_post", post.car_id.to_string()))
+                        .content(post.to_db_post(&user.username).to_post())
                         .await
                     {
                         Ok(Some(_)) => {
@@ -51,25 +51,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                 ))
                                 .await
                                 .unwrap();
-                            /*let sql =
-                                "RELATE type::thing($usr_thing)->post->type::thing($car_thing);";
-                            db.query(sql)
-                                .bind((
-                                    "usr_thing",
-                                    Thing {
-                                        id: Id::String(user.username.to_string()),
-                                        tb: "user".into(),
-                                    },
-                                ))
-                                .bind((
-                                    "car_thing",
-                                    Thing {
-                                        id: Id::String(post.car_id.to_string()),
-                                        tb: "car".into(),
-                                    },
-                                ))
-                                .await
-                                .unwrap();*/
+                            
                             match db
                                 .update::<Option<DbUserInfo>>((
                                     "user",

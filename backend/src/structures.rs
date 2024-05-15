@@ -168,19 +168,6 @@ pub struct PackageForm {
     pub exp_date_to_send: Text<Arc<str>>,
 }
 
-pub trait Post {
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct PostD<T: Post> {
-    pub ptdate: u64,
-    pub data: T,
-    pub vote: u128,
-}
-
-impl Post for DbCarPost {}
-impl Post for DbPackageInfo {}
-
 #[derive(Serialize, Deserialize)]
 pub struct NewFeed {
     pub car_posts: Vec<Value>,
@@ -281,6 +268,35 @@ pub async fn get_cache_dir() -> String {
     dir
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct Post<T> {
+    pub ptdate: u64,
+    pub data: T,
+    pub votes: i128,
+}
+
+impl Post<DbCarPost> {
+    pub async fn to_resp(&self) -> Value {
+        let p = Post {
+            ptdate: self.ptdate,
+            data: self.data.to_resp().await.unwrap(),
+            votes: self.votes
+        };
+        serde_json::to_value(p).unwrap()
+    }
+}
+
+impl Post<DbPackageInfo> {
+    pub fn to_resp(&self) -> Value {
+        let p = Post {
+            ptdate: self.ptdate,
+            data: self.data.to_resp(),
+            votes: self.votes
+        };
+        serde_json::to_value(p).unwrap()
+    }
+}
+
 pub trait DbtoResp {
     fn to_resp(&self) -> Value;
     fn to_hresp(&self) -> HttpResponse {
@@ -327,21 +343,17 @@ impl DbtoResp for DbPackageInfo {
 }
 
 impl DbPackageInfo {
-    pub fn to_post(&self) -> PostD<Self> {
-        PostD {
-            ptdate: 1,
-            data: self.clone(),
-            vote: 0
-        }
+    pub fn to_post(&self) -> Post<DbPackageInfo> {
+        Post { ptdate: 0, data: self.clone(), votes: 0 }
     }
 }
 
 impl DbCarPost {
-    pub fn to_post(&self) -> PostD<Self> {
-        PostD {
-            ptdate: 1,
+    pub fn to_post(&self) -> Post<DbCarPost> {
+        Post {
+            ptdate: 0,
             data: self.clone(),
-            vote: 0
+            votes: 0
         }
     }
     pub async fn to_resp(&self) -> Result<Value, HttpResponse> {

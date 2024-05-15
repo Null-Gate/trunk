@@ -15,8 +15,7 @@ use tokio::fs;
 use crate::{
     extra::internal_error,
     structures::{
-        get_cache_dir, Claims, DbPackageInfo, DbUserInfo, GenString, PackageForm, Resp, DB,
-        JWT_SECRET,
+        get_cache_dir, Claims, DbPackageInfo, DbUserInfo, GenString, PackageForm, Post, Resp, DB, JWT_SECRET
     },
 };
 
@@ -110,7 +109,7 @@ async fn package(
                             let id = Id::rand();
 
                             match db
-                                .create::<Option<DbPackageInfo>>(("package", id.clone()))
+                                .create::<Option<Post<DbPackageInfo>>>(("package", id.clone()))
                                 .content(post)
                                 .await
                             {

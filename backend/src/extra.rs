@@ -3,7 +3,7 @@ use std::{fmt::Display, sync::Arc};
 use actix_web::{get, web::Path, HttpResponse};
 use argon2::verify_encoded;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use surrealdb::{engine::local::Db, sql::Id, Surreal};
+use surrealdb::{engine::remote::ws::Client, sql::Id, Surreal};
 use tracing::error;
 
 use crate::structures::{Claims, DbUserInfo, Resp, JWT_SECRET};
@@ -31,7 +31,7 @@ pub fn verify_password(password: &str, hash: &str) -> Result<(), HttpResponse> {
     }
 }
 
-pub async fn check_user(username: Arc<str>, db: &Surreal<Db>) -> Result<DbUserInfo, HttpResponse> {
+pub async fn check_user(username: Arc<str>, db: &Surreal<Client>) -> Result<DbUserInfo, HttpResponse> {
     match db
         .select::<Option<DbUserInfo>>(("user", Id::from(username.to_string())))
         .await

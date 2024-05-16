@@ -14,7 +14,7 @@ use rand::{
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use surrealdb::{
-    engine::local::{Db, File},
+    engine::remote::ws::{Client, Ws},
     sql::{Id, Thing},
     Surreal,
 };
@@ -28,10 +28,8 @@ lazy_static! {
         dotenvy::var("TRUNK_HOST").unwrap(),
         dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap()
     );
-    pub static ref DB: AsyncOnce<Surreal<Db>> = AsyncOnce::new(async {
-        Surreal::new::<File>(format!("{}/db.db", get_cache_dir().await))
-            .await
-            .unwrap()
+    pub static ref DB: AsyncOnce<Surreal<Client>> = AsyncOnce::new(async {
+        Surreal::new::<Ws>("localhost:9070").await.unwrap()
     });
 }
 

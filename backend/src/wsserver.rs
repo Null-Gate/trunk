@@ -13,8 +13,7 @@ use tokio_tungstenite::{
 use crate::{fetch::{nf::fetch_newfeed, noti::live_select}, structures::{DbUserInfo, Event, WSResp}};
 
 pub async fn wserver() {
-    println!("here!!");
-    let server = TcpListener::bind("127.0.0.1:9080").await.unwrap();
+    let server = TcpListener::bind(dotenvy::var("WSADDR").unwrap()).await.unwrap();
     while let Ok((stream, _)) = server.accept().await {
         tokio::spawn(accept_conn(stream));
     }

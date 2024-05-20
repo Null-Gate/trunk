@@ -1,7 +1,7 @@
 use tokio_tungstenite::tungstenite::Result;
 
 use crate::{
-    extra::wserror, structures::{DbCarPost,  NewFeed, DB}
+    extra::wserror, structures::{DbCarPost, NewFeed, Post, DB}
 };
 
 pub async fn fetch_newfeed() -> Result<NewFeed, tokio_tungstenite::tungstenite::Error> {
@@ -14,11 +14,11 @@ pub async fn fetch_newfeed() -> Result<NewFeed, tokio_tungstenite::tungstenite::
     let packagesql = "SELECT * FROM package ORDER BY RAND() LIMIT 50;";
 
     let mut ret = db.query(car_postsql).query(packagesql).await.unwrap();
-    let db_car_posts = ret.take::<Vec<DbCarPost>>(0).unwrap();
+    let db_car_posts = ret.take::<Vec<Post<DbCarPost>>>(0).unwrap();
     let mut car_posts = vec![];
 
     for x in db_car_posts {
-        car_posts.push(x.to_resp().await.unwrap());
+        car_posts.push(x.to_resp().await);
     }
 
     Ok(NewFeed {

@@ -128,7 +128,6 @@ pub struct CarForm {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbCarPost {
-    pub userinfo: Thing,
     pub car_info: Thing,
     pub from_where: Arc<str>,
     pub to_where: Arc<str>,
@@ -144,9 +143,8 @@ pub struct CarPostForm {
 }
 
 impl CarPostForm {
-    pub fn to_db_post(&self, userinfo: &str) -> DbCarPost {
+    pub fn to_db_post(&self) -> DbCarPost {
         DbCarPost {
-            userinfo: Thing::from(("user", Id::String(userinfo.into()))),
             car_info: Thing::from(("car", Id::String(self.car_id.to_string()))),
             to_where: self.to_where.clone(),
             from_where: self.from_where.clone(),
@@ -172,7 +170,7 @@ pub struct NewFeed {
     pub packages: Vec<Value>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DbPackageInfo {
     pub package_name: Arc<str>,
     pub package_pic: Arc<str>,
@@ -180,7 +178,6 @@ pub struct DbPackageInfo {
     pub to_where: Arc<str>,
     pub from_where: Arc<str>,
     pub exp_date_to_send: Arc<str>,
-    pub userinfo: Thing,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -238,7 +235,7 @@ impl GenString {
         }
     }
 
-    pub fn gen_string(&mut self, min: usize, max: usize) -> String {
+    pub fn gen_string(&self, min: usize, max: usize) -> String {
         self.sample_string(
             &mut self.rngs.clone(),
             self.to_owned().rngs.gen_range(min..max),
@@ -266,16 +263,18 @@ pub async fn get_cache_dir() -> String {
     dir
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Post<T> {
     pub ptdate: u64,
     pub data: T,
-    pub votes: i128,
+    pub votes: i64,
+    pub userinfo: Thing,
 }
 
 impl Post<DbCarPost> {
     pub async fn to_resp(&self) -> Value {
         let p = Post {
+            userinfo: self.userinfo.clone(),
             ptdate: self.ptdate,
             data: self.data.to_resp().await.unwrap(),
             votes: self.votes
@@ -287,6 +286,7 @@ impl Post<DbCarPost> {
 impl Post<DbPackageInfo> {
     pub fn to_resp(&self) -> Value {
         let p = Post {
+            userinfo: self.userinfo.clone(),
             ptdate: self.ptdate,
             data: self.data.to_resp(),
             votes: self.votes
@@ -329,7 +329,6 @@ impl DbtoResp for DbCarInfo {
 impl DbtoResp for DbPackageInfo {
     fn to_resp(&self) -> Value {
         json!({
-            "username": self.userinfo.id,
             "package_name": self.package_name,
             "package_pic": format!("http://localhost:8090/pics/{}", self.package_pic),
             "pkg_details": self.pkg_details,
@@ -341,14 +340,26 @@ impl DbtoResp for DbPackageInfo {
 }
 
 impl DbPackageInfo {
-    pub fn to_post(&self) -> Post<DbPackageInfo> {
-        Post { ptdate: 0, data: self.clone(), votes: 0 }
+    pub fn to_post(&self, username: &str) -> Post<Self> {
+        Post { 
+            userinfo: Thing {
+                tb: "user".into(),
+                id: Id::from(username)
+            },
+            ptdate: 0,
+            data: self.clone(), 
+            votes: 0 
+        }
     }
 }
 
 impl DbCarPost {
-    pub fn to_post(&self) -> Post<DbCarPost> {
+    pub fn to_post(&self, username: &str) -> Post<Self> {
         Post {
+            userinfo: Thing {
+                tb: "user".into(),
+                id: Id::from(username),
+            },
             ptdate: 0,
             data: self.clone(),
             votes: 0
@@ -371,7 +382,6 @@ impl DbCarPost {
         let car_info = fetch_car_info.take::<Option<DbCarInfo>>(0).unwrap();
 
         Ok(json!({
-            "username": self.userinfo.id,
             "car_info": car_info.unwrap().to_resp(),
             "from_where": self.from_where,
             "to_where": self.to_where,

@@ -32,7 +32,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
 
                     match db
                         .create::<Option<Post<DbCarPost>>>(("car_post", post.car_id.to_string()))
-                        .content(post.to_db_post(&user.username).to_post())
+                        .content(post.to_db_post().to_post(&user.username))
                         .await
                     {
                         Ok(Some(_)) => {

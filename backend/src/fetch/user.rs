@@ -4,7 +4,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::internal_error,
-    structures::{DbCarInfo, DbCarPost, DbPackageInfo, DbUserInfo, DbtoResp, DB},
+    structures::{DbCarInfo, DbCarPost, DbPackageInfo, DbUserInfo, DbtoResp, Post, DB},
 };
 
 #[get("/user/{id}")]
@@ -36,8 +36,8 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
                 .await
                 .unwrap();
             let owncar: Vec<DbCarInfo> = idk.take(0).unwrap();
-            let pkgpost: Vec<DbPackageInfo> = idk.take(1).unwrap();
-            let carpost: Vec<DbCarPost> = idk.take(2).unwrap();
+            let pkgpost: Vec<Post<DbPackageInfo>> = idk.take(1).unwrap();
+            let carpost: Vec<Post<DbCarPost>> = idk.take(2).unwrap();
 
             let owncars = owncar
                 .iter()
@@ -45,12 +45,12 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
                 .collect::<Vec<Value>>();
             let packages = pkgpost
                 .iter()
-                .map(DbPackageInfo::to_resp)
+                .map(|x| x.to_resp())
                 .collect::<Vec<Value>>();
             let mut resp_car_post = vec![];
 
             for x in &carpost {
-                resp_car_post.push(x.to_resp().await.unwrap());
+                resp_car_post.push(x.to_resp().await);
             }
 
             let ret_user = json!({

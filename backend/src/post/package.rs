@@ -98,13 +98,9 @@ async fn package(
                                 exp_date_to_send: form.exp_date_to_send.0,
                                 to_where: form.to_where.0,
                                 from_where: form.from_where.0,
-                                userinfo: Thing {
-                                    tb: "user".into(),
-                                    id: Id::String(user_info.username.to_string()),
-                                },
                             };
 
-                            let post = package_info.to_post();
+                            let post = package_info.to_post(&user_info.username);
 
                             let id = Id::rand();
 

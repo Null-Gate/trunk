@@ -21,7 +21,7 @@ async fn fetch_package() -> HttpResponse {
                 HttpResponse::Ok().json(
                     driver
                         .iter()
-                        .map(|x| x.to_resp())
+                        .map(Post::<DbPackageInfo>::to_resp)
                         .collect::<Vec<Value>>(),
                 )
             })

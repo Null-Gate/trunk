@@ -45,7 +45,7 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
                 .collect::<Vec<Value>>();
             let packages = pkgpost
                 .iter()
-                .map(|x| x.to_resp())
+                .map(Post::<DbPackageInfo>::to_resp)
                 .collect::<Vec<Value>>();
             let mut resp_car_post = vec![];
 

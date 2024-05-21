@@ -10,7 +10,7 @@ use tokio_tungstenite::{
     },
 };
 
-use crate::{fetch::{nf::fetch_newfeed, noti::live_select}, structures::{DbUserInfo, Event, WSResp}};
+use crate::{extra::wserror, fetch::{nf::fetch_newfeed, noti::live_select}, structures::{DbUserInfo, Event, WSResp}};
 
 pub async fn wserver() {
     let server = TcpListener::bind(dotenvy::var("WSADDR").unwrap()).await.unwrap();
@@ -33,12 +33,10 @@ pub async fn accept_conn(stream: TcpStream) {
 pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
     let callback = |req: &Request, resp: Response| {
         println!("req Path: {}", req.uri().path());
-        if req.uri().path() == "/nf" {
-            return Ok(resp);
-        }
-        todo!()
+        Ok(resp)
     };
-    let ws_stream = accept_hdr_async(stream, callback).await.unwrap();
+    match accept_hdr_async(stream, callback).await {
+        Ok(ws_stream) =>  {
     println!("NWS Conn: {peer:?}");
     let (mut ws_sender, mut ws_receiver) = ws_stream.split();
     let query_state = Arc::new(Mutex::new(false));
@@ -73,5 +71,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                      }
                  }
         }
+    }},
+    Err(_) => Err(wserror("not implemented wserror!")),
     }
 }

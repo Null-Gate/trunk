@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use actix_multipart::form::MultipartForm;
 use actix_web::{post, web::Path as WebPath, HttpResponse};
 use argon2::verify_encoded;
@@ -10,14 +8,10 @@ use image::{
 };
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use surrealdb::sql::{Id, Thing};
-use tokio::fs;
 
 use crate::{
-    extra::internal_error,
-    structures::{
-        get_cache_dir, Claims, DbDriverInfo, DbUserInfo, DriverForm, GenString, Resp, Roles, DB,
-        JWT_SECRET,
-    },
+    extra::{internal_error, save_img},
+    structures::{Claims, DbDriverInfo, DbUserInfo, DriverForm, Resp, Roles, DB, JWT_SECRET},
 };
 
 #[allow(clippy::pedantic)]
@@ -74,31 +68,16 @@ async fn driver(
                                 }
                             }
 
-                            let dir = format!("{}/user_assets", get_cache_dir().await);
-
-                            if !Path::new(&dir).exists() {
-                                if let Err(e) = fs::create_dir(&dir).await {
-                                    return internal_error(e);
+                            let pic_url = match save_img(form.license_pic).await {
+                                Ok(url) => url,
+                                Err(e) => {
+                                    return e;
                                 }
-                            }
-
-                            let pic_path = if let Some(img_name) = form.license_pic.file_name {
-                                let full_img_name =
-                                    format!("{}-{img_name}", GenString::new().gen_string(10, 30));
-                                (format!("{dir}/{full_img_name}"), full_img_name)
-                            } else {
-                                return HttpResponse::BadRequest().json(Resp::new(
-                                    "Sorry You have to provide the name of the image!",
-                                ));
                             };
-
-                            if let Err(e) = form.license_pic.file.persist(&pic_path.0) {
-                                return internal_error(e);
-                            }
 
                             let driver_info = DbDriverInfo {
                                 license_num: form.license_num.into_inner(),
-                                license_pic: pic_path.1.into(),
+                                license_pic: pic_url.into(),
                                 exp_details: form.exp_details.0,
                                 userinfo: Thing {
                                     tb: "user".into(),

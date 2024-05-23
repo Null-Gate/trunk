@@ -6,6 +6,7 @@ use auth::{delete::delete, login::login, signup::signup};
 use extra::test_token;
 use fetch::scope::fetch;
 use post::{ava_car::post_car, car::car, driver::driver, package::package};
+use services::voting::up_vote;
 use std::path::Path;
 use structures::{DATA_PATH, SEIF};
 use tokio::fs;
@@ -13,12 +14,12 @@ use tracing::Level;
 
 mod auth;
 mod extra;
-mod wsserver;
 mod fetch;
 mod gen_salt;
-mod services;
 mod post;
+mod services;
 mod structures;
+mod wsserver;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -49,6 +50,7 @@ async fn main() -> std::io::Result<()> {
             .service(package)
             .service(fetch())
             .service(test_token)
+            .service(up_vote)
             .wrap(cors)
     })
     .bind((SEIF.0.as_str(), SEIF.1))?

@@ -2,7 +2,7 @@ use actix_web::{get, HttpResponse};
 
 use crate::{
     extra::internal_error,
-    structures::{DbCarPost, DB, Post},
+    structures::{DbCarPost, Post, DB},
 };
 
 #[get("/ava_cars")]
@@ -16,11 +16,7 @@ async fn fetch_ava_cars() -> HttpResponse {
 
     let mut resp = db.query(query).await.unwrap();
 
-    let driver = resp.take::<Vec<Post<DbCarPost>>>(0).unwrap();
-    let mut svec = vec![];
+    let svec = resp.take::<Vec<Post<DbCarPost>>>(0).unwrap();
 
-    for x in driver {
-        svec.push(x.to_resp().await);
-    }
     HttpResponse::Ok().json(svec)
 }

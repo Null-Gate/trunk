@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use actix_multipart::form::MultipartForm;
 use actix_web::{post, web::Path as WebPath, HttpResponse};
 use argon2::verify_encoded;
@@ -10,13 +8,10 @@ use image::{
 };
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use surrealdb::sql::{Id, Thing};
-use tokio::fs;
 
 use crate::{
-    extra::internal_error,
-    structures::{
-        get_cache_dir, Claims, DbPackageInfo, DbUserInfo, GenString, PackageForm, Post, Resp, DB, JWT_SECRET
-    },
+    extra::{internal_error, save_img},
+    structures::{Claims, DbPackageInfo, DbUserInfo, PackageForm, Post, Resp, DB, JWT_SECRET},
 };
 
 #[allow(clippy::pedantic)]
@@ -69,31 +64,16 @@ async fn package(
                                 }
                             }
 
-                            let dir = format!("{}/user_assets", get_cache_dir().await);
-
-                            if !Path::new(&dir).exists() {
-                                if let Err(e) = fs::create_dir(&dir).await {
-                                    return internal_error(e);
+                            let pic_url = match save_img(form.package_pic).await {
+                                Ok(url) => url,
+                                Err(e) => {
+                                    return e;
                                 }
-                            }
-
-                            let pic_path = if let Some(img_name) = form.package_pic.file_name {
-                                let full_img_name =
-                                    format!("{}-{img_name}", GenString::new().gen_string(10, 30));
-                                (format!("{dir}/{full_img_name}"), full_img_name)
-                            } else {
-                                return HttpResponse::BadRequest().json(Resp::new(
-                                    "Sorry You have to provide the name of the image!",
-                                ));
                             };
-
-                            if let Err(e) = form.package_pic.file.persist(&pic_path.0) {
-                                return internal_error(e);
-                            }
 
                             let package_info = DbPackageInfo {
                                 package_name: form.package_name.0,
-                                package_pic: pic_path.1.into(),
+                                package_pic: pic_url.into(),
                                 pkg_details: form.pkg_details.0,
                                 exp_date_to_send: form.exp_date_to_send.0,
                                 to_where: form.to_where.0,
@@ -110,6 +90,24 @@ async fn package(
                                 .await
                             {
                                 Ok(Some(_)) => {
+                                    /*let tuery = "RELATE type::thing($uthing) -> vote -> type::thing($pthing);";
+                                    db.query(tuery)
+                                        .bind((
+                                            "uthing",
+                                            Thing {
+                                                id: Id::String(user_info.username.to_string()),
+                                                tb: "user".into(),
+                                            },
+                                        ))
+                                        .bind((
+                                            "pthing",
+                                            Thing {
+                                                id: id.clone(),
+                                                tb: "package".into(),
+                                            },
+                                        ))
+                                        .await
+                                        .unwrap();*/
                                     user.pkg_posts.push(Thing::from(("package", id)));
                                     match db
                                         .update::<Option<DbUserInfo>>((

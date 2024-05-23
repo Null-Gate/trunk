@@ -28,9 +28,8 @@ lazy_static! {
         dotenvy::var("TRUNK_HOST").unwrap(),
         dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap()
     );
-    pub static ref DB: AsyncOnce<Surreal<Client>> = AsyncOnce::new(async {
-        Surreal::new::<Ws>("localhost:9070").await.unwrap()
-    });
+    pub static ref DB: AsyncOnce<Surreal<Client>> =
+        AsyncOnce::new(async { Surreal::new::<Ws>("localhost:9070").await.unwrap() });
 }
 
 pub static ARGON_CONFIG: Config = {
@@ -87,7 +86,7 @@ impl Default for DbUserInfo {
             pik_role: vec![],
             own_cars: vec![],
             car_posts: vec![],
-            pkg_posts: vec![]
+            pkg_posts: vec![],
         }
     }
 }
@@ -166,8 +165,8 @@ pub struct PackageForm {
 
 #[derive(Serialize, Deserialize)]
 pub struct NewFeed {
-    pub car_posts: Vec<Value>,
-    pub packages: Vec<Value>,
+    pub car_posts: Vec<Post<DbCarPost>>,
+    pub packages: Vec<Post<DbPackageInfo>>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -198,15 +197,22 @@ pub struct WSResp<T> {
     pub data: T,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub enum Vote {
     Up,
     Down,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct VRelate {
     pub id: Thing,
+    pub r#in: Thing,
+    pub out: Thing,
+    pub vote: Vote,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct VoteTB {
     pub r#in: Thing,
     pub out: Thing,
     pub vote: Vote
@@ -263,7 +269,7 @@ pub async fn get_cache_dir() -> String {
     dir
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Post<T> {
     pub ptdate: u64,
     pub data: T,
@@ -271,27 +277,36 @@ pub struct Post<T> {
     pub userinfo: Thing,
 }
 
-impl Post<DbCarPost> {
-    pub async fn to_resp(&self) -> Value {
-        let p = Post {
-            userinfo: self.userinfo.clone(),
-            ptdate: self.ptdate,
-            data: self.data.to_resp().await.unwrap(),
-            votes: self.votes
-        };
-        serde_json::to_value(p).unwrap()
+/*impl Post<DbCarPost> {
+    pub fn to_resp(&self) -> Value {
+        json! ({
+            "userinfo": self.userinfo.clone(),
+            "ptdate": self.ptdate,
+            "data": self.data.clone(),
+            "votes": self.votes.to_string(),
+        })
     }
 }
 
 impl Post<DbPackageInfo> {
     pub fn to_resp(&self) -> Value {
-        let p = Post {
-            userinfo: self.userinfo.clone(),
-            ptdate: self.ptdate,
-            data: self.data.to_resp(),
-            votes: self.votes
-        };
-        serde_json::to_value(p).unwrap()
+        json! ({
+            "userinfo": self.userinfo.clone(),
+            "ptdate": self.ptdate,
+            "data": self.data.clone(),
+            "votes": self.votes.to_string(),
+        })
+    }
+}*/
+
+impl Post<Value> {
+    pub fn to_resp(&self) -> Value {
+        json! ({
+            "userinfo": self.userinfo.clone(),
+            "ptdate": self.ptdate,
+            "data": self.data.clone(),
+            "votes": self.votes.to_string(),
+        })
     }
 }
 
@@ -341,14 +356,14 @@ impl DbtoResp for DbPackageInfo {
 
 impl DbPackageInfo {
     pub fn to_post(&self, username: &str) -> Post<Self> {
-        Post { 
+        Post {
             userinfo: Thing {
                 tb: "user".into(),
-                id: Id::from(username)
+                id: Id::from(username),
             },
             ptdate: 0,
-            data: self.clone(), 
-            votes: 0 
+            data: self.clone(),
+            votes: 0,
         }
     }
 }
@@ -362,7 +377,7 @@ impl DbCarPost {
             },
             ptdate: 0,
             data: self.clone(),
-            votes: 0
+            votes: 0,
         }
     }
     pub async fn to_resp(&self) -> Result<Value, HttpResponse> {

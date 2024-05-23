@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use actix_multipart::form::MultipartForm;
 use actix_web::{post, web::Path as WebPath, HttpResponse};
 use chrono::{TimeDelta, Utc};
@@ -9,14 +7,10 @@ use image::{
 };
 use jsonwebtoken::{encode, EncodingKey, Header};
 use surrealdb::sql::{Id, Thing};
-use tokio::fs;
 
 use crate::{
-    extra::{check_user, decode_token, internal_error, verify_password},
-    structures::{
-        get_cache_dir, CarForm, Claims, DbCarInfo, DbUserInfo, GenString, Resp, Roles, DB,
-        JWT_SECRET,
-    },
+    extra::{check_user, decode_token, internal_error, save_img, verify_password},
+    structures::{CarForm, Claims, DbCarInfo, DbUserInfo, Resp, Roles, DB, JWT_SECRET},
 };
 
 #[allow(clippy::future_not_send)]
@@ -50,34 +44,19 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         }
                     }
 
-                    let dir = format!("{}/user_assets", get_cache_dir().await);
-
-                    if !Path::new(&dir).exists() {
-                        if let Err(e) = fs::create_dir(&dir).await {
-                            return internal_error(e);
+                    let pic_url = match save_img(form.owner_proof).await {
+                        Ok(url) => url,
+                        Err(e) => {
+                            return e;
                         }
-                    }
-
-                    let pic_path = if let Some(img_name) = form.owner_proof.file_name {
-                        let full_img_name =
-                            format!("{}-{img_name}", GenString::new().gen_string(10, 30));
-                        (format!("{dir}/{full_img_name}"), full_img_name)
-                    } else {
-                        return HttpResponse::BadRequest().json(Resp::new(
-                            "Sorry You have to provide the name of the image!",
-                        ));
                     };
-
-                    if let Err(e) = form.owner_proof.file.persist(&pic_path.0) {
-                        return internal_error(e);
-                    }
 
                     let id = Id::rand();
 
                     let car_info = DbCarInfo {
                         license_num: form.license_num.0,
                         car_id: id.clone(),
-                        owner_proof: pic_path.1.into(),
+                        owner_proof: pic_url.into(),
                         car_details: form.car_details.0,
                         is_available: false,
                         userinfo: Thing {

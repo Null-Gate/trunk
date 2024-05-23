@@ -51,7 +51,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                 ))
                                 .await
                                 .unwrap();
-                            
+
                             match db
                                 .update::<Option<DbUserInfo>>((
                                     "user",

@@ -1,10 +1,10 @@
 use actix_web::{get, web::Path, HttpResponse};
-use serde_json::{json, Value};
+use serde_json::json;
 use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::internal_error,
-    structures::{DbCarInfo, DbCarPost, DbPackageInfo, DbUserInfo, DbtoResp, Post, DB},
+    structures::{DbCarInfo, DbCarPost, DbPackageInfo, DbUserInfo, Post, DB},
 };
 
 #[get("/user/{id}")]
@@ -39,7 +39,7 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
             let pkgpost: Vec<Post<DbPackageInfo>> = idk.take(1).unwrap();
             let carpost: Vec<Post<DbCarPost>> = idk.take(2).unwrap();
 
-            let owncars = owncar
+            /*let owncars = owncar
                 .iter()
                 .map(DbCarInfo::to_resp)
                 .collect::<Vec<Value>>();
@@ -51,15 +51,15 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
 
             for x in &carpost {
                 resp_car_post.push(x.to_resp().await);
-            }
+            }*/
 
             let ret_user = json!({
                 "username": user.username,
                 "fullname": user.fullname,
                 "pik_role": user.pik_role,
-                "own_cars": owncars,
-                "packages": packages,
-                "car_post": resp_car_post
+                "own_cars": owncar,
+                "packages": pkgpost,
+                "car_post": carpost
             });
             HttpResponse::Ok().json(ret_user)
         }

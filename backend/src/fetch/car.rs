@@ -3,7 +3,7 @@ use surrealdb::sql::Id;
 
 use crate::{
     extra::internal_error,
-    structures::{DbCarInfo, DbtoResp, DB},
+    structures::{DbCarInfo, DB},
 };
 
 #[get("/car/{id}")]
@@ -17,7 +17,7 @@ pub async fn fetch_car(id: Path<String>) -> HttpResponse {
         .select::<Option<DbCarInfo>>(("car", Id::from(id.as_str())))
         .await
     {
-        Ok(Some(car)) => car.to_hresp(),
+        Ok(Some(car)) => HttpResponse::Ok().json(car),
         Ok(None) => HttpResponse::NotFound().json("Car Not Found"),
         Err(_) => HttpResponse::InternalServerError().json("Sorry Went Wrong While Searching Car!"),
     }

@@ -165,8 +165,8 @@ pub struct PackageForm {
 
 #[derive(Serialize, Deserialize)]
 pub struct NewFeed {
-    pub car_posts: Vec<Post<DbCarPost>>,
-    pub packages: Vec<Post<DbPackageInfo>>,
+    pub car_posts: Vec<Value>,
+    pub packages: Vec<Value>, 
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -277,6 +277,15 @@ pub struct Post<T> {
     pub userinfo: Thing,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PostD<T> {
+    pub id: Thing,
+    pub ptdate: u64,
+    pub data: T,
+    pub votes: i64,
+    pub userinfo: Thing,
+}
+
 /*impl Post<DbCarPost> {
     pub fn to_resp(&self) -> Value {
         json! ({
@@ -310,46 +319,26 @@ impl Post<Value> {
     }
 }
 
-pub trait DbtoResp {
-    fn to_resp(&self) -> Value;
-    fn to_hresp(&self) -> HttpResponse {
-        HttpResponse::Ok().json(self.to_resp())
-    }
-}
-
-impl DbtoResp for DbDriverInfo {
-    fn to_resp(&self) -> Value {
+impl PostD<Value> {
+    pub fn to_resp(&self) -> Value {
         json! ({
-            "username": self.userinfo.id,
-            "license_num": self.license_num,
-            "license_pic": format!("http://localhost:8090/pics/{}", self.license_pic),
-            "exp_details": self.exp_details
+            "id": self.id,
+            "userinfo": self.userinfo.clone(),
+            "ptdate": self.ptdate,
+            "data": self.data.clone(),
+            "votes": self.votes.to_string(),
         })
     }
 }
 
-impl DbtoResp for DbCarInfo {
-    fn to_resp(&self) -> Value {
-        json!({
-            "username": self.userinfo.id,
-            "car_id": self.car_id,
-            "is_available": self.is_available,
-            "license_num": self.license_num,
-            "owner_proof": format!("http://localhost:8090/pics/{}", self.owner_proof),
-            "car_details": self.car_details,
-        })
-    }
-}
-
-impl DbtoResp for DbPackageInfo {
-    fn to_resp(&self) -> Value {
-        json!({
-            "package_name": self.package_name,
-            "package_pic": format!("http://localhost:8090/pics/{}", self.package_pic),
-            "pkg_details": self.pkg_details,
-            "to_where": self.to_where,
-            "from_where": self.from_where,
-            "exp_date_to_send": self.exp_date_to_send,
+impl PostD<DbCarPost> {
+    pub async fn to_resp(&self) -> Value {
+        json! ({
+            "id": self.id,
+            "userinfo": self.userinfo.clone(),
+            "ptdate": self.ptdate,
+            "data": self.data.to_resp().await.unwrap(),
+            "votes": self.votes.to_string(),
         })
     }
 }
@@ -397,7 +386,7 @@ impl DbCarPost {
         let car_info = fetch_car_info.take::<Option<DbCarInfo>>(0).unwrap();
 
         Ok(json!({
-            "car_info": car_info.unwrap().to_resp(),
+            "car_info": car_info.unwrap(),
             "from_where": self.from_where,
             "to_where": self.to_where,
             "date_to_go": self.date_to_go

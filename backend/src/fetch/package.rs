@@ -1,8 +1,9 @@
 use crate::{
     extra::internal_error,
-    structures::{DbPackageInfo, Post, DB},
+    structures::{PostD, DB},
 };
 use actix_web::{get, HttpResponse};
+use serde_json::Value;
 
 #[get("/package")]
 async fn fetch_package() -> HttpResponse {
@@ -15,9 +16,9 @@ async fn fetch_package() -> HttpResponse {
     let query = "SELECT * FROM package ORDER BY RAND() LIMIT 30;";
 
     (db.query(query).await).map_or_else(internal_error, |mut resp| {
-        resp.take::<Vec<Post<DbPackageInfo>>>(0)
+        resp.take::<Vec<PostD<Value>>>(0)
             .map_or_else(internal_error, |driver| {
-                HttpResponse::Ok().json(driver)
+                HttpResponse::Ok().json(driver.into_iter().map(|x| x.to_resp()).collect::<Vec<Value>>())
             })
     })
 }

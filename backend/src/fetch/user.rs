@@ -1,10 +1,10 @@
 use actix_web::{get, web::Path, HttpResponse};
-use serde_json::json;
+use serde_json::{json, Value};
 use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::internal_error,
-    structures::{DbCarInfo, DbCarPost, DbPackageInfo, DbUserInfo, Post, DB},
+    structures::{DbCarInfo, DbCarPost, DbUserInfo, PostD, DB},
 };
 
 #[get("/user/{id}")]
@@ -36,30 +36,22 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
                 .await
                 .unwrap();
             let owncar: Vec<DbCarInfo> = idk.take(0).unwrap();
-            let pkgpost: Vec<Post<DbPackageInfo>> = idk.take(1).unwrap();
-            let carpost: Vec<Post<DbCarPost>> = idk.take(2).unwrap();
+            let pkgpost: Vec<PostD<Value>> = idk.take(1).unwrap();
+            let carpost: Vec<PostD<DbCarPost>> = idk.take(2).unwrap();
+            let package = pkgpost.into_iter().map(|x| x.to_resp()).collect::<Vec<Value>>();
+            let mut car_posts = vec![];
 
-            /*let owncars = owncar
-                .iter()
-                .map(DbCarInfo::to_resp)
-                .collect::<Vec<Value>>();
-            let packages = pkgpost
-                .iter()
-                .map(Post::<DbPackageInfo>::to_resp)
-                .collect::<Vec<Value>>();
-            let mut resp_car_post = vec![];
-
-            for x in &carpost {
-                resp_car_post.push(x.to_resp().await);
-            }*/
+            for i in carpost {
+                car_posts.push(i.to_resp().await);
+            }
 
             let ret_user = json!({
                 "username": user.username,
                 "fullname": user.fullname,
                 "pik_role": user.pik_role,
                 "own_cars": owncar,
-                "packages": pkgpost,
-                "car_post": carpost
+                "packages": package,
+                "car_post": car_posts
             });
             HttpResponse::Ok().json(ret_user)
         }

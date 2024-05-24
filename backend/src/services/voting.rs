@@ -118,13 +118,9 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
 
                             if let (Some(_), Some(mut post)) = (cel, iid) {
                                 if &paths.0 == "up" {
-                                    println!("{}", post.votes);
                                     post.votes += 1;
-                                    println!("{}", post.votes);
                                 } else if &paths.0 == "down" {
-                                    println!("{}", post.votes);
                                     post.votes -= 1;
-                                    println!("{}", post.votes);
                                 } else {
                                     return HttpResponse::BadRequest().await.unwrap();
                                 }

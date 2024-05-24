@@ -11,7 +11,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::{internal_error, save_img},
-    structures::{Claims, DbPackageInfo, DbUserInfo, PackageForm, Post, Resp, DB, JWT_SECRET},
+    structures::{Claims, DbPackageInfo, DbUserInfo, PackageForm, PostD, Resp, DB, JWT_SECRET},
 };
 
 #[allow(clippy::pedantic)]
@@ -85,29 +85,11 @@ async fn package(
                             let id = Id::rand();
 
                             match db
-                                .create::<Option<Post<DbPackageInfo>>>(("package", id.clone()))
+                                .create::<Option<PostD<DbPackageInfo>>>(("package", id.clone()))
                                 .content(post)
                                 .await
                             {
                                 Ok(Some(_)) => {
-                                    /*let tuery = "RELATE type::thing($uthing) -> vote -> type::thing($pthing);";
-                                    db.query(tuery)
-                                        .bind((
-                                            "uthing",
-                                            Thing {
-                                                id: Id::String(user_info.username.to_string()),
-                                                tb: "user".into(),
-                                            },
-                                        ))
-                                        .bind((
-                                            "pthing",
-                                            Thing {
-                                                id: id.clone(),
-                                                tb: "package".into(),
-                                            },
-                                        ))
-                                        .await
-                                        .unwrap();*/
                                     user.pkg_posts.push(Thing::from(("package", id)));
                                     match db
                                         .update::<Option<DbUserInfo>>((

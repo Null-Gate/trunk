@@ -8,7 +8,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::{check_user, decode_token, encode_token, internal_error, verify_password},
-    structures::{CarPostForm, Claims, DbCarPost, DbUserInfo, Post, Resp, Roles, DB},
+    structures::{CarPostForm, Claims, DbCarPost, DbUserInfo, PostD, Resp, Roles, DB},
 };
 
 #[allow(clippy::future_not_send)]
@@ -31,7 +31,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                     }
 
                     match db
-                        .create::<Option<Post<DbCarPost>>>(("car_post", post.car_id.to_string()))
+                        .create::<Option<PostD<DbCarPost>>>(("car_post", post.car_id.to_string()))
                         .content(post.to_db_post().to_post(&user.username))
                         .await
                     {

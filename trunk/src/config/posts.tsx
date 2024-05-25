@@ -55,3 +55,26 @@ export const POST_DATA = [
     comments: []
   }
 ];
+
+export const NOTI_DATA = [
+  {
+    id: "1",
+    created_date: "4h",
+    message: "commented on the status you shared.",
+    user: {
+      id: 2,
+      name: "Otto Anderson",
+      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    }
+  },
+  {
+    id: "",
+    created_date: "2d",
+    message: "voted on the status you shared",
+    user: {
+      id: 2,
+      name: "Otto Anderson",
+      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    }
+  }
+]

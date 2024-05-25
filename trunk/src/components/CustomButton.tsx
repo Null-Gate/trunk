@@ -11,12 +11,14 @@ import { GlobalStyles } from "../constants/styles";
 
 interface CustomButtonEntry {
     title: string,
-    btnStyle?: object
+    btnStyle?: object,
+    textStyle?: object
 }
 
 const CustomButton = ({
     title,
-    btnStyle = {}
+    btnStyle = {},
+    textStyle = {}
 }: CustomButtonEntry) => {
     return (
         <View style={[styles.buttonContainer, btnStyle]}>
@@ -28,7 +30,7 @@ const CustomButton = ({
                         : styles.button
                 }
             >
-                <Text style={styles.buttonText}>{title}</Text>
+                <Text style={[styles.buttonText, textStyle]}>{title}</Text>
             </Pressable>
         </View>
     )

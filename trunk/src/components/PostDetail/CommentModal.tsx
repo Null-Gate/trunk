@@ -11,6 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import React, { useState } from 'react';
 
+//icons
 import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';

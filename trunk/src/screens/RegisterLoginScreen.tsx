@@ -7,7 +7,7 @@ import {
 } from "react-native";
 
 //react
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 //styles
 import { GlobalStyles } from "../constants/styles";
@@ -20,6 +20,7 @@ import CustomButton from "../components/CustomButton";
 import Input from "../components/Login&Register/Input";
 import Segment from "../components/Segment";
 import Circles from "../components/Login&Register/Circles";
+
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -44,62 +45,62 @@ const RegisterLoginScreen = () => {
         setActiveContent(activeId);
     }
 
-    return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-            <View style={{ flex: 1 }}>
-                <Circles />
-                <View style={styles.formContainer}>
-                    <Segment
-                        items={segmentItems}
-                        currentActive={activeContent}
-                        onChangeActive={handleActiveContent}
-                        style={{ marginBottom: 20 }}
-                    />
+return (
+    <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+        <View style={{ flex: 1 }}>
+            <Circles />
+            <View style={styles.formContainer}>
+                <Segment
+                    items={segmentItems}
+                    currentActive={activeContent}
+                    onChangeActive={handleActiveContent}
+                    style={{ marginBottom: 20 }}
+                />
+                <Input
+                    title="User Name"
+                    value={userName}
+                    onChangeValue={setUserName}
+                    icon={<AntDesign name="user" size={20} color="black" />}
+                    inputStyle={{ marginBottom: 20 }}
+                    placeholder="Maung Thar Kyaw"
+                />
+
+                <Input
+                    title="Password"
+                    value={password}
+                    onChangeValue={setPassword}
+                    icon={<AntDesign name="lock1" size={20} color="black" />}
+                    inputStyle={activeContent === 2 ? { marginBottom: 20 } : { marginBottom: 35 }}
+                    placeholder="password"
+                />
+
+                {activeContent === 2 && (
                     <Input
-                        title="User Name"
-                        value={userName}
-                        onChangeValue={setUserName}
-                        icon={<AntDesign name="user" size={20} color="black" />}
-                        inputStyle={{ marginBottom: 20 }}
-                        placeholder="Maung Thar Kyaw"
+                        title="Email"
+                        value={email}
+                        onChangeValue={setEmail}
+                        icon={<AntDesign name="mail" size={20} color="black" />}
+                        inputStyle={{ marginBottom: 35 }}
+                        placeholder="maungtharkyaw2520@gmail.com"
+                        keyboardType="email-address"
                     />
+                )}
 
-                    <Input
-                        title="Password"
-                        value={password}
-                        onChangeValue={setPassword}
-                        icon={<AntDesign name="lock1" size={20} color="black" />}
-                        inputStyle={activeContent === 2 ? { marginBottom: 20 } : { marginBottom: 35 }}
-                        placeholder="password"
+                <View style={styles.buttonContainer}>
+                    <CustomButton
+                        title={activeContent === 2 ? "Register" : "Login"}
+                        btnStyle={styles.button}
                     />
-
-                    {activeContent === 2 && (
-                        <Input
-                            title="Email"
-                            value={email}
-                            onChangeValue={setEmail}
-                            icon={<AntDesign name="mail" size={20} color="black" />}
-                            inputStyle={{ marginBottom: 35 }}
-                            placeholder="maungtharkyaw2520@gmail.com"
-                            keyboardType="email-address"
-                        />
-                    )}
-
-                    <View style={styles.buttonContainer}>
-                        <CustomButton
-                            title={activeContent === 2 ? "Register" : "Login"}
-                            btnStyle={styles.button}
-                        />
-                    </View>
                 </View>
             </View>
+        </View>
 
 
-        </KeyboardAvoidingView>
-    )
+    </KeyboardAvoidingView>
+)
 }
 
 const styles = StyleSheet.create({

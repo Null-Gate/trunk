@@ -38,8 +38,6 @@ pub async fn login(info: Json<Login>) -> HttpResponse {
                         fullname: user_info.fullname,
                         password: info.password.clone(),
                         pik_role: user_info.pik_role,
-                        car_posts: user_info.car_posts,
-                        pkg_posts: user_info.pkg_posts,
                         own_cars: user_info.own_cars,
                     };
 

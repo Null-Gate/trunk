@@ -94,9 +94,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                                         password: user_info.password,
                                         fullname: user_info.fullname,
                                         pik_role: user.pik_role,
-                                        car_posts: user.car_posts,
                                         own_cars: user.own_cars,
-                                        pkg_posts: user.pkg_posts,
                                     };
                                     let claims = Claims { user_info, exp };
 

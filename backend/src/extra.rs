@@ -73,7 +73,7 @@ pub async fn save_img(img: TempFile) -> Result<String, HttpResponse> {
         let img_dir = format!("{dir}/{}-{img_name}", GenString::new().gen_string(10, 30));
         (
             img_dir.clone(),
-            format!("http://54.169.162.141:80/pics/{img_dir}"),
+            format!("http://54.169.162.141:80/pics{img_dir}"),
         )
     } else {
         return Err(HttpResponse::BadRequest().json(Resp::new(

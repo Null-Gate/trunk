@@ -4,7 +4,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::{check_user, decode_token, internal_error, verify_password},
-    structures::{Post, VRelate, Vote, VoteTB, DB},
+    structures::{Post, PostD, VRelate, Vote, VoteTB, DB},
 };
 
 #[allow(clippy::pedantic)]
@@ -37,7 +37,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                                 .bind((
                                     "pthing",
                                     Thing {
-                                        tb: "package".into(),
+                                        tb: "post".into(),
                                         id: Id::from(&paths.1),
                                     },
                                 ))
@@ -45,7 +45,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                                 .unwrap();
 
                             let sel: Option<VRelate> = idk.take(0).unwrap();
-                            let iid: Option<Post<Value>> = idk.take(1).unwrap();
+                            let iid: Option<PostD<Value>> = idk.take(1).unwrap();
 
                             if let (Some(mut voted), Some(mut post)) = (sel, iid.clone()) {
                                 if voted.vote == Vote::Up {
@@ -64,7 +64,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                                     }
 
                                     match db
-                                        .update::<Option<Post<Value>>>(("package", Id::from(&paths.1))).content(post)
+                                        .update::<Option<Post<Value>>>(("post", Id::from(&paths.1))).content(post)
                                         .await
                                     {
                                         Ok(Some(i)) => return HttpResponse::Ok().json(i.to_resp()),
@@ -87,7 +87,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                                     }
                                     
                                     match db
-                                        .update::<Option<Post<Value>>>(("package", Id::from(&paths.1))).content(post)
+                                        .update::<Option<Post<Value>>>(("post", Id::from(&paths.1))).content(post)
                                         .await
                                     {
                                         Ok(Some(i)) => return HttpResponse::Ok().json(i.to_resp()),
@@ -107,7 +107,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
 
                             let tdata = VoteTB {
                                 r#in: Thing { tb: "user".into(), id: Id::String(user_info.username.to_string()) },
-                                out: Thing { tb: "package".into(), id: Id::String(paths.1.to_string()) },
+                                out: Thing { tb: "post".into(), id: Id::String(paths.1.to_string()) },
                                 vote
                             };
 
@@ -126,7 +126,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                                 }
 
                                 match db
-                                    .update::<Option<Post<Value>>>(("package", Id::from(&paths.1))).content(post).await
+                                    .update::<Option<Post<Value>>>(("post", Id::from(&paths.1))).content(post).await
                                     {
                                         Ok(Some(i)) => return HttpResponse::Ok().json(i.to_resp()),
                                         Ok(None) => return internal_error("None Update Vote Post Error!"),

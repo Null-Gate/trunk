@@ -4,7 +4,6 @@ use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use actix_web::HttpResponse;
 use argon2::{Config, Variant, Version};
 use async_once::AsyncOnce;
-use directories::BaseDirs;
 use lazy_static::lazy_static;
 use rand::{
     distributions::{DistString, Distribution},
@@ -73,8 +72,6 @@ pub struct DbUserInfo {
     pub password: Arc<str>,
     pub pik_role: Vec<Roles>,
     pub own_cars: Vec<Thing>,
-    pub pkg_posts: Vec<Thing>,
-    pub car_posts: Vec<Thing>,
 }
 
 impl Default for DbUserInfo {
@@ -84,9 +81,7 @@ impl Default for DbUserInfo {
             fullname: "".into(),
             password: "".into(),
             pik_role: vec![],
-            own_cars: vec![],
-            car_posts: vec![],
-            pkg_posts: vec![],
+            own_cars: vec![]
         }
     }
 }
@@ -125,14 +120,6 @@ pub struct CarForm {
     pub car_details: Text<Arc<str>>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DbCarPost {
-    pub car_info: Thing,
-    pub from_where: Arc<str>,
-    pub to_where: Arc<str>,
-    pub date_to_go: Arc<str>,
-}
-
 #[derive(Serialize, Deserialize)]
 pub struct CarPostForm {
     pub car_id: Arc<str>,
@@ -142,12 +129,28 @@ pub struct CarPostForm {
 }
 
 impl CarPostForm {
-    pub fn to_db_post(&self) -> DbCarPost {
-        DbCarPost {
-            car_info: Thing::from(("car", Id::String(self.car_id.to_string()))),
-            to_where: self.to_where.clone(),
-            from_where: self.from_where.clone(),
-            date_to_go: self.date_to_go.clone(),
+    pub async fn to_db_post(&self, username: &str) -> Result<Post<DbCarInfo>, HttpResponse> {
+        let db = DB.get().await;
+        if let Err(e) = db.use_ns("ns").use_db("db").await {
+            return Err(internal_error(e));
+        };
+
+        match db.select::<Option<DbCarInfo>>(("car", Id::String(self.car_id.to_string()))).await {
+            Ok(Some(data)) => {
+                Ok(Post {
+                    r#in: Thing { tb: "user".into(), id: Id::from(username) },
+                    out: Thing::from(("car", Id::String(self.car_id.to_string()))),
+                    ptdate: 0,
+                    votes: 0,
+                    data,
+                    ptype: PType::Car,
+                    to_where: self.to_where.clone(),
+                    from_where: self.from_where.clone(),
+                    date_to_go: self.date_to_go.clone(),
+                })
+            },
+            Ok(None) => Err(internal_error("structure 139 None DbCarIndo Error!")),
+            Err(e) => Err(internal_error(e))
         }
     }
 }
@@ -160,7 +163,7 @@ pub struct PackageForm {
     pub pkg_details: Text<Arc<str>>,
     pub to_where: Text<Arc<str>>,
     pub from_where: Text<Arc<str>>,
-    pub exp_date_to_send: Text<Arc<str>>,
+    pub date_to_go: Text<Arc<str>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -174,9 +177,6 @@ pub struct DbPackageInfo {
     pub package_name: Arc<str>,
     pub package_pic: Arc<str>,
     pub pkg_details: Arc<str>,
-    pub to_where: Arc<str>,
-    pub from_where: Arc<str>,
-    pub exp_date_to_send: Arc<str>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -201,6 +201,12 @@ pub struct WSResp<T> {
 pub enum Vote {
     Up,
     Down,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+pub enum PType {
+    Car,
+    Pkg,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -259,61 +265,48 @@ impl DistString for GenString {
 }
 
 pub async fn get_cache_dir() -> String {
-    let dir = format!(
-        "{}/Trunk",
-        BaseDirs::new().unwrap().cache_dir().to_string_lossy()
-    );
-    if !Path::new(&dir).exists() {
-        fs::create_dir(&dir).await.unwrap();
+    if !Path::new(DATA_PATH.as_str()).exists() {
+        fs::create_dir(DATA_PATH.as_str()).await.unwrap();
     }
-    dir
+    DATA_PATH.to_string()
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Post<T> {
     pub ptdate: u64,
-    pub data: T,
+    pub r#in: Thing,
+    pub out: Thing,
+    pub from_where: Arc<str>,
+    pub to_where: Arc<str>,
+    pub date_to_go: Arc<str>,
     pub votes: i64,
-    pub userinfo: Thing,
+    pub ptype: PType,
+    pub data: T,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PostD<T> {
     pub id: Thing,
     pub ptdate: u64,
-    pub data: T,
+    pub r#in: Thing,
+    pub out: Thing,
+    pub from_where: Arc<str>,
+    pub to_where: Arc<str>,
+    pub date_to_go: Arc<str>,
+    pub ptype: PType,
     pub votes: i64,
-    pub userinfo: Thing,
+    pub data: T,
 }
-
-/*impl Post<DbCarPost> {
-    pub fn to_resp(&self) -> Value {
-        json! ({
-            "userinfo": self.userinfo.clone(),
-            "ptdate": self.ptdate,
-            "data": self.data.clone(),
-            "votes": self.votes.to_string(),
-        })
-    }
-}
-
-impl Post<DbPackageInfo> {
-    pub fn to_resp(&self) -> Value {
-        json! ({
-            "userinfo": self.userinfo.clone(),
-            "ptdate": self.ptdate,
-            "data": self.data.clone(),
-            "votes": self.votes.to_string(),
-        })
-    }
-}*/
 
 impl Post<Value> {
     pub fn to_resp(&self) -> Value {
         json! ({
-            "userinfo": self.userinfo.clone(),
+            "userinfo": self.r#in.clone(),
+            "from_where": self.from_where,
+            "to_where": self.to_where,
+            "date_to_go": self.date_to_go,
             "ptdate": self.ptdate,
-            "data": self.data.clone(),
+            "data": self.data,
             "votes": self.votes.to_string(),
         })
     }
@@ -323,73 +316,28 @@ impl PostD<Value> {
     pub fn to_resp(&self) -> Value {
         json! ({
             "id": self.id,
-            "userinfo": self.userinfo.clone(),
-            "ptdate": self.ptdate,
-            "data": self.data.clone(),
-            "votes": self.votes.to_string(),
-        })
-    }
-}
-
-impl PostD<DbCarPost> {
-    pub async fn to_resp(&self) -> Value {
-        json! ({
-            "id": self.id,
-            "userinfo": self.userinfo.clone(),
-            "ptdate": self.ptdate,
-            "data": self.data.to_resp().await.unwrap(),
-            "votes": self.votes.to_string(),
-        })
-    }
-}
-
-impl DbPackageInfo {
-    pub fn to_post(&self, username: &str) -> Post<Self> {
-        Post {
-            userinfo: Thing {
-                tb: "user".into(),
-                id: Id::from(username),
-            },
-            ptdate: 0,
-            data: self.clone(),
-            votes: 0,
-        }
-    }
-}
-
-impl DbCarPost {
-    pub fn to_post(&self, username: &str) -> Post<Self> {
-        Post {
-            userinfo: Thing {
-                tb: "user".into(),
-                id: Id::from(username),
-            },
-            ptdate: 0,
-            data: self.clone(),
-            votes: 0,
-        }
-    }
-    pub async fn to_resp(&self) -> Result<Value, HttpResponse> {
-        let db = DB.get().await;
-        if let Err(e) = db.use_ns("ns").use_db("db").await {
-            return Err(internal_error(e));
-        }
-
-        let query = "SELECT * FROM type::thing($thing);";
-
-        let mut fetch_car_info = db
-            .query(query)
-            .bind(("thing", &self.car_info))
-            .await
-            .unwrap();
-
-        let car_info = fetch_car_info.take::<Option<DbCarInfo>>(0).unwrap();
-
-        Ok(json!({
-            "car_info": car_info.unwrap(),
+            "userinfo": self.r#in.clone(),
             "from_where": self.from_where,
             "to_where": self.to_where,
-            "date_to_go": self.date_to_go
-        }))
+            "date_to_go": self.date_to_go,
+            "ptdate": self.ptdate,
+            "data": self.data,
+            "votes": self.votes.to_string(),
+        })
+    }
+}
+
+impl PostD<DbCarInfo> {
+    pub fn to_resp(&self) -> Value {
+        json! ({
+            "id": self.id,
+            "userinfo": self.r#in.clone(),
+            "from_where": self.from_where,
+            "to_where": self.to_where,
+            "date_to_go": self.date_to_go,
+            "ptdate": self.ptdate,
+            "data": self.data,
+            "votes": self.votes.to_string(),
+        })
     }
 }

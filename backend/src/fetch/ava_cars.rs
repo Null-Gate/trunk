@@ -1,8 +1,9 @@
 use actix_web::{get, HttpResponse};
+use serde_json::Value;
 
 use crate::{
     extra::internal_error,
-    structures::{DbCarPost, PostD, DB},
+    structures::{DbCarInfo, PostD, DB},
 };
 
 #[get("/ava_cars")]
@@ -16,12 +17,8 @@ async fn fetch_ava_cars() -> HttpResponse {
 
     let mut resp = db.query(query).await.unwrap();
 
-    let svec = resp.take::<Vec<PostD<DbCarPost>>>(0).unwrap();
-    let mut rvec = vec![];
-
-    for i in svec {
-        rvec.push(i.to_resp().await);
-    }
+    let svec = resp.take::<Vec<PostD<DbCarInfo>>>(0).unwrap();
+    let rvec = svec.into_iter().map(|x| x.to_resp()).collect::<Vec<Value>>();
 
     HttpResponse::Ok().json(rvec)
 }

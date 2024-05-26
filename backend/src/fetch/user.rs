@@ -4,7 +4,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::internal_error,
-    structures::{DbCarInfo, DbCarPost, DbUserInfo, PostD, DB},
+    structures::{DbCarInfo, DbUserInfo, PostD, DB},
 };
 
 #[get("/user/{id}")]
@@ -20,12 +20,10 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
     {
         Ok(Some(user)) => {
             let own_carsql = "SELECT * FROM car WHERE userinfo=type::thing($thing);";
-            let pkg_postsql = "SELECT * FROM package WHERE userinfo=type::thing($thing);";
-            let car_postsql = "SELECT * FROM car_post WHERE userinfo=type::thing($thing);";
+            let postsql = "SELECT * FROM post WHERE in=type::thing($thing);";
             let mut idk = db
                 .query(own_carsql)
-                .query(pkg_postsql)
-                .query(car_postsql)
+                .query(postsql)
                 .bind((
                     "thing",
                     Thing {
@@ -36,22 +34,15 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
                 .await
                 .unwrap();
             let owncar: Vec<DbCarInfo> = idk.take(0).unwrap();
-            let pkgpost: Vec<PostD<Value>> = idk.take(1).unwrap();
-            let carpost: Vec<PostD<DbCarPost>> = idk.take(2).unwrap();
-            let package = pkgpost.into_iter().map(|x| x.to_resp()).collect::<Vec<Value>>();
-            let mut car_posts = vec![];
-
-            for i in carpost {
-                car_posts.push(i.to_resp().await);
-            }
+            let db_posts: Vec<PostD<Value>> = idk.take(1).unwrap();
+            let posts = db_posts.into_iter().map(|x| x.to_resp()).collect::<Vec<Value>>();
 
             let ret_user = json!({
                 "username": user.username,
                 "fullname": user.fullname,
                 "pik_role": user.pik_role,
                 "own_cars": owncar,
-                "packages": package,
-                "car_post": car_posts
+                "posts": posts,
             });
             HttpResponse::Ok().json(ret_user)
         }

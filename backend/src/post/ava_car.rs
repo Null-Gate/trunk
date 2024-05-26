@@ -8,7 +8,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::{check_user, decode_token, encode_token, internal_error, verify_password},
-    structures::{CarPostForm, Claims, DbCarPost, DbUserInfo, PostD, Resp, Roles, DB},
+    structures::{CarPostForm, Claims, DbCarInfo, DbUserInfo, PostD, Resp, Roles, DB},
 };
 
 #[allow(clippy::future_not_send)]
@@ -20,7 +20,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
     }
     match decode_token(&token) {
         Ok(user_info) => match check_user(user_info.username.clone(), db).await {
-            Ok(mut user) => match verify_password(&user_info.password, &user.password) {
+            Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
                     if !(user.pik_role.contains(&Roles::Owner)
                         && user
@@ -31,15 +31,11 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                     }
 
                     match db
-                        .create::<Option<PostD<DbCarPost>>>(("car_post", post.car_id.to_string()))
-                        .content(post.to_db_post().to_post(&user.username))
+                        .create::<Option<PostD<DbCarInfo>>>(("post", Id::String(post.car_id.to_string())))
+                        .content(post.to_db_post(&user_info.username).await.unwrap())
                         .await
                     {
                         Ok(Some(_)) => {
-                            user.car_posts.push(Thing::from((
-                                "car_post",
-                                Id::String(post.car_id.to_string()),
-                            )));
                             let sql = "UPDATE type::thing($thing) SET is_available = true;";
                             db.query(sql)
                                 .bind((
@@ -66,9 +62,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                         password: user_info.password,
                                         fullname: user_info.fullname,
                                         pik_role: user.pik_role,
-                                        car_posts: user.car_posts,
                                         own_cars: user.own_cars,
-                                        pkg_posts: user.pkg_posts,
                                     };
                                     let exp = usize::try_from(
                                         (Utc::now() + TimeDelta::try_days(9_999_999).unwrap())

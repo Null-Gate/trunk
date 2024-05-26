@@ -8,80 +8,75 @@ import ProfileScreen from "../screens/ProfileScreen";
 import PostCreateScreen from "../screens/PostCreateScreen";
 import PostDetailScreen from "../screens/PostDetailScreen";
 
-import { Entypo } from '@expo/vector-icons';
+import { Entypo } from "@expo/vector-icons";
 
 //styles
 import { GlobalStyles } from "../constants/styles";
+import SelfStatusScreen from "../screens/SelfStatusScreen";
+import StatusDetail from "../screens/StatusDetail";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const BottomTab = () => {
-    return (
-        <Tab.Navigator
-            screenOptions={({ route }) => ({
-                tabBarIcon: ({ focused, color, size }) => {
-                    let iconName: any;
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: any;
 
-                    if (route.name === 'NewFeed') {
-                        // iconName = focused
-                        //     ? 'ios-information-circle'
-                        //     : 'ios-information-circle-outline';
-                        iconName = "home";
-                    } else if (route.name === 'PostCreate') {
-                        iconName = "plus";
-                    } else if (route.name === 'Profile') {
-                        iconName = "user";
-                    }
+          if (route.name === "NewFeed") {
+            // iconName = focused
+            //     ? 'ios-information-circle'
+            //     : 'ios-information-circle-outline';
+            iconName = "home";
+          } else if (route.name === "PostCreate") {
+            iconName = "plus";
+          } else if (route.name === "Profile") {
+            iconName = "user";
+          } else if (route.name === "Self Status") {
+            iconName = "list";
+          }
 
-                    // You can return any component that you like here!
-                    return <Entypo name={iconName} size={size} color={color} />;
-                },
-                tabBarShowLabel: false,
-                tabBarActiveTintColor: GlobalStyles.colors.primaryColor,
-                tabBarInactiveTintColor: 'gray',
-                headerStyle: {
-                    backgroundColor: GlobalStyles.colors.primaryColor
-                }
-            })}
-        >
-            <Tab.Screen
-                name="NewFeed"
-                component={NewFeedScreen}
-            />
-            <Tab.Screen
-                name="PostCreate"
-                component={PostCreateScreen}
-            />
-            <Tab.Screen
-                name="Profile"
-                component={ProfileScreen}
-            />
-        </Tab.Navigator>
-    )
-}
+          // You can return any component that you like here!
+          return <Entypo name={iconName} size={size} color={color} />;
+        },
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: GlobalStyles.colors.primaryColor,
+        tabBarInactiveTintColor: "gray",
+        headerStyle: {
+          backgroundColor: GlobalStyles.colors.primaryColor,
+        },
+      })}
+    >
+      <Tab.Screen name="NewFeed" component={NewFeedScreen} />
+      <Tab.Screen name="PostCreate" component={PostCreateScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Self Status" component={SelfStatusScreen} />
+    </Tab.Navigator>
+  );
+};
 
 const AuthenticatedStack = () => {
-    return (
-        <Stack.Navigator
-            initialRouteName="BottomTab"
-        >
-            <Stack.Screen
-                name="BottomTab"
-                component={BottomTab}
-                options={{
-                    headerShown: false,
-                }}
-            />
-            <Stack.Screen
-                name="PostDetail"
-                component={PostDetailScreen}
-                options={{
-                    headerShown: false
-                }}
-            />
-        </Stack.Navigator>
-    )
-}
+  return (
+    <Stack.Navigator initialRouteName="BottomTab">
+      <Stack.Screen
+        name="BottomTab"
+        component={BottomTab}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="PostDetail"
+        component={PostDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen name="StatusDetail" component={StatusDetail} options={{title:'Detail'}}/>
+    </Stack.Navigator>
+  );
+};
 
 export default AuthenticatedStack;

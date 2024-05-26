@@ -16,7 +16,7 @@ import { useState, useEffect, useRef } from "react";
 import { AntDesign } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 
-import { POST_DATA } from "../../config/posts";
+// import { POST_DATA } from "../../config/posts";
 
 //helper functions
 import {

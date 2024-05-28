@@ -3,20 +3,24 @@ import React from "react";
 
 import { Entypo } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import Categroy from "./Categroy";
 
 const ListItem = ({ item }) => {
-  const { category, title, date, desc } = item;
+  const { category, title, date, desc, varient } = item;
   const navigation = useNavigation();
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate("StatusDetail", { item })}
+      onPress={() => {
+        if (varient === "Current") {
+          return navigation.navigate("Map", { item });
+        }
+        navigation.navigate("StatusDetail", { item });
+      }}
       activeOpacity={0.6}
       style={styles.container}
     >
       <View style={styles.leftGroup}>
-        <View style={styles.categoryContainer}>
-          <Text style={styles.categoryText}>{category}</Text>
-        </View>
+        <Categroy category={category} />
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.desc} numberOfLines={1}>
           {desc}
@@ -55,18 +59,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     gap: 3,
   },
-  categoryContainer: {
-    backgroundColor: "#9B1806",
-    borderRadius: 100,
-    paddingHorizontal: 20,
-    paddingVertical: 2,
-  },
-  categoryText: {
-    color: "#FFFBE8",
-    textAlign: "center",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
+
   title: {
     fontWeight: "bold",
     fontSize: 20,

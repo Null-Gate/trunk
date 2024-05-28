@@ -1,8 +1,8 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import CustomButton from "../components/CustomButton";
 import ListItem from "../components/SelfStatus/ListItem";
 import { Lists } from "../config/StatusLists";
+import Button from "../components/Button";
 
 const SelfStatusScreen = () => {
   const [data, setData] = useState([]);
@@ -23,15 +23,17 @@ const SelfStatusScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.btnContainer}>
-        <CustomButton
+        <Button
           title="Current"
           btnStyle={styles.statusButton}
           handlePress={handlePress}
+          active={varient === "Current"}
         />
-        <CustomButton
+        <Button
           title="History"
           btnStyle={styles.statusButton}
           handlePress={handlePress}
+          active={varient === "History"}
         />
       </View>
       {/* List */}

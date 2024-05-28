@@ -71,7 +71,6 @@ pub struct DbUserInfo {
     pub fullname: Arc<str>,
     pub password: Arc<str>,
     pub pik_role: Vec<Roles>,
-    pub own_cars: Vec<Thing>,
 }
 
 impl Default for DbUserInfo {
@@ -81,7 +80,6 @@ impl Default for DbUserInfo {
             fullname: "".into(),
             password: "".into(),
             pik_role: vec![],
-            own_cars: vec![]
         }
     }
 }
@@ -135,22 +133,26 @@ impl CarPostForm {
             return Err(internal_error(e));
         };
 
-        match db.select::<Option<DbCarInfo>>(("car", Id::String(self.car_id.to_string()))).await {
-            Ok(Some(data)) => {
-                Ok(Post {
-                    r#in: Thing { tb: "user".into(), id: Id::from(username) },
-                    out: Thing::from(("car", Id::String(self.car_id.to_string()))),
-                    ptdate: 0,
-                    votes: 0,
-                    data,
-                    ptype: PType::Car,
-                    to_where: self.to_where.clone(),
-                    from_where: self.from_where.clone(),
-                    date_to_go: self.date_to_go.clone(),
-                })
-            },
+        match db
+            .select::<Option<DbCarInfo>>(("car", Id::String(self.car_id.to_string())))
+            .await
+        {
+            Ok(Some(data)) => Ok(Post {
+                r#in: Thing {
+                    tb: "user".into(),
+                    id: Id::from(username),
+                },
+                out: Thing::from(("car", Id::String(self.car_id.to_string()))),
+                ptdate: 0,
+                votes: 0,
+                data,
+                ptype: PType::Car,
+                to_where: self.to_where.clone(),
+                from_where: self.from_where.clone(),
+                date_to_go: self.date_to_go.clone(),
+            }),
             Ok(None) => Err(internal_error("structure 139 None DbCarIndo Error!")),
-            Err(e) => Err(internal_error(e))
+            Err(e) => Err(internal_error(e)),
         }
     }
 }
@@ -169,7 +171,7 @@ pub struct PackageForm {
 #[derive(Serialize, Deserialize)]
 pub struct NewFeed {
     pub car_posts: Vec<Value>,
-    pub packages: Vec<Value>, 
+    pub packages: Vec<Value>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -221,7 +223,13 @@ pub struct VRelate {
 pub struct VoteTB {
     pub r#in: Thing,
     pub out: Thing,
-    pub vote: Vote
+    pub vote: Vote,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OwnTB {
+    pub r#in: Thing,
+    pub out: Thing,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -35,7 +35,10 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
                 .unwrap();
             let owncar: Vec<DbCarInfo> = idk.take(0).unwrap();
             let db_posts: Vec<PostD<Value>> = idk.take(1).unwrap();
-            let posts = db_posts.into_iter().map(|x| x.to_resp()).collect::<Vec<Value>>();
+            let posts = db_posts
+                .into_iter()
+                .map(|x| x.to_resp())
+                .collect::<Vec<Value>>();
 
             let ret_user = json!({
                 "username": user.username,

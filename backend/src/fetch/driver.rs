@@ -16,8 +16,6 @@ async fn fetch_driver() -> HttpResponse {
 
     (db.query(query).await).map_or_else(internal_error, |mut resp| {
         resp.take::<Vec<Post<DbDriverInfo>>>(0)
-            .map_or_else(internal_error, |driver| {
-                HttpResponse::Ok().json(driver)
-            })
+            .map_or_else(internal_error, |driver| HttpResponse::Ok().json(driver))
     })
 }

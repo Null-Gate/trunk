@@ -10,7 +10,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::{check_user, decode_token, internal_error, save_img, verify_password},
-    structures::{CarForm, Claims, DbCarInfo, DbUserInfo, Resp, Roles, DB, JWT_SECRET},
+    structures::{CarForm, Claims, DbCarInfo, DbUserInfo, OwnTB, Resp, Roles, DB, JWT_SECRET},
 };
 
 #[allow(clippy::future_not_send)]
@@ -74,7 +74,21 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                             if !user.pik_role.contains(&Roles::Owner) {
                                 user.pik_role.push(Roles::Owner);
                             }
-                            user.own_cars.push(Thing::from(("car", id)));
+                            let rel = OwnTB {
+                                r#in: Thing {
+                                    tb: "user".into(),
+                                    id: Id::String(user_info.username.to_string()),
+                                },
+                                out: Thing {
+                                    tb: "car".into(),
+                                    id: id.clone(),
+                                },
+                            };
+                            db.create::<Option<OwnTB>>(("own", id.clone()))
+                                .content(rel)
+                                .await
+                                .unwrap()
+                                .unwrap();
                             match db
                                 .update::<Option<DbUserInfo>>((
                                     "user",
@@ -94,7 +108,6 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                                         password: user_info.password,
                                         fullname: user_info.fullname,
                                         pik_role: user.pik_role,
-                                        own_cars: user.own_cars,
                                     };
                                     let claims = Claims { user_info, exp };
 

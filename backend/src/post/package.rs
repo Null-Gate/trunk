@@ -11,7 +11,9 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::{internal_error, save_img},
-    structures::{Claims, DbPackageInfo, DbUserInfo, PType, PackageForm, Post, PostD, Resp, DB, JWT_SECRET},
+    structures::{
+        Claims, DbPackageInfo, DbUserInfo, PType, PackageForm, Post, PostD, Resp, DB, JWT_SECRET,
+    },
 };
 
 #[allow(clippy::pedantic)]
@@ -80,8 +82,14 @@ async fn package(
                             let id = Id::rand();
 
                             let post_car_ava = Post {
-                                r#in: Thing { tb: "user".into(), id: Id::String(user_info.username.to_string()) },
-                                out: Thing { tb: "package".into(), id: id.clone() },
+                                r#in: Thing {
+                                    tb: "user".into(),
+                                    id: Id::String(user_info.username.to_string()),
+                                },
+                                out: Thing {
+                                    tb: "package".into(),
+                                    id: id.clone(),
+                                },
                                 ptdate: 0,
                                 from_where: form.from_where.into_inner(),
                                 to_where: form.to_where.into_inner(),
@@ -91,39 +99,40 @@ async fn package(
                                 date_to_go: form.date_to_go.into_inner(),
                             };
 
-
                             match db
                                 .create::<Option<DbPackageInfo>>(("package", id.clone()))
                                 .content(package_info)
                                 .await
                             {
                                 Ok(Some(_)) => {
-                            db.create::<Option<PostD<DbPackageInfo>>>(("post", id.clone())).content(post_car_ava).await.unwrap();
-                                            let exp = usize::try_from(
-                                                (Utc::now()
-                                                    + TimeDelta::try_days(9_999_999).unwrap())
-                                                .timestamp(),
-                                            )
-                                            .unwrap();
+                                    db.create::<Option<PostD<DbPackageInfo>>>(("post", id.clone()))
+                                        .content(post_car_ava)
+                                        .await
+                                        .unwrap();
+                                    let exp = usize::try_from(
+                                        (Utc::now() + TimeDelta::try_days(9_999_999).unwrap())
+                                            .timestamp(),
+                                    )
+                                    .unwrap();
 
-                                            let user_info = DbUserInfo {
-                                                username: user_info.username,
-                                                password: user_info.password,
-                                                fullname: user_info.fullname,
-                                                own_cars: user.own_cars,
-                                                pik_role: user.pik_role,
-                                            };
+                                    let user_info = DbUserInfo {
+                                        username: user_info.username,
+                                        password: user_info.password,
+                                        fullname: user_info.fullname,
+                                        own_cars: user.own_cars,
+                                        pik_role: user.pik_role,
+                                    };
 
-                                            let claims = Claims { user_info, exp };
+                                    let claims = Claims { user_info, exp };
 
-                                            encode(
-                                                &Header::default(),
-                                                &claims,
-                                                &EncodingKey::from_secret(JWT_SECRET),
-                                            )
-                                            .map_or_else(internal_error, |token| {
-                                                HttpResponse::Ok().json(Resp::new(&token))
-                                            })
+                                    encode(
+                                        &Header::default(),
+                                        &claims,
+                                        &EncodingKey::from_secret(JWT_SECRET),
+                                    )
+                                    .map_or_else(internal_error, |token| {
+                                        HttpResponse::Ok().json(Resp::new(&token))
+                                    })
                                 }
                                 Ok(None) => internal_error("None Car Error"),
                                 Err(e) => internal_error(e),

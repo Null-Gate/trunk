@@ -8,7 +8,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::{check_user, decode_token, encode_token, internal_error, verify_password},
-    structures::{CarPostForm, Claims, DbCarInfo, DbUserInfo, PostD, Resp, Roles, DB},
+    structures::{CarPostForm, Claims, DbCarInfo, DbUserInfo, OwnTB, PostD, Resp, Roles, DB},
 };
 
 #[allow(clippy::future_not_send)]
@@ -22,16 +22,24 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
         Ok(user_info) => match check_user(user_info.username.clone(), db).await {
             Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
-                    if !(user.pik_role.contains(&Roles::Owner)
-                        && user
-                            .own_cars
-                            .contains(&Thing::from(("car", Id::String(post.car_id.to_string())))))
+                    match db
+                        .select::<Option<OwnTB>>(("own", Id::String(post.car_id.to_string())))
+                        .await
                     {
-                        return HttpResponse::NotAcceptable().json("The Infos Are Wrong!");
+                        Ok(Some(_)) => {
+                            if !user.pik_role.contains(&Roles::Owner) {
+                                return HttpResponse::NotAcceptable().json("The Infos Are Wrong!");
+                            }
+                        }
+                        Ok(None) => return HttpResponse::NotFound().json("Sorry Car Not Found!!"),
+                        Err(e) => return internal_error(e),
                     }
 
                     match db
-                        .create::<Option<PostD<DbCarInfo>>>(("post", Id::String(post.car_id.to_string())))
+                        .create::<Option<PostD<DbCarInfo>>>((
+                            "post",
+                            Id::String(post.car_id.to_string()),
+                        ))
                         .content(post.to_db_post(&user_info.username).await.unwrap())
                         .await
                     {
@@ -48,37 +56,22 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                 .await
                                 .unwrap();
 
-                            match db
-                                .update::<Option<DbUserInfo>>((
-                                    "user",
-                                    Id::String(user.username.to_string()),
-                                ))
-                                .content(user)
-                                .await
-                            {
-                                Ok(Some(user)) => {
-                                    let user_info = DbUserInfo {
-                                        username: user_info.username,
-                                        password: user_info.password,
-                                        fullname: user_info.fullname,
-                                        pik_role: user.pik_role,
-                                        own_cars: user.own_cars,
-                                    };
-                                    let exp = usize::try_from(
-                                        (Utc::now() + TimeDelta::try_days(9_999_999).unwrap())
-                                            .timestamp(),
-                                    )
-                                    .unwrap();
-                                    let claims = Claims { user_info, exp };
+                            let user_info = DbUserInfo {
+                                username: user_info.username,
+                                password: user_info.password,
+                                fullname: user_info.fullname,
+                                pik_role: user.pik_role,
+                            };
+                            let exp = usize::try_from(
+                                (Utc::now() + TimeDelta::try_days(9_999_999).unwrap()).timestamp(),
+                            )
+                            .unwrap();
+                            let claims = Claims { user_info, exp };
 
-                                    encode_token(&claims).map_or_else(
-                                        |e| e,
-                                        |token| HttpResponse::Ok().json(Resp::new(&token)),
-                                    )
-                                }
-                                Ok(None) => internal_error("None User Error"),
-                                Err(e) => internal_error(e),
-                            }
+                            encode_token(&claims).map_or_else(
+                                |e| e,
+                                |token| HttpResponse::Ok().json(Resp::new(&token)),
+                            )
                         }
                         Ok(None) => internal_error("None Ava Car Error"),
                         Err(e) => internal_error(e),

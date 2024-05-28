@@ -18,7 +18,12 @@ async fn fetch_package() -> HttpResponse {
     (db.query(query).await).map_or_else(internal_error, |mut resp| {
         resp.take::<Vec<PostD<Value>>>(0)
             .map_or_else(internal_error, |driver| {
-                HttpResponse::Ok().json(driver.into_iter().map(|x| x.to_resp()).collect::<Vec<Value>>())
+                HttpResponse::Ok().json(
+                    driver
+                        .into_iter()
+                        .map(|x| x.to_resp())
+                        .collect::<Vec<Value>>(),
+                )
             })
     })
 }

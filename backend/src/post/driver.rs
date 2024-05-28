@@ -115,7 +115,6 @@ async fn driver(
                                                 password: user_info.password,
                                                 fullname: user_info.fullname,
                                                 pik_role: user.pik_role,
-                                                own_cars: user.own_cars,
                                             };
                                             let claims = Claims { user_info, exp };
 

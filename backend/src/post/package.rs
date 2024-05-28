@@ -108,7 +108,7 @@ async fn package(
                                     db.create::<Option<PostD<DbPackageInfo>>>(("post", id.clone()))
                                         .content(post_car_ava)
                                         .await
-                                        .unwrap();
+                                        .unwrap().unwrap();
                                     let exp = usize::try_from(
                                         (Utc::now() + TimeDelta::try_days(9_999_999).unwrap())
                                             .timestamp(),
@@ -119,7 +119,6 @@ async fn package(
                                         username: user_info.username,
                                         password: user_info.password,
                                         fullname: user_info.fullname,
-                                        own_cars: user.own_cars,
                                         pik_role: user.pik_role,
                                     };
 

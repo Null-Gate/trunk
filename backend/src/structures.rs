@@ -1,25 +1,18 @@
 use std::{path::Path, sync::Arc};
 
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
-use actix_web::HttpResponse;
 use argon2::{Config, Variant, Version};
 use async_once::AsyncOnce;
 use lazy_static::lazy_static;
-use rand::{
-    distributions::{DistString, Distribution},
-    rngs::ThreadRng,
-    Rng,
-};
+use rand::rngs::ThreadRng;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::Value;
 use surrealdb::{
     engine::remote::ws::{Client, Ws},
     sql::{Id, Thing},
     Surreal,
 };
 use tokio::fs;
-
-use crate::extra::internal_error;
 
 lazy_static! {
     pub static ref DATA_PATH: String = dotenvy::var("DATA_DIR").unwrap();
@@ -73,17 +66,6 @@ pub struct DbUserInfo {
     pub pik_role: Vec<Roles>,
 }
 
-impl Default for DbUserInfo {
-    fn default() -> Self {
-        Self {
-            username: "".into(),
-            fullname: "".into(),
-            password: "".into(),
-            pik_role: vec![],
-        }
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DbDriverInfo {
     pub license_num: Arc<str>,
@@ -122,39 +104,10 @@ pub struct CarForm {
 pub struct CarPostForm {
     pub car_id: Arc<str>,
     pub from_where: Arc<str>,
+    pub cper_weight: u32,
+    pub cper_amount: u32,
     pub to_where: Arc<str>,
     pub date_to_go: Arc<str>,
-}
-
-impl CarPostForm {
-    pub async fn to_db_post(&self, username: &str) -> Result<Post<DbCarInfo>, HttpResponse> {
-        let db = DB.get().await;
-        if let Err(e) = db.use_ns("ns").use_db("db").await {
-            return Err(internal_error(e));
-        };
-
-        match db
-            .select::<Option<DbCarInfo>>(("car", Id::String(self.car_id.to_string())))
-            .await
-        {
-            Ok(Some(data)) => Ok(Post {
-                r#in: Thing {
-                    tb: "user".into(),
-                    id: Id::from(username),
-                },
-                out: Thing::from(("car", Id::String(self.car_id.to_string()))),
-                ptdate: 0,
-                votes: 0,
-                data,
-                ptype: PType::Car,
-                to_where: self.to_where.clone(),
-                from_where: self.from_where.clone(),
-                date_to_go: self.date_to_go.clone(),
-            }),
-            Ok(None) => Err(internal_error("structure 139 None DbCarIndo Error!")),
-            Err(e) => Err(internal_error(e)),
-        }
-    }
 }
 
 #[derive(MultipartForm)]
@@ -234,42 +187,12 @@ pub struct OwnTB {
 
 #[derive(Serialize, Deserialize)]
 pub struct Resp<'a> {
-    msg: &'a str,
-}
-
-impl<'a> Resp<'a> {
-    pub const fn new(msg: &'a str) -> Self {
-        Resp { msg }
-    }
+    pub msg: &'a str,
 }
 
 #[derive(Clone)]
 pub struct GenString {
-    rngs: ThreadRng,
-}
-
-impl GenString {
-    pub fn new() -> Self {
-        Self {
-            rngs: rand::thread_rng(),
-        }
-    }
-
-    pub fn gen_string(&self, min: usize, max: usize) -> String {
-        self.sample_string(
-            &mut self.rngs.clone(),
-            self.to_owned().rngs.gen_range(min..max),
-        )
-    }
-}
-
-impl DistString for GenString {
-    fn append_string<R: Rng + ?Sized>(&self, rng: &mut R, string: &mut String, len: usize) {
-        unsafe {
-            let v = string.as_mut_vec();
-            v.extend(self.sample_iter(rng).take(len));
-        }
-    }
+    pub rngs: ThreadRng,
 }
 
 pub async fn get_cache_dir() -> String {
@@ -304,48 +227,4 @@ pub struct PostD<T> {
     pub ptype: PType,
     pub votes: i64,
     pub data: T,
-}
-
-impl Post<Value> {
-    pub fn to_resp(&self) -> Value {
-        json! ({
-            "userinfo": self.r#in.clone(),
-            "from_where": self.from_where,
-            "to_where": self.to_where,
-            "date_to_go": self.date_to_go,
-            "ptdate": self.ptdate,
-            "data": self.data,
-            "votes": self.votes.to_string(),
-        })
-    }
-}
-
-impl PostD<Value> {
-    pub fn to_resp(&self) -> Value {
-        json! ({
-            "id": self.id,
-            "userinfo": self.r#in.clone(),
-            "from_where": self.from_where,
-            "to_where": self.to_where,
-            "date_to_go": self.date_to_go,
-            "ptdate": self.ptdate,
-            "data": self.data,
-            "votes": self.votes.to_string(),
-        })
-    }
-}
-
-impl PostD<DbCarInfo> {
-    pub fn to_resp(&self) -> Value {
-        json! ({
-            "id": self.id,
-            "userinfo": self.r#in.clone(),
-            "from_where": self.from_where,
-            "to_where": self.to_where,
-            "date_to_go": self.date_to_go,
-            "ptdate": self.ptdate,
-            "data": self.data,
-            "votes": self.votes.to_string(),
-        })
-    }
 }

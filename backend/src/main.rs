@@ -20,6 +20,7 @@ mod post;
 mod services;
 mod structures;
 mod wsserver;
+mod implementations;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

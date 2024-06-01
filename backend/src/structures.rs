@@ -103,11 +103,16 @@ pub struct CarForm {
 #[derive(Serialize, Deserialize)]
 pub struct CarPostForm {
     pub car_id: Arc<str>,
+    pub driver_id: Arc<str>,
     pub from_where: Arc<str>,
     pub cper_weight: u32,
     pub cper_amount: u32,
     pub to_where: Arc<str>,
     pub date_to_go: Arc<str>,
+}
+
+pub struct DbCarPost {
+    pub car_id: Arc<str>,
 }
 
 #[derive(MultipartForm)]
@@ -116,6 +121,8 @@ pub struct PackageForm {
     #[multipart(limit = "1 MiB")]
     pub package_pic: TempFile,
     pub pkg_details: Text<Arc<str>>,
+    //pub cper_weight: u32,
+    //pub cper_amount: u32,
     pub to_where: Text<Arc<str>>,
     pub from_where: Text<Arc<str>>,
     pub date_to_go: Text<Arc<str>>,
@@ -140,10 +147,22 @@ pub struct Login {
     pub password: Arc<str>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub enum Event {
     Notification,
     NewFeed,
+    Csc,
+    Auth
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct WSReq {
+    pub event: Event,
+    pub data: Option<String>
+}
+
+pub struct CsC {
+    pub msgs: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]

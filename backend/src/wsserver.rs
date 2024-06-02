@@ -18,7 +18,7 @@ use tokio_tungstenite::{
 use crate::{
     extra::{check_user, decode_token, verify_password, wserror},
     fetch::{nf::fetch_newfeed, noti::live_select},
-    structures::{DbUserInfo, Event, WSReq, WSResp, DB},
+    structures::{AccMode, DbUserInfo, Event, WSReq, WSResp, DB},
 };
 
 pub async fn wserver() {
@@ -88,12 +88,12 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                                             ws_sender.send(Message::text(serde_json::to_string_pretty(&nf).unwrap())).await.unwrap();
                                         } else if text.event == Event::Csc {
                                             if let Some(msg) = text.data {
-                                                let query = "UPDATE type::thing($cscthing) SET umsg += type::string($msg)";
+                                                let query = "UPDATE type::thing($cscthing) SET msg += type::string($msg)";
                                                 db.query(query).bind(
                                                     ("cscthing", Thing {
                                                     tb: "csc".into(),
                                                     id: Id::String(db_user_info.username.to_string())
-                                                })).bind(("msg", (0, msg))).await.unwrap();
+                                                })).bind(("msg", (AccMode::User, msg))).await.unwrap();
                                             }
                                         }
                                     } else if msg.is_close() {

@@ -4,12 +4,11 @@ use actix_multipart::form::tempfile::TempFile;
 use actix_web::{get, web::Path, HttpResponse};
 use argon2::verify_encoded;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use serde_json::json;
 use surrealdb::{engine::remote::ws::Client, sql::Id, Surreal};
 use tokio::fs;
 use tracing::error;
 
-use crate::structures::{get_cache_dir, Claims, DbUserInfo, Event, GenString, Resp, JWT_SECRET};
+use crate::structures::{get_cache_dir, Claims, DbUserInfo, GenString, Resp, JWT_SECRET};
 
 pub fn decode_token(token: &str) -> Result<DbUserInfo, HttpResponse> {
     match decode::<Claims>(

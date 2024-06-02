@@ -161,8 +161,15 @@ pub struct WSReq {
     pub data: Option<String>
 }
 
-pub struct CsC {
+/*pub struct CsC {
     pub msgs: Vec<String>,
+}*/
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Default, Clone)]
+pub enum AccMode {
+    #[default]
+    Admin,
+    User
 }
 
 #[derive(Serialize, Deserialize)]

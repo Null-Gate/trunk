@@ -8,6 +8,7 @@ import ProfileScreen from "../screens/ProfileScreen";
 import PostCreateScreen from "../screens/PostCreateScreen";
 import PostDetailScreen from "../screens/PostDetailScreen";
 import NotificationScreen from "../screens/NotificationScreen";
+import ProfileEditScreen from "../screens/ProfileEditScreen";
 
 import { Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -95,6 +96,10 @@ const AuthenticatedStack = () => {
             <Stack.Screen
                 name="PostDetail"
                 component={PostDetailScreen}
+            />
+            <Stack.Screen
+                name="ProfileEdit"
+                component={ProfileEditScreen}
             />
         </Stack.Navigator>
     )

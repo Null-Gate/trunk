@@ -30,7 +30,7 @@ interface SelectedImage {
 type ImageSlider = {
     images: SelectedImage[] | [],
     pickImage: () => void,
-    removeImage: (id : number | string) => void
+    removeImage: (id: number | string) => void
 };
 
 const ImageSlider = ({
@@ -40,6 +40,7 @@ const ImageSlider = ({
 }: ImageSlider) => {
     const [index, setIndex] = useState<number>(0);
     const scrollX = useRef(new Animated.Value(0)).current;
+    const sliderRef = useRef(null);
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         Animated.event(
@@ -58,6 +59,14 @@ const ImageSlider = ({
         )(event);
     }
 
+    const removeImageHandler = () => {
+        const removeableImage = images.filter((_, idx) => {
+            return idx == index;
+        })[0];
+        const removeableId = removeableImage.id;
+        removeImage(removeableId);
+    }
+
     const handleOnViewableItemsChanged = useRef(({ viewableItems }) => {
         setIndex(viewableItems[0].index);
     }).current;
@@ -70,8 +79,8 @@ const ImageSlider = ({
         <View>
             <View style={{
                 position: "absolute",
-                top: 0,
-                right: 0,
+                top: 10,
+                right: 10,
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 15
@@ -79,22 +88,18 @@ const ImageSlider = ({
                 <View style={styles.container}>
                     <CustomText textStyle={styles.currentPage}>{`${index + 1}/${images.length}`}</CustomText>
                 </View>
-                <View style={styles.container}>
+                <Pressable onPress={removeImageHandler} style={styles.container}>
                     <Entypo name="cross" size={18} color="white" />
-                </View>
+                </Pressable>
             </View>
             <FlatList
+                ref={sliderRef}
                 data={images}
                 renderItem={({ item }) => {
                     return (
                         <View>
                             <ImageContainer
-                                viewImage={<Image
-                                    style={styles.viewImage}
-                                    source={{
-                                        uri: item.url
-                                    }}
-                                />}
+                                imageSource={{ uri: item.url }}
                                 imageContainerStyle={{
                                     width: windowWidth - 30,
                                     height: 380

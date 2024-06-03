@@ -58,12 +58,7 @@ const NotiModal = ({
                     <View style={styles.innerContainer}>
                         <View style={styles.modalHeader}>
                             <ImageContainer
-                                viewImage={
-                                    <Image
-                                        style={styles.viewImage}
-                                        source={{ uri: notification?.userImg }}
-                                    />
-                                }
+                                imageSource={{ uri: notification?.userImg }}
                                 imageContainerStyle={{
                                     width: 50,
                                     height: 50,

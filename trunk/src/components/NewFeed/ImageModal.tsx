@@ -181,12 +181,7 @@ const ImageModal = ({
                         marginBottom: 10
                     }}>
                         <ImageContainer
-                            viewImage={
-                                <Image
-                                    style={styles.viewImage}
-                                    source={require("./../../assets/profile.png")}
-                                />
-                            }
+                            imageSource={require("./../../assets/profile.png")}
                             imageContainerStyle={{
                                 width: 30,
                                 height: 30,

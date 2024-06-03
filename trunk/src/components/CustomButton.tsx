@@ -21,14 +21,10 @@ const CustomButton = ({
     textStyle = {}
 }: CustomButtonEntry) => {
     return (
-        <View style={[styles.buttonContainer, btnStyle]}>
+        <View>
             <Pressable
                 android_ripple={{ color: "#ccc" }}
-                style={({ pressed }) =>
-                    pressed && Platform.OS === "ios"
-                        ? styles.buttonPressed
-                        : styles.button
-                }
+                style={[styles.buttonContainer, btnStyle]}
             >
                 <Text style={[styles.buttonText, textStyle]}>{title}</Text>
             </Pressable>
@@ -48,15 +44,6 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         paddingVertical: 5,
         paddingHorizontal: 10
-    },
-    button: {
-        width: "100%",
-        borderRadius: 2
-    },
-    buttonPressed: {
-        width: "100%",
-        opacity: 0.5,
-        borderRadius: 2,
     },
     buttonText: {
         fontSize: 14,

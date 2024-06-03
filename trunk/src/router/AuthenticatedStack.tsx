@@ -19,6 +19,7 @@ import React, { useState } from "react";
 import SelfStatusScreen from "../screens/SelfStatusScreen";
 import StatusDetail from "../screens/StatusDetail";
 import MapScreen from "../screens/MapScreen";
+import CarStatusScreen from "../screens/CarStatusScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -93,6 +94,7 @@ const AuthenticatedStack = () => {
       <Stack.Screen name="PostDetail" component={PostDetailScreen} />
       <Stack.Screen name="StatusDetail" component={StatusDetail} />
       <Stack.Screen name="Map" component={MapScreen} />
+      <Stack.Screen name="CarStatus" component={CarStatusScreen} />
     </Stack.Navigator>
   );
 };

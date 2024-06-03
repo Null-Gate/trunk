@@ -6,7 +6,7 @@ import Button from "../components/Button";
 
 const SelfStatusScreen = () => {
   const [data, setData] = useState([]);
-  const [varient, setVarient] = useState("History");
+  const [varient, setVarient] = useState("Current");
   const handlePress = (value: string) => {
     setVarient(value);
   };

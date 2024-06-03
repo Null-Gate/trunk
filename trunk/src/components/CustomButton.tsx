@@ -1,25 +1,22 @@
-import {
-    Pressable,
-    View,
-    Text,
-    StyleSheet,
-    Platform
-} from "react-native";
+import { Pressable, View, Text, StyleSheet, Platform } from "react-native";
 
 //styles
 import { GlobalStyles } from "../constants/styles";
 
 interface CustomButtonEntry {
-    title: string,
-    btnStyle?: object,
-    textStyle?: object
+  title: string;
+  btnStyle?: object;
+  handlePress: (value: string) => void;
+  textStyle?: object;
 }
 
 const CustomButton = ({
-    title,
-    btnStyle = {},
-    textStyle = {}
+  title,
+  btnStyle = {},
+  textStyle = {},
+  handlePress,
 }: CustomButtonEntry) => {
+
     return (
         <View>
             <Pressable
@@ -52,5 +49,6 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     }
 })
+
 
 export default CustomButton;

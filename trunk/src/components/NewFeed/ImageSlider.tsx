@@ -75,12 +75,7 @@ const ImageSlider = ({
                         <View>
                             <Pressable onPress={() => onPressedImage(postId, index)}>
                                 <ImageContainer
-                                    viewImage={<Image
-                                        style={styles.image}
-                                        source={{
-                                            uri: item.url
-                                        }}
-                                    />}
+                                    imageSource={{ uri: item.url }}
                                     imageContainerStyle={{
                                         width : windowWidth - 30,
                                         height : 380

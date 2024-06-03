@@ -2,7 +2,9 @@ import React from "react";
 import {
     View,
     StyleSheet,
-    Dimensions
+    Image,
+    Dimensions,
+    ImageSourcePropType
 } from "react-native";
 
 const windowWidth = Dimensions.get('window').width;
@@ -10,19 +12,22 @@ const windowHeight = Dimensions.get('window').height;
 
 type ImageContainer = {
     imageContainerStyle?: object,
-    viewImage: React.JSX.Element,
+    imageSource: ImageSourcePropType
 }
 
 const ImageContainer = ({
     imageContainerStyle = {
-        width : windowWidth,
-        height : windowHeight
+        width: windowWidth,
+        height: windowHeight
     },
-    viewImage
+    imageSource
 }: ImageContainer) => {
     return (
         <View style={[styles.imageContainer, imageContainerStyle]}>
-            {viewImage}
+            <Image
+                style={styles.iamge}
+                source={imageSource}
+            />
         </View>
     )
 }
@@ -33,7 +38,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         position: "relative",
-        // borderRadius: 5,
         overflow: "hidden",
         elevation: 4,
         shadowColor: "gray",
@@ -41,6 +45,11 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 4
     },
+    iamge: {
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+    }
 });
 
 export default ImageContainer;

@@ -39,16 +39,7 @@ const Comment = ({
         <View style={[styles.container, style]}>
             <View style={styles.header}>
                 <ImageContainer
-                    viewImage={
-                        <Image
-                            style={{
-                                position: "absolute",
-                                width: "100%",
-                                height: "100%"
-                            }}
-                            source={require("./../assets/image2.png")}
-                        />
-                    }
+                    imageSource={require("./../assets/image2.png")}
                     imageContainerStyle={{
                         width: 28,
                         height: 28,

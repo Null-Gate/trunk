@@ -134,7 +134,7 @@ const CommentModal = ({
                 {selectedImage && (
                     <View style={styles.selectedImageContainer}>
                         <ImageContainer
-                            viewImage={<Image source={{ uri: selectedImage.uri }} style={styles.selectedImage} />}
+                            imageSource={{ uri: selectedImage.uri }}
                             imageContainerStyle={{
                                 width: selectedImage.dimensions.width, 
                                 height: selectedImage.dimensions.height,

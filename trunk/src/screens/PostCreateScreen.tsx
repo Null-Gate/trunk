@@ -11,6 +11,8 @@ import * as ImagePicker from 'expo-image-picker';
 
 import React, { useState, useEffect } from 'react';
 
+import { useNavigation } from '@react-navigation/native';
+
 //components
 import Layout from '../components/Layout';
 import CustomButton from '../components/CustomButton';
@@ -43,6 +45,8 @@ const PostCreateScreen = () => {
     const [postTitle, setPostTitle] = useState<string>("");
     const [postBodyText, setPostBodyText] = useState<string>("");
 
+    const navigation = useNavigation<any>();
+
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
@@ -67,16 +71,16 @@ const PostCreateScreen = () => {
         }
     }
 
-    const removeImage = (id: number) => {
-        setSelectedImages(prevImages => {
-            const newImages = prevImages.filter(image => image.id !== id);
+    const removeImage = (id : number | string) => {
+        setSelectedImages((prevImages : SelectedImages) => {
+            const newImages = prevImages.filter(image => image.id != id);
             return newImages;
         })
     }
 
-    useEffect(() => {
-        console.log(selectedImages);
-    }, [selectedImages])
+    const navigateNewFeedScreen = () => {
+        navigation.navigate("NewFeed")
+    }
 
     return (
         <Layout>
@@ -85,7 +89,7 @@ const PostCreateScreen = () => {
                 {/* start header */}
                 <View style={styles.header}>
                     {/* close btn */}
-                    <Pressable>
+                    <Pressable onPress={navigateNewFeedScreen}>
                         <AntDesign name="close" size={24} color="black" />
                     </Pressable>
                     {/* close btn */}
@@ -100,10 +104,7 @@ const PostCreateScreen = () => {
                 {/* start userInfo Container */}
                 <View style={styles.userInfoContainer}>
                     <ImageContainer
-                        viewImage={<Image
-                            style={styles.viewImage}
-                            source={require("./../assets/profile.png")}
-                        />}
+                        imageSource={require("./../assets/profile.png")}
                         imageContainerStyle={{
                             width: 30,
                             height: 30,

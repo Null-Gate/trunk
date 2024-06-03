@@ -34,12 +34,7 @@ const Notification = ({
         <View style={styles.container}>
             <View style={styles.leftContainer}>
                 <ImageContainer
-                    viewImage={
-                        <Image
-                            style={styles.viewImage}
-                            source={{ uri : user.img }}
-                        />
-                    }
+                    imageSource={{ uri : user.img }}
                     imageContainerStyle={{
                         width: 30,
                         height: 30,

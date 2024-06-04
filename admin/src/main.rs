@@ -31,7 +31,7 @@ pub async fn main() {
         .with_file(true)
         .with_line_number(true)
         .init();
-    let server = TcpListener::bind("localhost:9090")
+    let server = TcpListener::bind("0.0.0.0:9090")
         .await
         .unwrap();
     while let Ok((stream, _)) = server.accept().await {

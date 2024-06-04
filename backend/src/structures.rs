@@ -121,8 +121,8 @@ pub struct PackageForm {
     #[multipart(limit = "1 MiB")]
     pub package_pic: TempFile,
     pub pkg_details: Text<Arc<str>>,
-    //pub cper_weight: u32,
-    //pub cper_amount: u32,
+    pub cper_weight: Text<u32>,
+    pub cper_amount: Text<u32>,
     pub to_where: Text<Arc<str>>,
     pub from_where: Text<Arc<str>>,
     pub date_to_go: Text<Arc<str>>,
@@ -160,10 +160,6 @@ pub struct WSReq {
     pub event: Event,
     pub data: Option<String>
 }
-
-/*pub struct CsC {
-    pub msgs: Vec<String>,
-}*/
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Default, Clone)]
 pub enum AccMode {
@@ -236,6 +232,8 @@ pub struct Post<T> {
     pub from_where: Arc<str>,
     pub to_where: Arc<str>,
     pub date_to_go: Arc<str>,
+    pub cper_weight: u32,
+    pub cper_amount: u32,
     pub votes: i64,
     pub ptype: PType,
     pub data: T,
@@ -250,6 +248,8 @@ pub struct PostD<T> {
     pub from_where: Arc<str>,
     pub to_where: Arc<str>,
     pub date_to_go: Arc<str>,
+    pub cper_amount: u32,
+    pub cper_weight: u32,
     pub ptype: PType,
     pub votes: i64,
     pub data: T,

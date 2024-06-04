@@ -11,14 +11,14 @@ pedantic = { level = "deny", priority = -1 }
 nursery = { level = "deny", priority = -2 }
 
 [profile.release]
-strip = 'symbols'
-opt-level = 'z'
+strip = true
+opt-level = 3
 lto = true
 codegen-units = 1
-panic = 'abort'
 
-[profile.speed]
+[profile.fire]
 inherits = "release"
+debug = true
 strip = true
 opt-level = 3
 lto = true

@@ -93,6 +93,8 @@ async fn package(
                                 ptdate: 0,
                                 from_where: form.from_where.into_inner(),
                                 to_where: form.to_where.into_inner(),
+                                cper_weight: form.cper_weight.into_inner(),
+                                cper_amount: form.cper_amount.into_inner(),
                                 ptype: PType::Pkg,
                                 votes: 0,
                                 data: package_info.clone(),

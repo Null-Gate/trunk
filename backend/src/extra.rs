@@ -94,6 +94,7 @@ pub fn wserror<T: Display>(e: T) -> tokio_tungstenite::tungstenite::Error {
 }
 
 #[get("/bruh")]
-pub async fn test_token(token: Path<String>) -> HttpResponse {
-    decode_token(token.as_str()).map_or_else(|e| e, |v| HttpResponse::Ok().json(v))
+pub async fn test_token() -> HttpResponse {
+    HttpResponse::Ok().await.unwrap()
+    //decode_token(token.as_str()).map_or_else(|e| e, |v| HttpResponse::Ok().json(v))
 }

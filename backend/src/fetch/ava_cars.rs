@@ -1,10 +1,7 @@
 use actix_web::{get, HttpResponse};
 use serde_json::Value;
 
-use crate::{
-    extra::internal_error,
-    structures::{DbCarInfo, PostD, DB},
-};
+use crate::extra::{functions::internal_error, structures::{DbCarInfo, PostD, DB}};
 
 #[get("/ava_cars")]
 async fn fetch_ava_cars() -> HttpResponse {

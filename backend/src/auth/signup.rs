@@ -2,10 +2,7 @@ use actix_web::{post, web::Json, HttpResponse};
 use argon2::hash_encoded;
 use surrealdb::sql::Id;
 
-use crate::{
-    extra::internal_error,
-    structures::{DbUserInfo, GenString, Resp, Signup, ARGON_CONFIG, DB},
-};
+use crate::extra::{functions::internal_error, structures::{DbUserInfo, GenString, Resp, Signup, ARGON_CONFIG, DB}};
 
 #[post("/sign_up")]
 pub async fn signup(info: Json<Signup>) -> HttpResponse {

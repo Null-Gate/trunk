@@ -16,9 +16,8 @@ use tokio_tungstenite::{
 };
 
 use crate::{
-    extra::{check_user, decode_token, verify_password, wserror},
+    extra::{functions::{check_user, decode_token, verify_password, wserror}, structures::{AccMode, DbUserInfo, Event, WSReq, WSResp, DB}},
     fetch::{nf::fetch_newfeed, noti::live_select},
-    structures::{AccMode, DbUserInfo, Event, WSReq, WSResp, DB},
 };
 
 pub async fn wserver() {

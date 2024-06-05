@@ -1,4 +1,4 @@
-use crate::structures::GenString;
+use crate::extra::structures::GenString;
 use rand::{prelude::Distribution, Rng};
 
 impl Distribution<u8> for GenString {

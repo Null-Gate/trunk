@@ -1,7 +1,4 @@
-use crate::{
-    extra::internal_error,
-    structures::{PostD, DB},
-};
+use crate::extra::{functions::internal_error, structures::{PostD, DB}};
 use actix_web::{get, HttpResponse};
 use serde_json::Value;
 

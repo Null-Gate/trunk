@@ -3,7 +3,7 @@ use rand::{distributions::{DistString, Distribution}, Rng};
 use serde_json::{json, Value};
 use surrealdb::sql::{Id, Thing};
 
-use crate::{extra::internal_error, structures::{CarPostForm, DB, DbCarInfo, DbUserInfo, GenString, PType, Post, PostD, Resp}};
+use crate::{extra::functions::internal_error, extra::structures::{CarPostForm, DB, DbCarInfo, DbUserInfo, GenString, PType, Post, PostD, Resp}};
 
 impl Post<Value> {
     pub fn to_resp(&self) -> Value {

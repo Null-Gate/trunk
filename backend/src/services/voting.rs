@@ -2,10 +2,7 @@ use actix_web::{get, web::Path, HttpResponse};
 use serde_json::Value;
 use surrealdb::sql::{Id, Thing};
 
-use crate::{
-    extra::{check_user, decode_token, internal_error, verify_password},
-    structures::{Post, PostD, VRelate, Vote, VoteTB, DB},
-};
+use crate::extra::{functions::{check_user, decode_token, internal_error, verify_password}, structures::{Post, PostD, VRelate, Vote, VoteTB, DB}};
 
 #[allow(clippy::pedantic)]
 #[allow(clippy::future_not_send)]

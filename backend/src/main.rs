@@ -3,24 +3,21 @@ use actix_files as afs;
 use actix_multipart::form::tempfile::TempFileConfig;
 use actix_web::{App, HttpServer};
 use auth::{delete::delete, login::login, signup::signup};
-use extra::test_token;
+use extra::functions::test_token;
 use fetch::scope::fetch;
 use post::{ava_car::post_car, car::car, driver::driver, package::package};
 use services::voting::up_vote;
 use std::path::Path;
-use structures::{DATA_PATH, SEIF};
+use extra::structures::{DATA_PATH, SEIF};
 use tokio::fs;
 use tracing::Level;
 
 mod auth;
 mod extra;
 mod fetch;
-mod gen_salt;
 mod post;
 mod services;
-mod structures;
 mod wsserver;
-mod implementations;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

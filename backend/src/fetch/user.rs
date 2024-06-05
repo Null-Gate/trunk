@@ -2,10 +2,7 @@ use actix_web::{get, web::Path, HttpResponse};
 use serde_json::{json, Value};
 use surrealdb::sql::{Id, Thing};
 
-use crate::{
-    extra::internal_error,
-    structures::{DbCarInfo, DbUserInfo, PostD, DB},
-};
+use crate::extra::{functions::internal_error, structures::{DbCarInfo, DbUserInfo, PostD, DB}};
 
 #[get("/user/{id}")]
 async fn fetch_user(id: Path<String>) -> HttpResponse {

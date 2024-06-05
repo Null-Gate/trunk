@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::structures::{DbUserInfo, DB};
+use crate::extra::structures::{DbUserInfo, DB};
 use futures_util::StreamExt;
 use surrealdb::Notification;
 use tokio::sync::Mutex;

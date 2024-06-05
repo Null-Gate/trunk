@@ -1,4 +1,4 @@
-use std::{path::Path, sync::Arc};
+use std::sync::Arc;
 
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use argon2::{Config, Variant, Version};
@@ -12,7 +12,6 @@ use surrealdb::{
     sql::{Id, Thing},
     Surreal,
 };
-use tokio::fs;
 
 lazy_static! {
     pub static ref DATA_PATH: String = dotenvy::var("DATA_DIR").unwrap();
@@ -109,10 +108,6 @@ pub struct CarPostForm {
     pub cper_amount: u32,
     pub to_where: Arc<str>,
     pub date_to_go: Arc<str>,
-}
-
-pub struct DbCarPost {
-    pub car_id: Arc<str>,
 }
 
 #[derive(MultipartForm)]
@@ -217,13 +212,6 @@ pub struct GenString {
     pub rngs: ThreadRng,
 }
 
-pub async fn get_cache_dir() -> String {
-    if !Path::new(DATA_PATH.as_str()).exists() {
-        fs::create_dir(DATA_PATH.as_str()).await.unwrap();
-    }
-    DATA_PATH.to_string()
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Post<T> {
     pub ptdate: u64,
@@ -253,4 +241,17 @@ pub struct PostD<T> {
     pub ptype: PType,
     pub votes: i64,
     pub data: T,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum BType {
+    Pkg,
+    Car
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Booking {
+    pub car_id: Arc<str>,
+    pub pkg_id: Arc<str>,
+    pub btype: BType
 }

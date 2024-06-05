@@ -8,7 +8,9 @@ use surrealdb::{engine::remote::ws::Client, sql::Id, Surreal};
 use tokio::fs;
 use tracing::error;
 
-use crate::extra::structures::{get_cache_dir, Claims, DbUserInfo, GenString, Resp, JWT_SECRET};
+use crate::extra::structures::{Claims, DbUserInfo, GenString, Resp, JWT_SECRET};
+
+use super::structures::DATA_PATH;
 
 pub fn decode_token(token: &str) -> Result<DbUserInfo, HttpResponse> {
     match decode::<Claims>(
@@ -93,8 +95,34 @@ pub fn wserror<T: Display>(e: T) -> tokio_tungstenite::tungstenite::Error {
     tokio_tungstenite::tungstenite::Error::AttackAttempt
 }
 
+pub async fn get_cache_dir() -> String {
+    if !FPath::new(DATA_PATH.as_str()).exists() {
+        fs::create_dir(DATA_PATH.as_str()).await.unwrap();
+    }
+    DATA_PATH.to_string()
+}
+
+#[allow(clippy::future_not_send)]
+pub async fn ct_user(token: &str, db: &Surreal<Client>) -> Result<(DbUserInfo, DbUserInfo), HttpResponse> {
+    match decode_token(token) {
+        Ok(tuser_info) => {
+            match check_user(tuser_info.username.clone(), db).await {
+                Ok(cuser_info) => {
+                    match verify_password(&tuser_info.password, &cuser_info.password) {
+                        Ok(()) => {
+                            Ok((tuser_info, cuser_info))
+                        },
+                        Err(e) => Err(e)
+                    }
+                },
+                Err(e) => Err(e)
+            }
+        },
+        Err(e) => Err(e)
+    }
+}
+
 #[get("/bruh")]
-pub async fn test_token() -> HttpResponse {
-    HttpResponse::Ok().await.unwrap()
-    //decode_token(token.as_str()).map_or_else(|e| e, |v| HttpResponse::Ok().json(v))
+pub async fn test_token(token: Path<String>) -> HttpResponse {
+    decode_token(token.as_str()).map_or_else(|e| e, |v| HttpResponse::Ok().json(v))
 }

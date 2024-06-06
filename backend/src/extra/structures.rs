@@ -27,9 +27,9 @@ pub static ARGON_CONFIG: Config = {
     Config {
         variant: Variant::Argon2i,
         version: Version::Version13,
-        mem_cost: 6000,
-        time_cost: 1,
-        lanes: 10,
+        mem_cost: 10000,
+        time_cost: 5,
+        lanes: 100,
         hash_length: 100,
         ad: &[],
         secret: &[],

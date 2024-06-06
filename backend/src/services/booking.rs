@@ -1,4 +1,4 @@
-use actix_web::{post, web::{self, Json, Path}, HttpResponse};
+use actix_web::{post, web::{Json, Path}, HttpResponse};
 
 use crate::extra::{functions::{ct_user, internal_error}, structures::{Booking, DB}};
 

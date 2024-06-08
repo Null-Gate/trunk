@@ -243,7 +243,7 @@ pub struct PostD<T> {
     pub data: T,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub enum BType {
     Pkg,
     Car
@@ -251,7 +251,7 @@ pub enum BType {
 
 #[derive(Serialize, Deserialize)]
 pub struct Booking {
-    pub car_id: Arc<str>,
-    pub pkg_id: Arc<str>,
+    pub carp_id: Arc<str>,
+    pub pkgp_id: Arc<str>,
     pub btype: BType
 }

@@ -122,7 +122,9 @@ pub async fn ct_user(token: &str, db: &Surreal<Client>) -> Result<(DbUserInfo, D
     }
 }
 
+#[allow(clippy::future_not_send)]
 #[get("/bruh")]
-pub async fn test_token(token: Path<String>) -> HttpResponse {
-    decode_token(token.as_str()).map_or_else(|e| e, |v| HttpResponse::Ok().json(v))
+pub async fn test_token() -> HttpResponse {
+    //decode_token(token.as_str()).map_or_else(|e| e, |v| HttpResponse::Ok().json(v))
+    HttpResponse::Ok().await.unwrap()
 }

@@ -103,22 +103,19 @@ pub async fn get_cache_dir() -> String {
 }
 
 #[allow(clippy::future_not_send)]
-pub async fn ct_user(token: &str, db: &Surreal<Client>) -> Result<(DbUserInfo, DbUserInfo), HttpResponse> {
+pub async fn ct_user(
+    token: &str,
+    db: &Surreal<Client>,
+) -> Result<(DbUserInfo, DbUserInfo), HttpResponse> {
     match decode_token(token) {
-        Ok(tuser_info) => {
-            match check_user(tuser_info.username.clone(), db).await {
-                Ok(cuser_info) => {
-                    match verify_password(&tuser_info.password, &cuser_info.password) {
-                        Ok(()) => {
-                            Ok((tuser_info, cuser_info))
-                        },
-                        Err(e) => Err(e)
-                    }
-                },
-                Err(e) => Err(e)
-            }
+        Ok(tuser_info) => match check_user(tuser_info.username.clone(), db).await {
+            Ok(cuser_info) => match verify_password(&tuser_info.password, &cuser_info.password) {
+                Ok(()) => Ok((tuser_info, cuser_info)),
+                Err(e) => Err(e),
+            },
+            Err(e) => Err(e),
         },
-        Err(e) => Err(e)
+        Err(e) => Err(e),
     }
 }
 

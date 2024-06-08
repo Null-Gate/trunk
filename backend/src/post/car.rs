@@ -8,7 +8,10 @@ use image::{
 use jsonwebtoken::{encode, EncodingKey, Header};
 use surrealdb::sql::{Id, Thing};
 
-use crate::extra::{functions::{check_user, decode_token, internal_error, save_img, verify_password}, structures::{CarForm, Claims, DbCarInfo, DbUserInfo, OwnTB, Resp, Roles, DB, JWT_SECRET}};
+use crate::extra::{
+    functions::{check_user, decode_token, internal_error, save_img, verify_password},
+    structures::{CarForm, Claims, DbCarInfo, DbUserInfo, OwnTB, Resp, Roles, DB, JWT_SECRET},
+};
 
 #[allow(clippy::future_not_send)]
 #[allow(clippy::pedantic)]

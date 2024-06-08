@@ -9,7 +9,10 @@ use image::{
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use surrealdb::sql::{Id, Thing};
 
-use crate::extra::{functions::{internal_error, save_img}, structures::{Claims, DbDriverInfo, DbUserInfo, DriverForm, Resp, Roles, DB, JWT_SECRET}};
+use crate::extra::{
+    functions::{internal_error, save_img},
+    structures::{Claims, DbDriverInfo, DbUserInfo, DriverForm, Resp, Roles, DB, JWT_SECRET},
+};
 
 #[allow(clippy::pedantic)]
 #[post("/forms/driver/{token}")]

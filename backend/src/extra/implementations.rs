@@ -1,9 +1,17 @@
 use actix_web::HttpResponse;
-use rand::{distributions::{DistString, Distribution}, Rng};
+use rand::{
+    distributions::{DistString, Distribution},
+    Rng,
+};
 use serde_json::{json, Value};
 use surrealdb::sql::{Id, Thing};
 
-use crate::{extra::functions::internal_error, extra::structures::{CarPostForm, DB, DbCarInfo, DbUserInfo, GenString, PType, Post, PostD, Resp}};
+use crate::{
+    extra::functions::internal_error,
+    extra::structures::{
+        CarPostForm, DbCarInfo, DbUserInfo, GenString, PType, Post, PostD, Resp, DB,
+    },
+};
 
 impl Post<Value> {
     pub fn to_resp(&self) -> Value {
@@ -104,7 +112,7 @@ impl CarPostForm {
                 from_where: self.from_where.clone(),
                 date_to_go: self.date_to_go.clone(),
                 cper_weight: self.cper_weight,
-                cper_amount: self.cper_amount
+                cper_amount: self.cper_amount,
             }),
             Ok(None) => Err(internal_error("structure 139 None DbCarIndo Error!")),
             Err(e) => Err(internal_error(e)),

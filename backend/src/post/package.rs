@@ -9,9 +9,12 @@ use image::{
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use surrealdb::sql::{Id, Thing};
 
-use crate::extra::{functions::{internal_error, save_img}, structures::{
+use crate::extra::{
+    functions::{internal_error, save_img},
+    structures::{
         Claims, DbPackageInfo, DbUserInfo, PType, PackageForm, Post, PostD, Resp, DB, JWT_SECRET,
-    }};
+    },
+};
 
 #[allow(clippy::pedantic)]
 #[post("/forms/package/{token}")]
@@ -107,7 +110,8 @@ async fn package(
                                     db.create::<Option<PostD<DbPackageInfo>>>(("post", id.clone()))
                                         .content(post_car_ava)
                                         .await
-                                        .unwrap().unwrap();
+                                        .unwrap()
+                                        .unwrap();
                                     let exp = usize::try_from(
                                         (Utc::now() + TimeDelta::try_days(9_999_999).unwrap())
                                             .timestamp(),

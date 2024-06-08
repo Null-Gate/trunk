@@ -147,20 +147,20 @@ pub enum Event {
     Notification,
     NewFeed,
     Csc,
-    Auth
+    Auth,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct WSReq {
     pub event: Event,
-    pub data: Option<String>
+    pub data: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Default, Clone)]
 pub enum AccMode {
     #[default]
     Admin,
-    User
+    User,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -246,12 +246,12 @@ pub struct PostD<T> {
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub enum BType {
     Pkg,
-    Car
+    Car,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Booking {
     pub carp_id: Arc<str>,
     pub pkgp_id: Arc<str>,
-    pub btype: BType
+    pub btype: BType,
 }

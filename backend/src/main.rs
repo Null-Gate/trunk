@@ -4,11 +4,11 @@ use actix_multipart::form::tempfile::TempFileConfig;
 use actix_web::{App, HttpServer};
 use auth::{delete::delete, login::login, signup::signup};
 use extra::functions::test_token;
+use extra::structures::{DATA_PATH, SEIF};
 use fetch::scope::fetch;
 use post::{ava_car::post_car, car::car, driver::driver, package::package};
 use services::voting::up_vote;
 use std::path::Path;
-use extra::structures::{DATA_PATH, SEIF};
 use tokio::fs;
 use tracing::Level;
 

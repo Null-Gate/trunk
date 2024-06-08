@@ -6,7 +6,10 @@ use actix_web::{
 use chrono::{TimeDelta, Utc};
 use surrealdb::sql::{Id, Thing};
 
-use crate::extra::{functions::{check_user, decode_token, encode_token, internal_error, verify_password}, structures::{CarPostForm, Claims, DbCarInfo, DbUserInfo, OwnTB, PostD, Resp, Roles, DB}};
+use crate::extra::{
+    functions::{check_user, decode_token, encode_token, internal_error, verify_password},
+    structures::{CarPostForm, Claims, DbCarInfo, DbUserInfo, OwnTB, PostD, Resp, Roles, DB},
+};
 
 #[allow(clippy::future_not_send)]
 #[post("/post/car/{token}")]

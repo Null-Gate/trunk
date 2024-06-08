@@ -3,7 +3,10 @@ use argon2::verify_encoded;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use surrealdb::sql::Id;
 
-use crate::extra::{functions::internal_error, structures::{Claims, DbUserInfo, Resp, DB, JWT_SECRET}};
+use crate::extra::{
+    functions::internal_error,
+    structures::{Claims, DbUserInfo, Resp, DB, JWT_SECRET},
+};
 
 #[delete("/delete/{jwt}")]
 pub async fn delete(jwt: Path<String>) -> HttpResponse {

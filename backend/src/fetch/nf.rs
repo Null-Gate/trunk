@@ -1,7 +1,10 @@
 use serde_json::Value;
 use tokio_tungstenite::tungstenite::Result;
 
-use crate::extra::{functions::wserror, structures::{PostD, DB}};
+use crate::extra::{
+    functions::wserror,
+    structures::{PostD, DB},
+};
 
 pub async fn fetch_newfeed() -> Result<Vec<Value>, tokio_tungstenite::tungstenite::Error> {
     let db = DB.get().await;

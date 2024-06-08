@@ -5,7 +5,10 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use serde_json::json;
 use surrealdb::sql::Id;
 
-use crate::extra::{functions::internal_error, structures::{Claims, DbUserInfo, Login, Resp, DB, JWT_SECRET}};
+use crate::extra::{
+    functions::internal_error,
+    structures::{Claims, DbUserInfo, Login, Resp, DB, JWT_SECRET},
+};
 
 #[post("/login")]
 pub async fn login(info: Json<Login>) -> HttpResponse {

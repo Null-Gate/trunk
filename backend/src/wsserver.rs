@@ -1,7 +1,18 @@
-use std::{net::SocketAddr, sync::Arc, time::Duration};
+use std::{
+    net::SocketAddr,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+    time::Duration,
+};
 
 use futures_util::{SinkExt, StreamExt};
-use surrealdb::sql::{Id, Thing};
+use surrealdb::{
+    engine::remote::ws::Client,
+    sql::{Id, Thing},
+    Surreal,
+};
 use tokio::{
     net::{TcpListener, TcpStream},
     sync::Mutex,
@@ -16,7 +27,10 @@ use tokio_tungstenite::{
 };
 
 use crate::{
-    extra::{functions::{check_user, decode_token, verify_password, wserror}, structures::{AccMode, DbUserInfo, Event, WSReq, WSResp, DB}},
+    extra::{
+        functions::{check_user, decode_token, verify_password, wserror},
+        structures::{AccMode, DbUserInfo, Event, WSReq, WSResp, DB},
+    },
     fetch::{nf::fetch_newfeed, noti::live_select},
 };
 
@@ -53,11 +67,11 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             }
             println!("NWS Conn: {peer:?}");
             let (mut ws_sender, mut ws_receiver) = ws_stream.split();
-            let query_state = Arc::new(Mutex::new(false));
+            let query_state = Arc::new(AtomicBool::new(false));
             let query_result = Arc::new(Mutex::new(DbUserInfo::default()));
             let mut dur = tokio::time::interval(Duration::from_millis(10));
-            let mut db_user_info = DbUserInfo::default();
-            let mut authed = false;
+            let db_user_info = Arc::new(Mutex::new(DbUserInfo::default()));
+            let authed = Arc::new(AtomicBool::new(false));
             tokio::spawn(live_select(query_state.clone(), query_result.clone()));
 
             loop {
@@ -65,49 +79,19 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                          msg = ws_receiver.next() => {
                             if let Some(msg) = msg {
                                     let msg = msg?;
-                                    if msg.is_text() || msg.is_binary() {
-                                        let text = serde_json::from_str::<WSReq>(msg.to_text().unwrap()).unwrap();
-                                        if text.event == Event::Auth {
-                                            let user_info = decode_token(&text.data.clone().unwrap()).unwrap();
-
-                                            db_user_info = check_user(user_info.username.clone(), db).await.unwrap();
-                                            verify_password(&user_info.password, &db_user_info.password).unwrap();
-                                            authed = true;
-                                        }
-
-                                        if !authed {
-                                            ws_sender.send(Message::Close(Some(CloseFrame { code: CloseCode::Policy, reason: "Sorry You're Not Authed!!".into() }))).await.unwrap();
-                                        }
-
-                                        if text.event == Event::NewFeed {
-                                            let nf = WSResp{
-                                                event: Event::NewFeed,
-                                                data: fetch_newfeed().await.unwrap()
-                                            };
-                                            ws_sender.send(Message::text(serde_json::to_string_pretty(&nf).unwrap())).await.unwrap();
-                                        } else if text.event == Event::Csc {
-                                            if let Some(msg) = text.data {
-                                                let query = "UPDATE type::thing($cscthing) SET msg += type::string($msg)";
-                                                db.query(query).bind(
-                                                    ("cscthing", Thing {
-                                                    tb: "csc".into(),
-                                                    id: Id::String(db_user_info.username.to_string())
-                                                })).bind(("msg", (AccMode::User, msg))).await.unwrap();
-                                            }
-                                        }
-                                    } else if msg.is_close() {
-                                        break Ok(());
+                                    match cond_check(msg, db_user_info.clone(), db, authed.clone()).await {
+                                        Ok(remsg) => {ws_sender.send(remsg).await.unwrap();},
+                                        Err(()) => break Ok(())
                                     }
                             }
                          }
                          _ = dur.tick() => {
-                             if *query_state.lock().await {
+                             if query_state.swap(false, Ordering::Relaxed) {
                                  let nt = WSResp{
                                      event: Event::Notification,
                                      data: query_result.lock().await.clone()
                                  };
                                  ws_sender.send(Message::text(serde_json::to_string_pretty(&nt).unwrap())).await.unwrap();
-                                 *query_state.lock().await = false;
                              }
                          }
                 }
@@ -115,4 +99,55 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
         }
         Err(_) => Err(wserror("not implemented wserror!")),
     }
+}
+
+pub async fn cond_check(
+    msg: Message,
+    db_user_info: Arc<Mutex<DbUserInfo>>,
+    db: &Surreal<Client>,
+    authed: Arc<AtomicBool>,
+) -> Result<Message, ()> {
+    if msg.is_text() || msg.is_binary() {
+        let text = serde_json::from_str::<WSReq>(msg.to_text().unwrap()).unwrap();
+        if text.event == Event::Auth {
+            let user_info = decode_token(&text.data.clone().unwrap()).unwrap();
+
+            *db_user_info.lock().await = check_user(user_info.username.clone(), db).await.unwrap();
+            verify_password(&user_info.password, &(db_user_info.lock().await).password).unwrap();
+            authed.swap(true, Ordering::Relaxed);
+        }
+
+        if !authed.load(Ordering::Relaxed) {
+            return Ok(Message::Close(Some(CloseFrame {
+                code: CloseCode::Policy,
+                reason: "Sorry You're Not Authed!!".into(),
+            })));
+        }
+
+        if text.event == Event::NewFeed {
+            let nf = WSResp {
+                event: Event::NewFeed,
+                data: fetch_newfeed().await.unwrap(),
+            };
+            return Ok(Message::text(serde_json::to_string_pretty(&nf).unwrap()));
+        } else if text.event == Event::Csc {
+            if let Some(msg) = text.data {
+                let query = "UPDATE type::thing($cscthing) SET msg += type::string($msg)";
+                db.query(query)
+                    .bind((
+                        "cscthing",
+                        Thing {
+                            tb: "csc".into(),
+                            id: Id::String((db_user_info.lock().await).username.to_string()),
+                        },
+                    ))
+                    .bind(("msg", (AccMode::User, msg)))
+                    .await
+                    .unwrap();
+            }
+        }
+    } else if msg.is_close() {
+        return Err(());
+    }
+    Err(())
 }

@@ -1,7 +1,10 @@
 use actix_web::{get, web::Path, HttpResponse};
 use surrealdb::sql::Id;
 
-use crate::extra::{functions::internal_error, structures::{DbCarInfo, DB}};
+use crate::extra::{
+    functions::internal_error,
+    structures::{DbCarInfo, DB},
+};
 
 #[get("/car/{id}")]
 pub async fn fetch_car(id: Path<String>) -> HttpResponse {

@@ -1,98 +1,68 @@
+import React, { useCallback, useRef, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
-
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { GlobalStyles } from "../constants/styles";
 import { useNavigation } from "@react-navigation/native";
+import MapContainer from "../components/MapContainer";
 
 const MapScreen = () => {
   const navigation = useNavigation();
-  const [sheetIndex, setIndex] = useState<number>();
-  // ref
-  const MapRef = useRef<MapView>();
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [sheetIndex, setSheetIndex] = useState(1);
+  const bottomSheetRef = useRef(null);
+  const MapRef = useRef(null);
 
-  // callbacks
-  const handleSheetChanges = useCallback((index: number) => {
-    setIndex(index);
-  }, []);
-
-  const INITIAL_REGION = {
-    latitude: 16.826111566733648,
-    longitude: 96.13035812250988,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
-  };
-
-  const focusMap = () => {
-    MapRef.current.animateCamera(
-      { center: INITIAL_REGION, zoom: 15 },
-      { duration: 2000 }
-    );
-  };
+  const focusDestination = useCallback(
+    (origin: string, destination: string) => {
+      MapRef.current.fitToSuppliedMarkers([origin, destination], {
+        edgePadding: { top: 80, bottom: 50, right: 50, left: 50 },
+      });
+      setSheetIndex(0);
+    },
+    []
+  );
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <MapView
-        style={[styles.map]}
-        initialRegion={INITIAL_REGION}
-        provider={PROVIDER_GOOGLE}
-        showsUserLocation
-        showsMyLocationButton
-        ref={MapRef}
-      >
-        <Marker
-          coordinate={{
-            latitude: INITIAL_REGION.latitude,
-            longitude: INITIAL_REGION.longitude,
-          }}
-        />
-      </MapView>
-
-      <TouchableOpacity onPress={focusMap} style={styles.focusBtn}>
-        <Entypo name="location" size={20} color={"black"} />
-      </TouchableOpacity>
-
+      <MapContainer sheetIndex={sheetIndex} MapRef={MapRef} />
       <BottomSheet
-        index={1}
-        snapPoints={["12%", "30%"]}
+        index={sheetIndex}
+        snapPoints={["13%", "30%", "50%"]}
         ref={bottomSheetRef}
-        onChange={handleSheetChanges}
+        onChange={(index) => setSheetIndex(index)}
+        style={{ paddingHorizontal: 10 }}
       >
-        <BottomSheetView style={styles.contentContainer}>
-          {/* Destination */}
-          <View style={styles.destinationContainer}>
-            <View>
-              <Entypo name="location-pin" size={20} />
-              <View
-                style={{
-                  borderRightWidth: 2,
-                  borderStyle: "dotted",
-                  height: 25,
-                  width: 11,
-                }}
-              ></View>
-              <Entypo name="location-pin" size={20} />
+        <TouchableOpacity
+          onPress={() => focusDestination("Origin", "Destination")}
+          style={styles.destinationContainer}
+        >
+          <View>
+            <Entypo name="location-pin" size={20} />
+            <View
+              style={{
+                borderRightWidth: 2,
+                borderStyle: "dotted",
+                height: 25,
+                width: 11,
+              }}
+            />
+            <Entypo name="location-pin" size={20} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ fontSize: 18, fontWeight: "600" }}>Yangon</Text>
             </View>
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={{ fontSize: 18, fontWeight: "600" }}>Yangon</Text>
-              </View>
-              <View style={{ height: 20 }}></View>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={{ fontSize: 18, fontWeight: "600" }}>
-                  Mandalay
-                </Text>
-              </View>
-            </View>
-            <View>
-              <Text style={{ fontWeight: "bold" }}>2d</Text>
+            <View style={{ height: 20 }} />
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ fontSize: 18, fontWeight: "600" }}>Mandalay</Text>
             </View>
           </View>
-          {/* Driver Profile */}
+          <View>
+            <Text style={{ fontWeight: "bold" }}>2d</Text>
+          </View>
+        </TouchableOpacity>
+        <BottomSheetScrollView style={styles.contentContainer}>
           <View style={styles.profileContainer}>
             <View
               style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
@@ -117,7 +87,7 @@ const MapScreen = () => {
               </View>
             </View>
           </View>
-          {/* Car Status */}
+
           <View style={styles.profileContainer}>
             <View
               style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
@@ -138,7 +108,22 @@ const MapScreen = () => {
               </View>
             </TouchableOpacity>
           </View>
-        </BottomSheetView>
+
+          <TouchableOpacity
+            onPress={() => focusDestination("User1Origin", "User1Destination")}
+            style={styles.packageContainer}
+          >
+            <Text style={{ fontWeight: "bold", fontSize: 20 }}>Package 1</Text>
+            <Text>User 1</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => focusDestination("User2Origin", "User2Destination")}
+            style={styles.packageContainer}
+          >
+            <Text style={{ fontWeight: "bold", fontSize: 20 }}>Package 2</Text>
+            <Text>User 2</Text>
+          </TouchableOpacity>
+        </BottomSheetScrollView>
       </BottomSheet>
     </GestureHandlerRootView>
   );
@@ -149,26 +134,13 @@ export default MapScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: "relative",
-  },
-  map: {
-    width: "100%",
-    height: "100%",
-  },
-  focusBtn: {
-    position: "absolute",
-    top: 20,
-    right: 20,
-    padding: 10,
-    borderRadius: 100,
-    backgroundColor: "white",
   },
   contentContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
+    height: "100%",
     gap: 5,
   },
   profileContainer: {
+    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -188,5 +160,11 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderColor: "#e9e9e9",
+  },
+  packageContainer: {
+    backgroundColor: "#e5e5e5",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
   },
 });

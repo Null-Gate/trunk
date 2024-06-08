@@ -94,16 +94,12 @@ const AuthenticatedStack = () => {
       <Stack.Screen name="BottomTab" component={BottomTab} />
       <Stack.Screen name="PostDetail" component={PostDetailScreen} />
       <Stack.Screen name="StatusDetail" component={StatusDetail} />
-      <Stack.Screen
-                name="ProfileEdit"
-                component={ProfileEditScreen}
-            />
+      <Stack.Screen name="ProfileEdit" component={ProfileEditScreen} />
       <Stack.Screen name="Map" component={MapScreen} />
       <Stack.Screen name="CarStatus" component={CarStatusScreen} />
     </Stack.Navigator>
   );
 };
-   
 
 const styles = StyleSheet.create({
   activeContainer: {

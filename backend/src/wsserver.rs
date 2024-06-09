@@ -7,7 +7,9 @@ use std::{
     time::Duration,
 };
 
+use argon2::verify_encoded;
 use futures_util::{SinkExt, StreamExt};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use surrealdb::{
     engine::remote::ws::Client,
     sql::{Id, Thing},
@@ -29,9 +31,9 @@ use tokio_tungstenite::{
 use crate::{
     extra::{
         functions::{check_user, decode_token, verify_password, wserror},
-        structures::{AccMode, DbUserInfo, Event, WSReq, WSResp, DB},
+        structures::{AccMode, BookTB, Claims, DbUserInfo, Event, WSReq, WSResp, DB, JWT_SECRET},
     },
-    fetch::{nf::fetch_newfeed, noti::live_select},
+    fetch::{nf::fetch_newfeed, noti::live_select}, services::acbooking::acbooknoti,
 };
 
 pub async fn wserver() {
@@ -55,24 +57,40 @@ pub async fn accept_conn(stream: TcpStream) {
 }
 
 pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
+    let mut idk = None;
     let callback = |req: &Request, resp: Response| {
         println!("req Path: {}", req.uri().path());
+        idk = Some(req.uri().to_string());
+
         Ok(resp)
     };
     match accept_hdr_async(stream, callback).await {
         Ok(ws_stream) => {
+            let db_user_info = Arc::new(Mutex::new(DbUserInfo::default()));
+            let authed = Arc::new(AtomicBool::new(false));
             let db = DB.get().await;
             if let Err(e) = db.use_ns("ns").use_db("db").await {
                 return Err(wserror(e));
+            }
+            if let Some(paths) = idk {
+                let parts = paths.split('/').collect::<Vec<&str>>();
+                let tuserinfo = decode::<Claims>(parts[1], &DecodingKey::from_secret(JWT_SECRET), &Validation::new(Algorithm::HS256)).unwrap();
+                let cuserinfo: DbUserInfo = db.select::<Option<DbUserInfo>>(("user", Id::String(tuserinfo.claims.user_info.username.to_string()))).await.unwrap().unwrap();
+                if verify_encoded(&cuserinfo.password, tuserinfo.claims.user_info.password.as_bytes()).unwrap() {
+                    *db_user_info.lock().await = tuserinfo.claims.user_info;
+                    authed.swap(true, Ordering::Relaxed);
+                }
+                return Err(wserror("bruh"));
             }
             println!("NWS Conn: {peer:?}");
             let (mut ws_sender, mut ws_receiver) = ws_stream.split();
             let query_state = Arc::new(AtomicBool::new(false));
             let query_result = Arc::new(Mutex::new(DbUserInfo::default()));
+            let acbook_state = Arc::new(AtomicBool::new(false));
+            let acbook_result = Arc::new(Mutex::new(BookTB::default()));
             let mut dur = tokio::time::interval(Duration::from_millis(10));
-            let db_user_info = Arc::new(Mutex::new(DbUserInfo::default()));
-            let authed = Arc::new(AtomicBool::new(false));
             tokio::spawn(live_select(query_state.clone(), query_result.clone()));
+            tokio::spawn(acbooknoti(db, db_user_info.lock().await.username.clone(), acbook_state, acbook_result));
 
             loop {
                 tokio::select! {

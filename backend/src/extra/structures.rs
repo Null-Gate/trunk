@@ -202,6 +202,13 @@ pub struct OwnTB {
     pub out: Thing,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct BookTB {
+    pub r#in: Thing,
+    pub out: Thing,
+    pub utn: Thing
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Resp<'a> {
     pub msg: &'a str,

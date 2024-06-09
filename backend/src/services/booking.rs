@@ -7,7 +7,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::extra::{
     functions::{ct_user, internal_error},
-    structures::{BType, Booking, OwnTB, DB},
+    structures::{BType, BookTB, Booking, DbCarInfo, DbPackageInfo, PostD, DB},
 };
 
 #[allow(clippy::future_not_send)]
@@ -20,9 +20,11 @@ async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
 
     match ct_user(&token, db).await {
         Ok((_, _)) => {
+            let db_car_info: PostD<DbCarInfo> = db.select::<Option<PostD<DbCarInfo>>>(("post", Id::String(info.carp_id.to_string()))).await.unwrap().unwrap();
+            let db_pkg_info: PostD<DbPackageInfo> = db.select::<Option<PostD<DbPackageInfo>>>(("post", Id::String(info.pkgp_id.to_string()))).await.unwrap().unwrap();
             let (content, id) = if info.btype == BType::Pkg {
                 (
-                    OwnTB {
+                    BookTB {
                         r#in: Thing {
                             id: Id::String(info.carp_id.to_string()),
                             tb: "post".into(),
@@ -31,12 +33,13 @@ async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                             id: Id::String(info.pkgp_id.to_string()),
                             tb: "post".into(),
                         },
+                        utn: db_pkg_info.r#in,
                     },
                     info.carp_id.clone(),
                 )
             } else {
                 (
-                    OwnTB {
+                    BookTB {
                         r#in: Thing {
                             id: Id::String(info.pkgp_id.to_string()),
                             tb: "post".into(),
@@ -45,12 +48,13 @@ async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                             id: Id::String(info.carp_id.to_string()),
                             tb: "post".into(),
                         },
+                        utn: db_car_info.r#in
                     },
                     info.pkgp_id.clone(),
                 )
             };
             match db
-                .create::<Option<OwnTB>>(("book", Id::String(id.to_string())))
+                .create::<Option<BookTB>>(("book", Id::String(id.to_string())))
                 .content(content)
                 .await
             {

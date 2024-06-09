@@ -13,6 +13,8 @@ use crate::{
     },
 };
 
+use super::structures::BookTB;
+
 impl Post<Value> {
     pub fn to_resp(&self) -> Value {
         json! ({
@@ -128,5 +130,14 @@ impl Default for DbUserInfo {
             password: "".into(),
             pik_role: vec![],
         }
+    }
+}
+
+unsafe impl Send for DbUserInfo {}
+unsafe impl Sync for DbUserInfo {}
+
+impl Default for BookTB {
+    fn default() -> Self {
+        Self { r#in: Thing { tb: "".into(), id: Id::from("") }, out: Thing { tb: "".into(), id: Id::from("") }, utn: Thing { tb: "".into(), id: Id::from("") } }
     }
 }

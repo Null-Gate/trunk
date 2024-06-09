@@ -6,6 +6,8 @@ import {
     Platform
 } from "react-native";
 
+import { useNavigation } from "@react-navigation/native";
+
 //react
 import { useState, useEffect } from "react";
 
@@ -40,6 +42,8 @@ const RegisterLoginScreen = () => {
     const [userName, setUserName] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [email, setEmail] = useState<string>("");
+
+    const navigation = useNavigation<any>();
 
     const handleActiveContent = (activeId: number) => {
         setActiveContent(activeId);
@@ -93,6 +97,7 @@ return (
                     <CustomButton
                         title={activeContent === 2 ? "Register" : "Login"}
                         btnStyle={styles.button}
+                        handlePress={() => {navigation.navigate("BottomTab")}}
                     />
                 </View>
             </View>

@@ -21,6 +21,7 @@ import SelfStatusScreen from "../screens/SelfStatusScreen";
 import StatusDetail from "../screens/StatusDetail";
 import MapScreen from "../screens/MapScreen";
 import CarStatusScreen from "../screens/CarStatusScreen";
+import RegisterLoginScreen from "../screens/RegisterLoginScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -86,11 +87,12 @@ const BottomTab = () => {
 const AuthenticatedStack = () => {
   return (
     <Stack.Navigator
-      initialRouteName="BottomTab"
+      initialRouteName="RegisterLogin"
       screenOptions={{
         headerShown: false,
       }}
     >
+      <Stack.Screen name="RegisterLogin" component={RegisterLoginScreen} />
       <Stack.Screen name="BottomTab" component={BottomTab} />
       <Stack.Screen name="PostDetail" component={PostDetailScreen} />
       <Stack.Screen name="StatusDetail" component={StatusDetail} />

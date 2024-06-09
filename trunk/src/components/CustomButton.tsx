@@ -6,7 +6,7 @@ import { GlobalStyles } from "../constants/styles";
 interface CustomButtonEntry {
   title: string;
   btnStyle?: object;
-  handlePress: (value: string) => void;
+  handlePress?: () => void;
   textStyle?: object;
 }
 
@@ -14,7 +14,7 @@ const CustomButton = ({
   title,
   btnStyle = {},
   textStyle = {},
-  handlePress,
+  handlePress = () => {},
 }: CustomButtonEntry) => {
 
     return (
@@ -22,6 +22,7 @@ const CustomButton = ({
             <Pressable
                 android_ripple={{ color: "#ccc" }}
                 style={[styles.buttonContainer, btnStyle]}
+                onPress={handlePress}
             >
                 <Text style={[styles.buttonText, textStyle]}>{title}</Text>
             </Pressable>

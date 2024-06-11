@@ -20,41 +20,46 @@ async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
 
     match ct_user(&token, db).await {
         Ok((_, _)) => {
-            let db_car_info: PostD<DbCarInfo> = db.select::<Option<PostD<DbCarInfo>>>(("post", Id::String(info.carp_id.to_string()))).await.unwrap().unwrap();
-            let db_pkg_info: PostD<DbPackageInfo> = db.select::<Option<PostD<DbPackageInfo>>>(("post", Id::String(info.pkgp_id.to_string()))).await.unwrap().unwrap();
-            let (content, id) = if info.btype == BType::Pkg {
-                (
-                    BookTB {
-                        r#in: Thing {
-                            id: Id::String(info.carp_id.to_string()),
-                            tb: "post".into(),
-                        },
-                        out: Thing {
-                            id: Id::String(info.pkgp_id.to_string()),
-                            tb: "post".into(),
-                        },
-                        utn: db_pkg_info.r#in,
+            let db_car_info: PostD<DbCarInfo> = db
+                .select::<Option<PostD<DbCarInfo>>>(("post", Id::String(info.carp_id.to_string())))
+                .await
+                .unwrap()
+                .unwrap();
+            let db_pkg_info: PostD<DbPackageInfo> = db
+                .select::<Option<PostD<DbPackageInfo>>>((
+                    "post",
+                    Id::String(info.pkgp_id.to_string()),
+                ))
+                .await
+                .unwrap()
+                .unwrap();
+            let content = if info.btype == BType::Pkg {
+                BookTB {
+                    r#in: Thing {
+                        id: Id::String(info.carp_id.to_string()),
+                        tb: "post".into(),
                     },
-                    info.carp_id.clone(),
-                )
+                    out: Thing {
+                        id: Id::String(info.pkgp_id.to_string()),
+                        tb: "post".into(),
+                    },
+                    utn: db_pkg_info.r#in,
+                }
             } else {
-                (
-                    BookTB {
-                        r#in: Thing {
-                            id: Id::String(info.pkgp_id.to_string()),
-                            tb: "post".into(),
-                        },
-                        out: Thing {
-                            id: Id::String(info.carp_id.to_string()),
-                            tb: "post".into(),
-                        },
-                        utn: db_car_info.r#in
+                BookTB {
+                    r#in: Thing {
+                        id: Id::String(info.pkgp_id.to_string()),
+                        tb: "post".into(),
                     },
-                    info.pkgp_id.clone(),
-                )
+                    out: Thing {
+                        id: Id::String(info.carp_id.to_string()),
+                        tb: "post".into(),
+                    },
+                    utn: db_car_info.r#in,
+                }
             };
             match db
-                .create::<Option<BookTB>>(("book", Id::String(id.to_string())))
+                .create::<Option<BookTB>>((content.utn.id.to_raw(), Id::rand()))
                 .content(content)
                 .await
             {

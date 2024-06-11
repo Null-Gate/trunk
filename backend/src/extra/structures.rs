@@ -206,7 +206,7 @@ pub struct OwnTB {
 pub struct BookTB {
     pub r#in: Thing,
     pub out: Thing,
-    pub utn: Thing
+    pub utn: Thing,
 }
 
 #[derive(Serialize, Deserialize)]

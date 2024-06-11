@@ -33,7 +33,8 @@ use crate::{
         functions::{check_user, decode_token, verify_password, wserror},
         structures::{AccMode, BookTB, Claims, DbUserInfo, Event, WSReq, WSResp, DB, JWT_SECRET},
     },
-    fetch::{nf::fetch_newfeed, noti::live_select}, services::acbooking::acbooknoti,
+    fetch::{nf::fetch_newfeed, noti::live_select},
+    services::booknoti::booknoti,
 };
 
 pub async fn wserver() {
@@ -74,9 +75,26 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             }
             if let Some(paths) = idk {
                 let parts = paths.split('/').collect::<Vec<&str>>();
-                let tuserinfo = decode::<Claims>(parts[1], &DecodingKey::from_secret(JWT_SECRET), &Validation::new(Algorithm::HS256)).unwrap();
-                let cuserinfo: DbUserInfo = db.select::<Option<DbUserInfo>>(("user", Id::String(tuserinfo.claims.user_info.username.to_string()))).await.unwrap().unwrap();
-                if verify_encoded(&cuserinfo.password, tuserinfo.claims.user_info.password.as_bytes()).unwrap() {
+                let tuserinfo = decode::<Claims>(
+                    parts[1],
+                    &DecodingKey::from_secret(JWT_SECRET),
+                    &Validation::new(Algorithm::HS256),
+                )
+                .unwrap();
+                let cuserinfo: DbUserInfo = db
+                    .select::<Option<DbUserInfo>>((
+                        "user",
+                        Id::String(tuserinfo.claims.user_info.username.to_string()),
+                    ))
+                    .await
+                    .unwrap()
+                    .unwrap();
+                if verify_encoded(
+                    &cuserinfo.password,
+                    tuserinfo.claims.user_info.password.as_bytes(),
+                )
+                .unwrap()
+                {
                     *db_user_info.lock().await = tuserinfo.claims.user_info;
                     authed.swap(true, Ordering::Relaxed);
                 }
@@ -90,7 +108,12 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             let acbook_result = Arc::new(Mutex::new(BookTB::default()));
             let mut dur = tokio::time::interval(Duration::from_millis(10));
             tokio::spawn(live_select(query_state.clone(), query_result.clone()));
-            tokio::spawn(acbooknoti(db, db_user_info.lock().await.username.clone(), acbook_state, acbook_result));
+            tokio::spawn(booknoti(
+                db,
+                db_user_info.lock().await.username.clone(),
+                acbook_state,
+                acbook_result,
+            ));
 
             loop {
                 tokio::select! {

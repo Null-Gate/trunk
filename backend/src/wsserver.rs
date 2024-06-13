@@ -11,7 +11,7 @@ use argon2::verify_encoded;
 use futures_util::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use surrealdb::{
-    engine::remote::ws::Client,
+    engine::local::Db,
     sql::{Id, Thing},
     Surreal,
 };
@@ -146,7 +146,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
 pub async fn cond_check(
     msg: Message,
     db_user_info: Arc<Mutex<DbUserInfo>>,
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
     authed: Arc<AtomicBool>,
 ) -> Result<Message, ()> {
     if msg.is_text() || msg.is_binary() {

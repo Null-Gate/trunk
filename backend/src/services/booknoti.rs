@@ -4,13 +4,13 @@ use std::sync::{
 };
 
 use futures_util::StreamExt;
-use surrealdb::{engine::remote::ws::Client, Notification, Surreal};
+use surrealdb::{engine::local::Db, Notification, Surreal};
 use tokio::sync::Mutex;
 
 use crate::extra::structures::BookTB;
 
 pub async fn booknoti(
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
     username: Arc<str>,
     state: Arc<AtomicBool>,
     result: Arc<Mutex<BookTB>>,

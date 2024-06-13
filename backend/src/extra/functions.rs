@@ -4,7 +4,7 @@ use actix_multipart::form::tempfile::TempFile;
 use actix_web::{get, web::Path, HttpResponse};
 use argon2::verify_encoded;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use surrealdb::{engine::remote::ws::Client, sql::Id, Surreal};
+use surrealdb::{engine::local::Db, sql::Id, Surreal};
 use tokio::fs;
 use tracing::error;
 
@@ -37,7 +37,7 @@ pub fn verify_password(password: &str, hash: &str) -> Result<(), HttpResponse> {
 
 pub async fn check_user(
     username: Arc<str>,
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
 ) -> Result<DbUserInfo, HttpResponse> {
     match db
         .select::<Option<DbUserInfo>>(("user", Id::from(username.to_string())))
@@ -105,7 +105,7 @@ pub async fn get_cache_dir() -> String {
 #[allow(clippy::future_not_send)]
 pub async fn ct_user(
     token: &str,
-    db: &Surreal<Client>,
+    db: &Surreal<Db>,
 ) -> Result<(DbUserInfo, DbUserInfo), HttpResponse> {
     match decode_token(token) {
         Ok(tuser_info) => match check_user(tuser_info.username.clone(), db).await {

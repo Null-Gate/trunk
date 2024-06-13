@@ -8,7 +8,7 @@ use rand::rngs::ThreadRng;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use surrealdb::{
-    engine::remote::ws::{Client, Ws},
+    engine::local::{Db, Mem},
     sql::{Id, Thing},
     Surreal,
 };
@@ -19,8 +19,8 @@ lazy_static! {
         dotenvy::var("TRUNK_HOST").unwrap(),
         dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap()
     );
-    pub static ref DB: AsyncOnce<Surreal<Client>> =
-        AsyncOnce::new(async { Surreal::new::<Ws>("localhost:9070").await.unwrap() });
+    pub static ref DB: AsyncOnce<Surreal<Db>> =
+        AsyncOnce::new(async { Surreal::new::<Mem>(()).await.unwrap() });
 }
 
 pub static ARGON_CONFIG: Config = {

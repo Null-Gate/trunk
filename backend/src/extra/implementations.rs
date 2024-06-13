@@ -140,15 +140,15 @@ impl Default for BookTB {
     fn default() -> Self {
         Self {
             r#in: Thing {
-                tb: "".into(),
+                tb: String::new(),
                 id: Id::from(""),
             },
             out: Thing {
-                tb: "".into(),
+                tb: String::new(),
                 id: Id::from(""),
             },
             utn: Thing {
-                tb: "".into(),
+                tb: String::new(),
                 id: Id::from(""),
             },
         }

@@ -202,7 +202,7 @@ pub struct OwnTB {
     pub out: Thing,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BookTB {
     pub r#in: Thing,
     pub out: Thing,

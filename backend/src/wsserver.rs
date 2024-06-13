@@ -112,8 +112,8 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             tokio::spawn(booknoti(
                 db,
                 db_user_info.lock().await.username.clone(),
-                acbook_state,
-                acbook_result,
+                acbook_state.clone(),
+                acbook_result.clone(),
             ));
 
             loop {
@@ -132,6 +132,13 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                                  let nt = WSResp{
                                      event: Event::Notification,
                                      data: query_result.lock().await.clone()
+                                 };
+                                 ws_sender.send(Message::text(serde_json::to_string_pretty(&nt).unwrap())).await.unwrap();
+                             }
+                             if acbook_state.swap(false, Ordering::Relaxed) {
+                                 let nt = WSResp {
+                                     event: Event::Notification,
+                                     data: acbook_result.lock().await.clone()
                                  };
                                  ws_sender.send(Message::text(serde_json::to_string_pretty(&nt).unwrap())).await.unwrap();
                              }

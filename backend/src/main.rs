@@ -7,6 +7,8 @@ use extra::functions::test_token;
 use extra::structures::{DATA_PATH, SEIF};
 use fetch::scope::fetch;
 use post::{ava_car::post_car, car::car, driver::driver, package::package};
+use services::acbooking::acbooking;
+use services::booking::{self, book};
 use services::voting::up_vote;
 use std::path::Path;
 use tokio::fs;
@@ -49,6 +51,8 @@ async fn main() -> std::io::Result<()> {
             .service(fetch())
             .service(test_token)
             .service(up_vote)
+            .service(book)
+            .service(acbooking)
             .wrap(cors)
     })
     .bind((SEIF.0.as_str(), SEIF.1))?

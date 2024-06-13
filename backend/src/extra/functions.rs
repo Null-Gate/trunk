@@ -120,8 +120,8 @@ pub async fn ct_user(
 }
 
 #[allow(clippy::future_not_send)]
-#[get("/bruh")]
-pub async fn test_token() -> HttpResponse {
-    //decode_token(token.as_str()).map_or_else(|e| e, |v| HttpResponse::Ok().json(v))
+#[get("/bruh/{smt}")]
+pub async fn test_token(path: Path<String>) -> HttpResponse {
+    println!("{path}");
     HttpResponse::Ok().await.unwrap()
 }

@@ -97,8 +97,9 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                 {
                     *db_user_info.lock().await = tuserinfo.claims.user_info;
                     authed.swap(true, Ordering::Relaxed);
+                } else {
+                    return Err(wserror("bruh"));
                 }
-                return Err(wserror("bruh"));
             }
             println!("NWS Conn: {peer:?}");
             let (mut ws_sender, mut ws_receiver) = ws_stream.split();

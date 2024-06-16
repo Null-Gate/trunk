@@ -102,7 +102,7 @@ const ImageSlider = ({
                                 imageSource={{ uri: item.url }}
                                 imageContainerStyle={{
                                     width: windowWidth - 30,
-                                    height: 380
+                                    height: windowWidth - 30
                                 }}
                             />
                         </View>

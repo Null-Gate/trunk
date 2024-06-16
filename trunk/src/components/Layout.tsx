@@ -3,6 +3,7 @@ import {
     SafeAreaView,
     StyleSheet
 } from "react-native";
+import { GlobalStyles } from "../constants/styles";
 
 type Layout = {
     children: React.JSX.Element;
@@ -21,7 +22,7 @@ const Layout = ({
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#fafafa"
     }
 })
 

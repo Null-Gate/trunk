@@ -12,6 +12,7 @@ import { useNavigation } from "@react-navigation/native";
 import Layout from "../components/Layout";
 import Post from "../components/NewFeed/Post";
 import ImageModal from "../components/NewFeed/ImageModal";
+import PostModal from "../components/NewFeed/PostModal";
 
 //data
 import { POST_DATA } from "../config/posts";
@@ -22,12 +23,19 @@ interface ImageModalInfo {
     post: any
 }
 
+interface PostModalInfo {
+    modalVisible: boolean
+}
+
 const NewFeedScreen = () => {
     const [imageModalInfo, setImageModalInfo] = useState<ImageModalInfo>({
         modalVisible: false,
         pressedImgIndex: null,
         post: null
     });
+    const [postModalInfo, setPostModalInfo] = useState<PostModalInfo>({
+        modalVisible: false
+    })
     const navigation = useNavigation<any>();
 
     const closeImageModal = () => {
@@ -58,6 +66,26 @@ const NewFeedScreen = () => {
         })
     };
 
+    const openPostModal = () => {
+        setPostModalInfo(prevInfo => {
+            const newInfo = {
+                ...prevInfo,
+                modalVisible: true,
+            }
+            return newInfo;
+        })
+    }
+
+    const closePostModal = () => {
+        setPostModalInfo(prevInfo => {
+            const newInfo = {
+                ...prevInfo,
+                modalVisible: false,
+            }
+            return newInfo;
+        })
+    }
+
     const navigatePostDetail = (id: number | string) => {
         navigation.navigate('PostDetail', {
             postId: id
@@ -87,6 +115,7 @@ const NewFeedScreen = () => {
                                 description={item.descirption}
                                 imgs={item.imgs}
                                 onPressedPostImage={openImageModal}
+                                onPressedPostOptions={openPostModal}
                             />
                         </Pressable>
                     }}
@@ -98,6 +127,10 @@ const NewFeedScreen = () => {
                 pressedImageIndex={imageModalInfo.pressedImgIndex}
                 visible={imageModalInfo.modalVisible}
                 close={closeImageModal}
+            />
+            <PostModal 
+                visible={postModalInfo.modalVisible}
+                closeModal={closePostModal}
             />
         </>
     )

@@ -1,9 +1,8 @@
 import {
     View,
-    Text,
-    Image,
     Pressable,
     Platform,
+    ScrollView,
     Dimensions,
     StyleSheet
 } from 'react-native';
@@ -17,6 +16,9 @@ import { FontAwesome } from '@expo/vector-icons';
 //components
 import ImageContainer from '../ImageContainer';
 import CustomText from '../CustomText';
+import CustomModal from '../CustomModal';
+
+// styles
 import { GlobalStyles } from '../../constants/styles';
 
 const windowWidth = Dimensions.get("window").width;
@@ -38,56 +40,45 @@ const NotiModal = ({
     closeModal
 }: NotiModal) => {
     return (
-        <Modal
-            isVisible={visible}
-            onBackButtonPress={closeModal}
-            onBackdropPress={closeModal}
-            animationInTiming={500}
-            animationOutTiming={500}
-            style={{
-                margin: 0,
-                flex: 1,
-                flexDirection: "row",
-                alignItems: "flex-end",
-            }}
-            propagateSwipe={true}
-            avoidKeyboard={Platform.OS === "ios" && true}
+        <CustomModal
+            visible={visible}
+            closeModal={closeModal}
         >
-            <View style={styles.modalPage}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.innerContainer}>
-                        <View style={styles.modalHeader}>
-                            <ImageContainer
-                                imageSource={{ uri: notification?.userImg }}
-                                imageContainerStyle={{
-                                    width: 50,
-                                    height: 50,
-                                    borderRadius: 25,
-                                    marginBottom: 10
-                                }}
-                            />
-                            <CustomText textStyle={styles.headerText}>
-                                {`${notification?.username} ${notification?.notiMessage}`}
-                            </CustomText>
-                        </View>
-                        <View style={styles.listContainer}>
-                            <Pressable
-                                android_ripple={{ color: "#ccc" }}
-                            >
-                                <View style={styles.listItem}>
-                                    <View style={{ width: windowWidth * 0.15 }}>
-                                        <View style={styles.iconContainer}>
-                                            <FontAwesome name="window-close" size={20} color="black" />
-                                        </View>
-                                    </View>
-                                    <CustomText textStyle={styles.listItemText}>Remove this notification</CustomText>
-                                </View>
-                            </Pressable>
-                        </View>
-                    </View>
+            <View>
+                {/* start modal header */}
+                <View style={styles.modalHeader}>
+                    <ImageContainer
+                        imageSource={{ uri: notification?.userImg }}
+                        imageContainerStyle={{
+                            width: 50,
+                            height: 50,
+                            borderRadius: 25,
+                            marginBottom: 10
+                        }}
+                    />
+                    <CustomText textStyle={styles.headerText}>
+                        {`${notification?.username} ${notification?.notiMessage}`}
+                    </CustomText>
                 </View>
+                {/* end modal header */}
+
+                {/* start list container */}
+                <View style={styles.listContainer}>
+                    <Pressable
+                        android_ripple={{ color: "#ccc" }}
+                        style={styles.listItem}
+                    >
+                        <View style={{ width: windowWidth * 0.15 }}>
+                            <View style={styles.iconContainer}>
+                                <FontAwesome name="window-close" size={20} color="black" />
+                            </View>
+                        </View>
+                        <CustomText textStyle={styles.listItemText}>Remove this notification</CustomText>
+                    </Pressable>
+                </View>
+                {/* end list container */}
             </View>
-        </Modal>
+        </CustomModal>
     )
 }
 
@@ -105,13 +96,13 @@ const styles = StyleSheet.create({
         borderTopEndRadius: 15,
         borderTopLeftRadius: 15,
     },
+    innerContainer: {
+        maxHeight: windowHeight * 0.6,
+    },
     viewImage: {
         position: "absolute",
         width: "100%",
         height: "100%",
-    },
-    innerContainer: {
-        maxHeight: windowHeight / 1.8,
     },
     modalHeader: {
         flexDirection: "column",

@@ -11,9 +11,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 //components
 import Layout from "../components/Layout";
 import Post from "../components/NewFeed/Post";
-import Comment from "../components/Comment";
 import ImageModal from "../components/NewFeed/ImageModal";
-import CommentModal from "../components/PostDetail/CommentModal";
 
 // styles
 import { GlobalStyles } from "../constants/styles";
@@ -146,35 +144,6 @@ const PostDetailScreen = () => {
                         onPressedPostImage={openImageModal}
                     />
                     {/* end post */}
-
-                    {/* start comment lists */}
-                    <View>
-                        {
-                            post.comments.map(comment => {
-                                return (
-                                    <View key={comment.id} style={styles.commentContainer}>
-                                        <Comment
-                                            author={comment.author}
-                                            created_date="10h"
-                                            text={comment.text}
-                                            onReply={openCommentModal}
-                                        />
-                                        {comment.reply && (
-                                            <Comment
-                                                author={post.user}
-                                                created_date="10h"
-                                                text={comment.reply.text}
-                                                style={styles.replyComment}
-                                                isReplyComment={true}
-                                            />
-                                        )}
-
-                                    </View>
-                                )
-                            })
-                        }
-                    </View>
-                    {/* end comment lists */}
                 </ScrollView>
 
                 <ImageModal
@@ -184,11 +153,6 @@ const PostDetailScreen = () => {
                     close={closeImageModal}
                 />
 
-                <CommentModal 
-                    visible={commentModalInfo.modalVisible}
-                    title={commentModalInfo.title}
-                    close={closeCommentModal}
-                />
             </>
         </Layout>
     )

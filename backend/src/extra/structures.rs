@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{fmt::Debug, sync::Arc};
 
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use argon2::{Config, Variant, Version};
@@ -205,7 +205,9 @@ pub struct OwnTB {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BookTB {
     pub r#in: Thing,
+    pub in_info: Value,
     pub out: Thing,
+    pub out_info: Value,
     pub utn: Thing,
 }
 
@@ -229,7 +231,7 @@ pub struct Post<T> {
     pub date_to_go: Arc<str>,
     pub cper_weight: u32,
     pub cper_amount: u32,
-    pub votes: i64,
+    pub votes: Option<i64>,
     pub ptype: PType,
     pub data: T,
 }
@@ -246,7 +248,7 @@ pub struct PostD<T> {
     pub cper_amount: u32,
     pub cper_weight: u32,
     pub ptype: PType,
-    pub votes: i64,
+    pub votes: Option<i64>,
     pub data: T,
 }
 

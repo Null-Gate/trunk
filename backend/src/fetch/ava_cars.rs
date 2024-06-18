@@ -20,7 +20,7 @@ async fn fetch_ava_cars() -> HttpResponse {
     let svec = resp.take::<Vec<PostD<DbCarInfo>>>(0).unwrap();
     let rvec = svec
         .into_iter()
-        .map(|x| x.to_resp())
+        .map(|mut x| x.to_resp())
         .collect::<Vec<Value>>();
 
     HttpResponse::Ok().json(rvec)

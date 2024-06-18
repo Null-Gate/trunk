@@ -17,5 +17,5 @@ pub async fn fetch_newfeed() -> Result<Vec<Value>, tokio_tungstenite::tungstenit
     let mut ret = db.query(pql).await.unwrap();
     let new_feed = ret.take::<Vec<PostD<Value>>>(0).unwrap();
 
-    Ok(new_feed.into_iter().map(|x| x.to_resp()).collect())
+    Ok(new_feed.into_iter().map(|mut x| x.to_resp()).collect())
 }

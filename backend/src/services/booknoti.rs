@@ -13,12 +13,12 @@ pub async fn booknoti(
     db: &Surreal<Db>,
     username: Arc<str>,
     state: Arc<AtomicBool>,
-    result: Arc<Mutex<BookTB>>,
+    result: Arc<Mutex<Option<BookTB>>>,
 ) {
     let mut stream = db.select(username.to_string()).live().await.unwrap();
     while let Some(res) = stream.next().await {
         let idk: Notification<BookTB> = res.unwrap();
         state.swap(true, Ordering::Relaxed);
-        *result.lock().await = idk.data;
+        *result.lock().await = Some(idk.data);
     }
 }

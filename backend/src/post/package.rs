@@ -96,7 +96,7 @@ async fn package(
                                 cper_weight: form.cper_weight.into_inner(),
                                 cper_amount: form.cper_amount.into_inner(),
                                 ptype: PType::Pkg,
-                                votes: 0,
+                                votes: Some(0),
                                 data: package_info.clone(),
                                 date_to_go: form.date_to_go.into_inner(),
                             };

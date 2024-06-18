@@ -3,6 +3,7 @@ use actix_web::{
     web::{Json, Path},
     HttpResponse,
 };
+use serde_json::Value;
 use surrealdb::sql::{Id, Thing};
 
 use crate::extra::{
@@ -39,10 +40,12 @@ async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                         id: Id::String(info.carp_id.to_string()),
                         tb: "post".into(),
                     },
+                    in_info: serde_json::to_value(db_car_info).unwrap(),
                     out: Thing {
                         id: Id::String(info.pkgp_id.to_string()),
                         tb: "post".into(),
                     },
+                    out_info: serde_json::to_value(&db_pkg_info).unwrap(),
                     utn: db_pkg_info.r#in,
                 }
             } else {
@@ -51,15 +54,17 @@ async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                         id: Id::String(info.pkgp_id.to_string()),
                         tb: "post".into(),
                     },
+                    in_info: serde_json::to_value(db_pkg_info).unwrap(),
                     out: Thing {
                         id: Id::String(info.carp_id.to_string()),
                         tb: "post".into(),
                     },
+                    out_info: serde_json::to_value(&db_car_info).unwrap(),
                     utn: db_car_info.r#in,
                 }
             };
             match db
-                .create::<Option<BookTB>>((content.utn.id.to_raw(), Id::rand()))
+                .create::<Option<Value>>((content.utn.id.to_raw(), Id::rand()))
                 .content(content)
                 .await
             {

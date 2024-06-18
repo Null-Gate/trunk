@@ -3,7 +3,7 @@ use rand::{
     distributions::{DistString, Distribution},
     Rng,
 };
-use serde_json::{json, Value};
+use serde_json::Value;
 use surrealdb::sql::{Id, Thing};
 
 use crate::{
@@ -13,49 +13,30 @@ use crate::{
     },
 };
 
-use super::structures::BookTB;
-
 impl Post<Value> {
-    pub fn to_resp(&self) -> Value {
-        json! ({
-            "userinfo": self.r#in.clone(),
-            "from_where": self.from_where,
-            "to_where": self.to_where,
-            "date_to_go": self.date_to_go,
-            "ptdate": self.ptdate,
-            "data": self.data,
-            "votes": self.votes.to_string(),
-        })
+    pub fn to_resp(&mut self) -> Value {
+        if let None | Some(0) = self.votes {
+            self.votes = None;
+        }
+        serde_json::to_value(self).unwrap()
     }
 }
 
 impl PostD<Value> {
-    pub fn to_resp(&self) -> Value {
-        json! ({
-            "id": self.id,
-            "userinfo": self.r#in.clone(),
-            "from_where": self.from_where,
-            "to_where": self.to_where,
-            "date_to_go": self.date_to_go,
-            "ptdate": self.ptdate,
-            "data": self.data,
-            "votes": self.votes.to_string(),
-        })
+    pub fn to_resp(&mut self) -> Value {
+        if let None | Some(0) = self.votes {
+            self.votes = None;
+        }
+        serde_json::to_value(self).unwrap()
     }
 }
 
 impl PostD<DbCarInfo> {
-    pub fn to_resp(&self) -> Value {
-        json! ({
-            "id": self.id,
-            "userinfo": self.r#in.clone(),
-            "from_where": self.from_where,
-            "to_where": self.to_where,
-            "date_to_go": self.date_to_go,
-            "ptdate": self.ptdate,
-            "data": self.data,
-            "votes": self.votes.to_string(),
-        })
+    pub fn to_resp(&mut self) -> Value {
+        if let None | Some(0) = self.votes {
+            self.votes = None;
+        }
+        serde_json::to_value(self).unwrap()
     }
 }
 
@@ -107,7 +88,7 @@ impl CarPostForm {
                 },
                 out: Thing::from(("car", Id::String(self.car_id.to_string()))),
                 ptdate: 0,
-                votes: 0,
+                votes: Some(0),
                 data,
                 ptype: PType::Car,
                 to_where: self.to_where.clone(),
@@ -129,28 +110,6 @@ impl Default for DbUserInfo {
             fullname: "".into(),
             password: "".into(),
             pik_role: vec![],
-        }
-    }
-}
-
-unsafe impl Send for DbUserInfo {}
-unsafe impl Sync for DbUserInfo {}
-
-impl Default for BookTB {
-    fn default() -> Self {
-        Self {
-            r#in: Thing {
-                tb: String::new(),
-                id: Id::from(""),
-            },
-            out: Thing {
-                tb: String::new(),
-                id: Id::from(""),
-            },
-            utn: Thing {
-                tb: String::new(),
-                id: Id::from(""),
-            },
         }
     }
 }

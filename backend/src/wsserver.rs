@@ -106,7 +106,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             let query_state = Arc::new(AtomicBool::new(false));
             let query_result = Arc::new(Mutex::new(DbUserInfo::default()));
             let acbook_state = Arc::new(AtomicBool::new(false));
-            let acbook_result = Arc::new(Mutex::new(BookTB::default()));
+            let acbook_result: Arc<Mutex<Option<BookTB>>> = Arc::new(Mutex::new(None));
             let mut dur = tokio::time::interval(Duration::from_millis(10));
             tokio::spawn(live_select(query_state.clone(), query_result.clone()));
             tokio::spawn(booknoti(
@@ -138,7 +138,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                              if acbook_state.swap(false, Ordering::Relaxed) {
                                  let nt = WSResp {
                                      event: Event::Notification,
-                                     data: acbook_result.lock().await.clone()
+                                     data: acbook_result.lock().await.clone().unwrap()
                                  };
                                  ws_sender.send(Message::text(serde_json::to_string_pretty(&nt).unwrap())).await.unwrap();
                              }

@@ -47,14 +47,14 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
 
                     if let (Some(mut voted), Some(mut post)) = (sel, iid.clone()) {
                         if voted.vote == Vote::Up {
-                            post.votes -= 1;
+                            post.votes = Some(post.votes.unwrap_or(0) - 1);
 
                             if &paths.0 == "up" {
                                 if let Err(e) = db.delete::<Option<VRelate>>(voted.id).await {
                                     return internal_error(e);
                                 }
                             } else if &paths.0 == "down" {
-                                post.votes -= 1;
+                                post.votes = Some(post.votes.unwrap_or(0) - 1);
                                 voted.vote = Vote::Down;
                                 if let Err(e) = db
                                     .update::<Option<VRelate>>(voted.id.clone())
@@ -70,16 +70,16 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                                 .content(post)
                                 .await
                             {
-                                Ok(Some(i)) => return HttpResponse::Ok().json(i.to_resp()),
+                                Ok(Some(mut i)) => return HttpResponse::Ok().json(i.to_resp()),
                                 Ok(None) => return internal_error("none update vote post error!"),
                                 Err(e) => return internal_error(e),
                             };
                         } else if voted.vote == Vote::Down {
-                            post.votes += 1;
+                            post.votes = Some(post.votes.unwrap_or(0) + 1);
 
                             if &paths.0 == "up" {
                                 voted.vote = Vote::Up;
-                                post.votes += 1;
+                                post.votes = Some(post.votes.unwrap_or(0) + 1);
                                 if let Err(e) = db
                                     .update::<Option<VRelate>>(voted.id.clone())
                                     .content(voted)
@@ -98,7 +98,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                                 .content(post)
                                 .await
                             {
-                                Ok(Some(i)) => return HttpResponse::Ok().json(i.to_resp()),
+                                Ok(Some(mut i)) => return HttpResponse::Ok().json(i.to_resp()),
                                 Ok(None) => return internal_error("none update vote post error!"),
                                 Err(e) => return internal_error(e),
                             };
@@ -136,9 +136,9 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
 
                     if let (Some(_), Some(mut post)) = (cel, iid) {
                         if &paths.0 == "up" {
-                            post.votes += 1;
+                            post.votes = Some(post.votes.unwrap_or(0) + 1);
                         } else if &paths.0 == "down" {
-                            post.votes -= 1;
+                            post.votes = Some(post.votes.unwrap_or(0) - 1);
                         } else {
                             return HttpResponse::BadRequest().await.unwrap();
                         }
@@ -148,7 +148,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                             .content(post)
                             .await
                         {
-                            Ok(Some(i)) => return HttpResponse::Ok().json(i.to_resp()),
+                            Ok(Some(mut i)) => return HttpResponse::Ok().json(i.to_resp()),
                             Ok(None) => return internal_error("None Update Vote Post Error!"),
                             Err(e) => return internal_error(e),
                         };

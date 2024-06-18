@@ -37,7 +37,7 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
             let db_posts: Vec<PostD<Value>> = idk.take(1).unwrap();
             let posts = db_posts
                 .into_iter()
-                .map(|x| x.to_resp())
+                .map(|mut x| x.to_resp())
                 .collect::<Vec<Value>>();
 
             let ret_user = json!({

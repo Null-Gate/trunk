@@ -10,8 +10,8 @@ use post::{ava_car::post_car, car::car, driver::driver, package::package};
 use services::acbooking::acbooking;
 use services::booking::book;
 use services::voting::up_vote;
-use std::{fs::File, io::BufReader};
 use std::path::Path;
+use std::{fs::File, io::BufReader};
 use tokio::fs;
 use tracing::Level;
 
@@ -33,7 +33,9 @@ async fn main() -> std::io::Result<()> {
         .with_line_number(true)
         .init();
 
-    rustls::crypto::aws_lc_rs::default_provider().install_default().unwrap();
+    rustls::crypto::aws_lc_rs::default_provider()
+        .install_default()
+        .unwrap();
     let mut certs_file = BufReader::new(File::open(dotenvy::var("CERT_FILE").unwrap()).unwrap());
     let mut key_file = BufReader::new(File::open(dotenvy::var("KEY_FILE").unwrap()).unwrap());
 
@@ -76,7 +78,13 @@ async fn main() -> std::io::Result<()> {
             .service(acbooking)
             .wrap(cors)
     })
-    .bind_rustls_0_23((dotenvy::var("TRUNK_HOST").unwrap(), dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap()), tls_config)?
+    .bind_rustls_0_23(
+        (
+            dotenvy::var("TRUNK_HOST").unwrap(),
+            dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap(),
+        ),
+        tls_config,
+    )?
     .run()
     .await;
     Ok(())

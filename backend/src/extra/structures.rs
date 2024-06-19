@@ -209,6 +209,17 @@ pub struct BookTB {
     pub out: Thing,
     pub out_info: Value,
     pub utn: Thing,
+    pub utr: Thing,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct GBookTB<L, V> {
+    pub r#in: Thing,
+    pub in_info: PostD<L>,
+    pub out: Thing,
+    pub out_info: PostD<V>,
+    pub utn: Thing,
+    pub utr: Thing,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -222,6 +222,17 @@ pub struct GBookTB<L, V> {
     pub utr: Thing,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum NType {
+   Booking,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Noti<T> {
+    pub data: T,
+    pub ntyp: NType,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Resp<'a> {
     pub msg: &'a str,

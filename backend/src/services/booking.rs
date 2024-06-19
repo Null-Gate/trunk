@@ -8,7 +8,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::extra::{
     functions::{ct_user, internal_error},
-    structures::{BType, BookTB, Booking, DbCarInfo, DbPackageInfo, PostD, DB},
+    structures::{BType, BookTB, Booking, DbCarInfo, DbPackageInfo, NType, Noti, PostD, DB},
 };
 
 #[allow(clippy::future_not_send)]
@@ -34,7 +34,7 @@ async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                 .await
                 .unwrap()
                 .unwrap();
-            let content = if info.btype == BType::Pkg {
+            let ntdata = if info.btype == BType::Pkg {
                 BookTB {
                     r#in: Thing {
                         id: Id::String(info.carp_id.to_string()),
@@ -65,8 +65,14 @@ async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                     utr: db_pkg_info.r#in
                 }
             };
+
+            let content = Noti {
+                data: ntdata,
+                ntyp: NType::Booking
+            };
+
             match db
-                .create::<Option<Value>>((content.utn.id.to_raw(), Id::rand()))
+                .create::<Option<Value>>((content.data.utn.id.to_raw(), Id::rand()))
                 .content(content)
                 .await
             {

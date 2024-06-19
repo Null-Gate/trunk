@@ -31,7 +31,7 @@ use tokio_tungstenite::{
 use crate::{
     extra::{
         functions::{check_user, decode_token, verify_password, wserror},
-        structures::{AccMode, BookTB, Claims, DbUserInfo, Event, WSReq, WSResp, DB, JWT_SECRET},
+        structures::{AccMode, BookTB, Claims, DbUserInfo, Event, Noti, WSReq, WSResp, DB, JWT_SECRET},
     },
     fetch::{nf::fetch_newfeed, noti::live_select},
     services::booknoti::booknoti,
@@ -106,7 +106,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             let query_state = Arc::new(AtomicBool::new(false));
             let query_result = Arc::new(Mutex::new(DbUserInfo::default()));
             let acbook_state = Arc::new(AtomicBool::new(false));
-            let acbook_result: Arc<Mutex<Option<BookTB>>> = Arc::new(Mutex::new(None));
+            let acbook_result: Arc<Mutex<Option<Noti<BookTB>>>> = Arc::new(Mutex::new(None));
             let mut dur = tokio::time::interval(Duration::from_millis(10));
             tokio::spawn(live_select(query_state.clone(), query_result.clone()));
             tokio::spawn(booknoti(

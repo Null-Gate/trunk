@@ -34,7 +34,7 @@ use crate::{
         structures::{AccMode, BookTB, Claims, DbUserInfo, Event, Noti, WSReq, WSResp, DB, JWT_SECRET},
     },
     fetch::{nf::fetch_newfeed, noti::live_select},
-    services::booknoti::booknoti,
+    services::{booknoti::booknoti, notinit::notinit},
 };
 
 pub async fn wserver() {
@@ -115,6 +115,14 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                 acbook_state.clone(),
                 acbook_result.clone(),
             ));
+
+            let notinit_msg = notinit(&db_user_info.lock().await.username, db).await;
+            let nt = WSResp {
+                event: Event::InitNotifications,
+                data: notinit_msg,
+            };
+
+            ws_sender.send(Message::Text(serde_json::to_string_pretty(&nt).unwrap())).await.unwrap();
 
             loop {
                 tokio::select! {

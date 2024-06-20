@@ -145,6 +145,7 @@ pub struct Login {
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub enum Event {
     Notification,
+    InitNotifications,
     NewFeed,
     Csc,
     Auth,

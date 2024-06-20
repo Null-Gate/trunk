@@ -1,3 +1,4 @@
+#![allow(clippy::wrong_self_convention)]
 use actix_web::HttpResponse;
 use rand::{
     distributions::{DistString, Distribution},

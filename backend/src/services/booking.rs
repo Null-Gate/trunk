@@ -3,7 +3,6 @@ use actix_web::{
     web::{Json, Path},
     HttpResponse,
 };
-use serde_json::Value;
 use surrealdb::sql::{Id, Thing};
 
 use crate::extra::{
@@ -72,7 +71,7 @@ async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
             };
 
             match db
-                .create::<Option<Value>>((content.data.utn.id.to_raw(), Id::rand()))
+                .create::<Option<Noti<BookTB>>>((content.data.utn.id.to_raw(), Id::rand()))
                 .content(content)
                 .await
             {

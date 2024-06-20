@@ -26,7 +26,7 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                         .delete::<Option<Noti<BookTB>>>((cuser.username.to_string(), Id::String(parts.0)))
                         .await
                     {
-                        Ok(Some(_)) => HttpResponse::Ok().await.unwrap(),
+                        Ok(Some(smt)) => HttpResponse::Ok().await.unwrap(),
                         Ok(None) => HttpResponse::NotFound().await.unwrap(),
                         Err(e) => internal_error(e),
                     }

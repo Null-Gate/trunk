@@ -204,6 +204,12 @@ pub struct OwnTB {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum BStat {
+    Accept,
+    Deny
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BookTB {
     pub r#in: Thing,
     pub in_info: Value,
@@ -211,6 +217,12 @@ pub struct BookTB {
     pub out_info: Value,
     pub utn: Thing,
     pub utr: Thing,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct BookStat {
+    pub bstat: BStat,
+    pub bdata: BookTB
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

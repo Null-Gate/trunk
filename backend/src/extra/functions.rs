@@ -1,4 +1,4 @@
-use std::{fmt::Display, path::Path as FPath, sync::Arc};
+use std::{fmt::Display, path::Path as FPath};
 
 use actix_multipart::form::tempfile::TempFile;
 use actix_web::{get, web::Path, HttpResponse};
@@ -35,7 +35,7 @@ pub fn verify_password(password: &str, hash: &str) -> Result<(), HttpResponse> {
     }
 }
 
-pub async fn check_user(username: Arc<str>, db: &Surreal<Db>) -> Result<DbUserInfo, HttpResponse> {
+pub async fn check_user(username: String, db: &Surreal<Db>) -> Result<DbUserInfo, HttpResponse> {
     match db
         .select::<Option<DbUserInfo>>(("user", Id::from(username.to_string())))
         .await

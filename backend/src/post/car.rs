@@ -56,7 +56,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                     let car_info = DbCarInfo {
                         license_num: form.license_num.0,
                         car_id: id.clone(),
-                        owner_proof: pic_url.into(),
+                        owner_proof: pic_url,
                         car_details: form.car_details.0,
                         is_available: false,
                         userinfo: Thing {

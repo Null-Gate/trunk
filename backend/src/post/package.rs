@@ -75,7 +75,7 @@ async fn package(
 
                             let package_info = DbPackageInfo {
                                 package_name: form.package_name.0,
-                                package_pic: pic_url.into(),
+                                package_pic: pic_url,
                                 pkg_details: form.pkg_details.0,
                             };
 

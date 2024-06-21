@@ -77,7 +77,7 @@ async fn driver(
 
                             let driver_info = DbDriverInfo {
                                 license_num: form.license_num.into_inner(),
-                                license_pic: pic_url.into(),
+                                license_pic: pic_url,
                                 exp_details: form.exp_details.0,
                                 userinfo: Thing {
                                     tb: "user".into(),

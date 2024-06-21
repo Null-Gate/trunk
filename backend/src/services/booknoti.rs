@@ -11,7 +11,7 @@ use crate::extra::structures::{BookTB, Noti};
 
 pub async fn booknoti(
     db: &Surreal<Db>,
-    username: Arc<str>,
+    username: String,
     state: Arc<AtomicBool>,
     result: Arc<Mutex<Option<Noti<BookTB>>>>,
 ) {

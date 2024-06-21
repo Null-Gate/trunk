@@ -10,7 +10,7 @@ use surrealdb::sql::{Id, Thing};
 use crate::{
     extra::functions::internal_error,
     extra::structures::{
-        CarPostForm, DbCarInfo, DbUserInfo, GenString, PType, Post, PostD, Resp, DB,
+        CarPostForm, DbCarInfo, GenString, PType, Post, PostD, Resp, DB,
     },
 };
 
@@ -100,17 +100,6 @@ impl CarPostForm {
             }),
             Ok(None) => Err(internal_error("structure 139 None DbCarIndo Error!")),
             Err(e) => Err(internal_error(e)),
-        }
-    }
-}
-
-impl Default for DbUserInfo {
-    fn default() -> Self {
-        Self {
-            username: "".into(),
-            fullname: "".into(),
-            password: "".into(),
-            pik_role: vec![],
         }
     }
 }

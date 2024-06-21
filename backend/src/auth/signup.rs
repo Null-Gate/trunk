@@ -4,7 +4,7 @@ use surrealdb::sql::Id;
 
 use crate::extra::{
     functions::internal_error,
-    structures::{DbUserInfo, GenString, Resp, Signup, ARGON_CONFIG, DB},
+    structures::{SDbUserInfo, GenString, Resp, Signup, ARGON_CONFIG, DB},
 };
 
 #[post("/sign_up")]
@@ -17,7 +17,7 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
     let rand_salt = GenString::new().gen_string(20, 100);
 
     match db
-        .select::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string())))
+        .select::<Option<SDbUserInfo>>(("user", Id::String(info.username.clone())))
         .await
     {
         Ok(Some(_)) => {
@@ -35,15 +35,15 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
         &ARGON_CONFIG,
     ) {
         Ok(hash) => {
-            let user_info = DbUserInfo {
+            let user_info = SDbUserInfo {
                 username: info.username.clone(),
                 fullname: info.fullname.clone(),
-                password: hash.into(),
+                password: hash,
                 pik_role: vec![],
             };
 
             match db
-                .create::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string())))
+                .create::<Option<SDbUserInfo>>(("user", Id::String(info.username.to_string())))
                 .content(user_info)
                 .await
             {

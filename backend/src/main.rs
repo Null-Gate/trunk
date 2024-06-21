@@ -58,7 +58,7 @@ async fn main() -> std::io::Result<()> {
         fs::create_dir_all(&dir).await.unwrap();
     }
 
-    tokio::spawn(wsserver::wserver()).await.unwrap();
+    tokio::spawn(wsserver::wserver());
     let _ = HttpServer::new(move || {
         let cors = Cors::permissive();
         App::new()

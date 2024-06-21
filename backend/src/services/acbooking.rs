@@ -18,26 +18,39 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
     match ct_user(&parts.1, db).await {
         Ok((_, cuser)) => {
             match db
-                .select::<Option<Noti<BookTB>>>((cuser.username.to_string(), Id::String(parts.0.clone())))
+                .select::<Option<Noti<BookTB>>>((
+                    cuser.username.to_string(),
+                    Id::String(parts.0.clone()),
+                ))
                 .await
             {
                 Ok(Some(_)) => {
                     match db
-                        .delete::<Option<Noti<BookTB>>>((cuser.username.to_string(), Id::String(parts.0)))
+                        .delete::<Option<Noti<BookTB>>>((
+                            cuser.username.to_string(),
+                            Id::String(parts.0),
+                        ))
                         .await
                     {
                         Ok(Some(smt)) => {
                             let stat = BookStat {
                                 bstat: BStat::Accept,
-                                bdata: smt.clone().data
+                                bdata: smt.clone().data,
                             };
                             let nt = Noti {
                                 ntyp: NType::Bac,
                                 data: stat,
                             };
-                            db.create::<Option<Noti<BookStat>>>((smt.data.utr.id.to_raw(), Id::rand())).content(nt).await.unwrap().unwrap();
+                            db.create::<Option<Noti<BookStat>>>((
+                                smt.data.utr.id.to_raw(),
+                                Id::rand(),
+                            ))
+                            .content(nt)
+                            .await
+                            .unwrap()
+                            .unwrap();
                             HttpResponse::Ok().await.unwrap()
-                        },
+                        }
                         Ok(None) => HttpResponse::NotFound().await.unwrap(),
                         Err(e) => internal_error(e),
                     }

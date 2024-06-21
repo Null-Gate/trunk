@@ -61,13 +61,13 @@ async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                     },
                     out_info: serde_json::to_value(&db_car_info).unwrap(),
                     utn: db_car_info.r#in,
-                    utr: db_pkg_info.r#in
+                    utr: db_pkg_info.r#in,
                 }
             };
 
             let content = Noti {
                 data: ntdata,
-                ntyp: NType::Booking
+                ntyp: NType::Booking,
             };
 
             match db

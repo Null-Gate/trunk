@@ -214,7 +214,7 @@ pub struct OwnTB {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum BStat {
     Accept,
-    Deny
+    Deny,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -230,7 +230,7 @@ pub struct BookTB {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BookStat {
     pub bstat: BStat,
-    pub bdata: BookTB
+    pub bdata: BookTB,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -245,9 +245,9 @@ pub struct GBookTB<L, V> {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum NType {
-   Booking,
-   Bac,
-   Bdn
+    Booking,
+    Bac,
+    Bdn,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

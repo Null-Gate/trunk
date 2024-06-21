@@ -31,7 +31,9 @@ use tokio_tungstenite::{
 use crate::{
     extra::{
         functions::{check_user, decode_token, verify_password, wserror},
-        structures::{AccMode, BookTB, Claims, DbUserInfo, Event, Noti, WSReq, WSResp, DB, JWT_SECRET},
+        structures::{
+            AccMode, BookTB, Claims, DbUserInfo, Event, Noti, WSReq, WSResp, DB, JWT_SECRET,
+        },
     },
     fetch::{nf::fetch_newfeed, noti::live_select},
     services::{booknoti::booknoti, notinit::notinit},
@@ -122,7 +124,10 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                 data: notinit_msg,
             };
 
-            ws_sender.send(Message::Text(serde_json::to_string_pretty(&nt).unwrap())).await.unwrap();
+            ws_sender
+                .send(Message::Text(serde_json::to_string_pretty(&nt).unwrap()))
+                .await
+                .unwrap();
 
             loop {
                 tokio::select! {

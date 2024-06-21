@@ -4,7 +4,7 @@ use surrealdb::sql::Id;
 
 use crate::extra::{
     functions::internal_error,
-    structures::{SDbUserInfo, GenString, Resp, Signup, ARGON_CONFIG, DB},
+    structures::{GenString, Resp, SDbUserInfo, Signup, ARGON_CONFIG, DB},
 };
 
 #[post("/sign_up")]

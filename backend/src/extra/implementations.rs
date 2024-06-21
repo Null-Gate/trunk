@@ -9,9 +9,7 @@ use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::functions::internal_error,
-    extra::structures::{
-        CarPostForm, DbCarInfo, GenString, PType, Post, PostD, Resp, DB,
-    },
+    extra::structures::{CarPostForm, DbCarInfo, GenString, PType, Post, PostD, Resp, DB},
 };
 
 impl Post<Value> {

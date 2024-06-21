@@ -238,6 +238,8 @@ pub struct GBookTB<L, V> {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum NType {
    Booking,
+   Bac,
+   Bdn
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

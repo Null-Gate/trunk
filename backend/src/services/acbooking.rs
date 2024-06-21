@@ -3,7 +3,7 @@ use surrealdb::sql::Id;
 
 use crate::extra::{
     functions::{ct_user, internal_error},
-    structures::{BookTB, Noti, DB},
+    structures::{BStat, BookStat, BookTB, NType, Noti, DB},
 };
 
 #[allow(clippy::future_not_send)]
@@ -26,7 +26,18 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                         .delete::<Option<Noti<BookTB>>>((cuser.username.to_string(), Id::String(parts.0)))
                         .await
                     {
-                        Ok(Some(_)) => HttpResponse::Ok().await.unwrap(),
+                        Ok(Some(smt)) => {
+                            let stat = BookStat {
+                                bstat: BStat::Accept,
+                                bdata: smt.clone().data
+                            };
+                            let nt = Noti {
+                                ntyp: NType::Bac,
+                                data: stat,
+                            };
+                            db.create::<Option<Noti<BookStat>>>((smt.data.utr.id.to_raw(), Id::rand())).content(nt).await.unwrap().unwrap();
+                            HttpResponse::Ok().await.unwrap()
+                        },
                         Ok(None) => HttpResponse::NotFound().await.unwrap(),
                         Err(e) => internal_error(e),
                     }

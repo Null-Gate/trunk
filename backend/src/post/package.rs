@@ -9,12 +9,7 @@ use image::{
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use surrealdb::sql::{Id, Thing};
 
-use crate::extra::{
-    functions::{internal_error, save_img},
-    structures::{
-        Claims, DbPackageInfo, DbUserInfo, PType, PackageForm, Post, PostD, Resp, DB, JWT_SECRET,
-    },
-};
+use crate::{extra::functions::{internal_error, save_img}, structures::{auth::Claims, dbstruct::{DbPackageInfo, DbUserInfo}, extrastruct::{Resp, DB, JWT_SECRET}, package::PackageForm, post::{PType, Post, PostD}}};
 
 #[allow(clippy::pedantic)]
 #[post("/forms/package/{token}")]

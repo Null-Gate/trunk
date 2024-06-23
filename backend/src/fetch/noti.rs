@@ -3,7 +3,7 @@ use std::sync::{
     Arc,
 };
 
-use crate::extra::structures::{DbUserInfo, DB};
+use crate::structures::{dbstruct::DbUserInfo, extrastruct::DB};
 use futures_util::StreamExt;
 use surrealdb::Notification;
 use tokio::sync::Mutex;

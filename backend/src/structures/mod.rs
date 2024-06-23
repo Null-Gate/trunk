@@ -5,3 +5,4 @@ pub mod post;
 pub mod auth;
 pub mod dbstruct;
 pub mod bookstruct;
+pub mod votestruct;

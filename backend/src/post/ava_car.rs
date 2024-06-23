@@ -11,7 +11,7 @@ use crate::{
     extra::functions::{check_user, decode_token, encode_token, internal_error, verify_password},
     structures::{
         auth::Claims,
-        car::{CarPostForm, DbCarInfo},
+        car::{CarPostForm, Cargo, DbCarInfo},
         dbstruct::{DbUserInfo, Roles},
         extrastruct::{Resp, DB},
         post::{OwnTB, PostD},
@@ -30,7 +30,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
             Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
                     match db
-                        .select::<Option<OwnTB>>(("own", Id::String(post.car_id.to_string())))
+                        .select::<Option<OwnTB>>(("own", Id::String(post.car_id.clone())))
                         .await
                     {
                         Ok(Some(_)) => {
@@ -51,9 +51,16 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         .await
                     {
                         Ok(Some(_)) => {
+                            let cargo_data = Cargo {
+                                driver: Thing { tb: "user".to_string(), id: Id::String(post.driver_id.clone()) },
+                                owner: Thing { tb: "user".to_string(), id: Id::String(user_info.username.clone()) },
+                                car: Thing { tb: "car".to_string(), id: Id::String(post.car_id.clone())},
+                                stloc: post.from_where.clone(),
+                                fnloc: post.to_where.clone(),
+                            };
                             db.create::<Option<Value>>((
                                 "cargo",
-                                Id::String(post.car_id.to_string()),
+                                Id::String(post.car_id.clone()),
                             ));
                             let sql = "UPDATE type::thing($thing) SET is_available = true;";
                             db.query(sql)

@@ -36,5 +36,6 @@ pub struct Cargo {
     pub driver: Thing,
     pub car: Thing,
     pub owner: Thing,
+    pub stloc: String,
     pub fnloc: String,
 }

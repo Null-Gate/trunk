@@ -4,6 +4,7 @@ use actix_web::{
     HttpResponse,
 };
 use chrono::{TimeDelta, Utc};
+use serde_json::Value;
 use surrealdb::sql::{Id, Thing};
 
 use crate::extra::{
@@ -44,6 +45,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         .await
                     {
                         Ok(Some(_)) => {
+                            db.create::<Option<Value>>(("cargo", Id::String(post.car_id.to_string())));
                             let sql = "UPDATE type::thing($thing) SET is_available = true;";
                             db.query(sql)
                                 .bind((

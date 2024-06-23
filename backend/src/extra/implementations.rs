@@ -1,16 +1,10 @@
 #![allow(clippy::wrong_self_convention)]
 use actix_web::HttpResponse;
-use rand::{
-    distributions::{DistString, Distribution},
-    Rng,
-};
+use rand::distributions::{Alphanumeric, DistString};
 use serde_json::Value;
 use surrealdb::sql::{Id, Thing};
 
-use crate::{
-    extra::functions::internal_error,
-    extra::structures::{CarPostForm, DbCarInfo, GenString, PType, Post, PostD, Resp, DB},
-};
+use crate::{extra::functions::internal_error, structures::{car::{CarPostForm, DbCarInfo}, extrastruct::{GenString, Resp, DB}, post::{PType, Post, PostD}}};
 
 impl Post<Value> {
     pub fn to_resp(&mut self) -> Value {
@@ -46,20 +40,8 @@ impl GenString {
         }
     }
 
-    pub fn gen_string(&self, min: usize, max: usize) -> String {
-        self.sample_string(
-            &mut self.rngs.clone(),
-            self.to_owned().rngs.gen_range(min..max),
-        )
-    }
-}
-
-impl DistString for GenString {
-    fn append_string<R: Rng + ?Sized>(&self, rng: &mut R, string: &mut String, len: usize) {
-        unsafe {
-            let v = string.as_mut_vec();
-            v.extend(self.sample_iter(rng).take(len));
-        }
+    pub fn gen_string(&mut self, min: usize, max: usize) -> String {
+        Alphanumeric.sample_string(&mut self.rngs, max + min)
     }
 }
 
@@ -76,8 +58,7 @@ impl CarPostForm {
             return Err(internal_error(e));
         };
 
-        match db
-            .select::<Option<DbCarInfo>>(("car", Id::String(self.car_id.to_string())))
+        match db.select::<Option<DbCarInfo>>(("user", Id::String(self.car_id.clone())))
             .await
         {
             Ok(Some(data)) => Ok(Post {
@@ -85,7 +66,7 @@ impl CarPostForm {
                     tb: "user".into(),
                     id: Id::from(username),
                 },
-                out: Thing::from(("car", Id::String(self.car_id.to_string()))),
+                out: Thing::from(("car", Id::String(self.car_id.clone()))),
                 ptdate: 0,
                 votes: Some(0),
                 data,

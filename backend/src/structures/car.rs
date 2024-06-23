@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
-use actix_multipart::form::{MultipartForm, text::Text};
+use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
+use surrealdb::sql::{Id, Thing};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DbCarInfo {

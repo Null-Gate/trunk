@@ -38,48 +38,6 @@ pub static ARGON_CONFIG: Config = {
 pub const JWT_SECRET: &[u8] =
     "kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes();
 
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Roles {
-    Owner,
-    Driver,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Claims {
-    pub user_info: DbUserInfo,
-    pub exp: usize,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Signup {
-    pub username: String,
-    pub fullname: String,
-    pub password: String,
-}
-
-#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
-pub struct SDbUserInfo {
-    pub username: String,
-    pub fullname: String,
-    pub password: String,
-    pub pik_role: Vec<Roles>,
-}
-
-#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug, Default)]
-pub struct DbUserInfo {
-    pub username: String,
-    pub fullname: String,
-    pub password: String,
-    pub pik_role: Vec<Roles>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct DbDriverInfo {
-    pub license_num: String,
-    pub license_pic: String,
-    pub exp_details: String,
-    pub userinfo: Thing,
-}
 
 #[derive(MultipartForm)]
 pub struct DriverForm {
@@ -89,65 +47,10 @@ pub struct DriverForm {
     pub exp_details: Text<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct DbCarInfo {
-    pub car_id: Id,
-    pub license_num: String,
-    pub owner_proof: String,
-    pub car_details: String,
-    pub is_available: bool,
-    pub userinfo: Thing,
-}
-
-#[derive(MultipartForm)]
-pub struct CarForm {
-    pub license_num: Text<String>,
-    #[multipart(limit = "1 MiB")]
-    pub owner_proof: TempFile,
-    pub car_details: Text<String>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct CarPostForm {
-    pub car_id: String,
-    pub driver_id: String,
-    pub from_where: String,
-    pub cper_weight: u32,
-    pub cper_amount: u32,
-    pub to_where: String,
-    pub date_to_go: String,
-}
-
-#[derive(MultipartForm)]
-pub struct PackageForm {
-    pub package_name: Text<String>,
-    #[multipart(limit = "1 MiB")]
-    pub package_pic: TempFile,
-    pub pkg_details: Text<String>,
-    pub cper_weight: Text<u32>,
-    pub cper_amount: Text<u32>,
-    pub to_where: Text<String>,
-    pub from_where: Text<String>,
-    pub date_to_go: Text<String>,
-}
-
 #[derive(Serialize, Deserialize)]
 pub struct NewFeed {
     pub car_posts: Vec<Value>,
     pub packages: Vec<Value>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct DbPackageInfo {
-    pub package_name: String,
-    pub package_pic: String,
-    pub pkg_details: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Login {
-    pub username: String,
-    pub password: String,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
@@ -264,37 +167,6 @@ pub struct Resp<'a> {
 #[derive(Clone)]
 pub struct GenString {
     pub rngs: ThreadRng,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Post<T> {
-    pub ptdate: u64,
-    pub r#in: Thing,
-    pub out: Thing,
-    pub from_where: String,
-    pub to_where: String,
-    pub date_to_go: String,
-    pub cper_weight: u32,
-    pub cper_amount: u32,
-    pub votes: Option<i64>,
-    pub ptype: PType,
-    pub data: T,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct PostD<T> {
-    pub id: Thing,
-    pub ptdate: u64,
-    pub r#in: Thing,
-    pub out: Thing,
-    pub from_where: String,
-    pub to_where: String,
-    pub date_to_go: String,
-    pub cper_amount: u32,
-    pub cper_weight: u32,
-    pub ptype: PType,
-    pub votes: Option<i64>,
-    pub data: T,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]

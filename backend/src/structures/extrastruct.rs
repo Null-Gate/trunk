@@ -34,7 +34,6 @@ pub static ARGON_CONFIG: Config = {
 pub const JWT_SECRET: &[u8] =
     "kshashdfjklasdhfsdhfkasjhfasdhHKHJHKJHSKJHKJSHJKHSJKHJKFHSKJ".as_bytes();
 
-
 #[derive(MultipartForm)]
 pub struct DriverForm {
     pub license_num: Text<String>,

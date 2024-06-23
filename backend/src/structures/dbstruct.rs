@@ -1,5 +1,5 @@
+use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
-use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Roles {

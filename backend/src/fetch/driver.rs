@@ -1,6 +1,9 @@
 use actix_web::{get, HttpResponse};
 
-use crate::{extra::functions::internal_error, structures::{dbstruct::DbDriverInfo, extrastruct::DB, post::Post}};
+use crate::{
+    extra::functions::internal_error,
+    structures::{dbstruct::DbDriverInfo, extrastruct::DB, post::Post},
+};
 
 #[get("/driver")]
 async fn fetch_driver() -> HttpResponse {

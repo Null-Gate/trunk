@@ -4,7 +4,14 @@ use rand::distributions::{Alphanumeric, DistString};
 use serde_json::Value;
 use surrealdb::sql::{Id, Thing};
 
-use crate::{extra::functions::internal_error, structures::{car::{CarPostForm, DbCarInfo}, extrastruct::{GenString, Resp, DB}, post::{PType, Post, PostD}}};
+use crate::{
+    extra::functions::internal_error,
+    structures::{
+        car::{CarPostForm, DbCarInfo},
+        extrastruct::{GenString, Resp, DB},
+        post::{PType, Post, PostD},
+    },
+};
 
 impl Post<Value> {
     pub fn to_resp(&mut self) -> Value {
@@ -58,7 +65,8 @@ impl CarPostForm {
             return Err(internal_error(e));
         };
 
-        match db.select::<Option<DbCarInfo>>(("user", Id::String(self.car_id.clone())))
+        match db
+            .select::<Option<DbCarInfo>>(("user", Id::String(self.car_id.clone())))
             .await
         {
             Ok(Some(data)) => Ok(Post {

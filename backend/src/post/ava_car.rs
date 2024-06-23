@@ -7,7 +7,16 @@ use chrono::{TimeDelta, Utc};
 use serde_json::Value;
 use surrealdb::sql::{Id, Thing};
 
-use crate::{extra::functions::{check_user, decode_token, encode_token, internal_error, verify_password}, structures::{auth::Claims, car::{CarPostForm, DbCarInfo}, dbstruct::{DbUserInfo, Roles}, extrastruct::{Resp, DB}, post::{OwnTB, PostD}}};
+use crate::{
+    extra::functions::{check_user, decode_token, encode_token, internal_error, verify_password},
+    structures::{
+        auth::Claims,
+        car::{CarPostForm, DbCarInfo},
+        dbstruct::{DbUserInfo, Roles},
+        extrastruct::{Resp, DB},
+        post::{OwnTB, PostD},
+    },
+};
 
 #[allow(clippy::future_not_send)]
 #[post("/post/car/{token}")]
@@ -42,7 +51,10 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         .await
                     {
                         Ok(Some(_)) => {
-                            db.create::<Option<Value>>(("cargo", Id::String(post.car_id.to_string())));
+                            db.create::<Option<Value>>((
+                                "cargo",
+                                Id::String(post.car_id.to_string()),
+                            ));
                             let sql = "UPDATE type::thing($thing) SET is_available = true;";
                             db.query(sql)
                                 .bind((

@@ -5,7 +5,17 @@ use actix_web::{
 };
 use surrealdb::sql::{Id, Thing};
 
-use crate::{extra::functions::{ct_user, internal_error}, structures::{bookstruct::{BType, BookTB, Booking}, car::DbCarInfo, dbstruct::DbPackageInfo, extrastruct::DB, post::PostD, wsstruct::{NType, Noti}}};
+use crate::{
+    extra::functions::{ct_user, internal_error},
+    structures::{
+        bookstruct::{BType, BookTB, Booking},
+        car::DbCarInfo,
+        dbstruct::DbPackageInfo,
+        extrastruct::DB,
+        post::PostD,
+        wsstruct::{NType, Noti},
+    },
+};
 
 #[allow(clippy::future_not_send)]
 #[post("/book/{token}")]

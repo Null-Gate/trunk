@@ -31,7 +31,14 @@ use tokio_tungstenite::{
 use crate::{
     extra::functions::{check_user, decode_token, verify_password, wserror},
     fetch::{nf::fetch_newfeed, noti::live_select},
-    services::{booknoti::booknoti, notinit::notinit}, structures::{auth::Claims, bookstruct::BookTB, dbstruct::DbUserInfo, extrastruct::{AccMode, DB, JWT_SECRET}, wsstruct::{Event, Noti, WSReq, WSResp}},
+    services::{booknoti::booknoti, notinit::notinit},
+    structures::{
+        auth::Claims,
+        bookstruct::BookTB,
+        dbstruct::DbUserInfo,
+        extrastruct::{AccMode, DB, JWT_SECRET},
+        wsstruct::{Event, Noti, WSReq, WSResp},
+    },
 };
 
 pub async fn wserver() {

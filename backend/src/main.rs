@@ -6,7 +6,6 @@ use actix_multipart::form::tempfile::TempFileConfig;
 use actix_web::{App, HttpServer};
 use auth::{delete::delete, login::login, signup::signup};
 use extra::functions::test_token;
-use structures::extrastruct::DATA_PATH;
 use fetch::scope::fetch;
 use post::{ava_car::post_car, car::car, driver::driver, package::package};
 use services::acbooking::acbooking;
@@ -14,6 +13,7 @@ use services::booking::book;
 use services::voting::up_vote;
 use std::path::Path;
 use std::{fs::File, io::BufReader};
+use structures::extrastruct::DATA_PATH;
 use tokio::fs;
 use tracing::Level;
 
@@ -22,8 +22,8 @@ mod extra;
 mod fetch;
 mod post;
 mod services;
-mod wsserver;
 mod structures;
+mod wsserver;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

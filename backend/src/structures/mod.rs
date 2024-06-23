@@ -6,3 +6,4 @@ pub mod auth;
 pub mod dbstruct;
 pub mod bookstruct;
 pub mod votestruct;
+pub mod wsstruct;

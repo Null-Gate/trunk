@@ -8,9 +8,7 @@ use surrealdb::{engine::local::Db, sql::Id, Surreal};
 use tokio::fs;
 use tracing::error;
 
-use crate::extra::structures::{Claims, DbUserInfo, GenString, Resp, JWT_SECRET};
-
-use super::structures::DATA_PATH;
+use crate::structures::{auth::Claims, dbstruct::DbUserInfo, extrastruct::{GenString, Resp, DATA_PATH, JWT_SECRET}};
 
 pub fn decode_token(token: &str) -> Result<DbUserInfo, HttpResponse> {
     match decode::<Claims>(

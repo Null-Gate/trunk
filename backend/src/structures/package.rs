@@ -1,4 +1,4 @@
-use actix_multipart::form::{text::Text, MultipartForm};
+use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 
 #[derive(MultipartForm)]
 pub struct PackageForm {

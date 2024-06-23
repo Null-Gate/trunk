@@ -1,6 +1,6 @@
 use actix_web::{post, HttpResponse};
 
-use crate::{extra::functions::internal_error, extra::structures::DB};
+use crate::{extra::functions::internal_error, structures::extrastruct::DB};
 
 #[post("/feedbacks/{token}")]
 async fn feedbacks() -> HttpResponse {

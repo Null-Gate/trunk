@@ -7,10 +7,7 @@ use chrono::{TimeDelta, Utc};
 use serde_json::Value;
 use surrealdb::sql::{Id, Thing};
 
-use crate::extra::{
-    functions::{check_user, decode_token, encode_token, internal_error, verify_password},
-    structures::{CarPostForm, Claims, DbCarInfo, DbUserInfo, OwnTB, PostD, Resp, Roles, DB},
-};
+use crate::{extra::functions::{check_user, decode_token, encode_token, internal_error, verify_password}, structures::{auth::Claims, car::{CarPostForm, DbCarInfo}, dbstruct::{DbUserInfo, Roles}, extrastruct::{Resp, DB}, post::{OwnTB, PostD}}};
 
 #[allow(clippy::future_not_send)]
 #[post("/post/car/{token}")]

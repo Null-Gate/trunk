@@ -1,4 +1,11 @@
 use serde::{Serialize, Deserialize};
+use surrealdb::sql::Thing;
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+pub enum PType {
+    Car,
+    Pkg,
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Post<T> {
@@ -29,4 +36,10 @@ pub struct PostD<T> {
     pub ptype: PType,
     pub votes: Option<i64>,
     pub data: T,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OwnTB {
+    pub r#in: Thing,
+    pub out: Thing,
 }

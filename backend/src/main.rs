@@ -1,3 +1,5 @@
+#![allow(clippy::module_name_repetitions)]
+
 use actix_cors::Cors;
 use actix_files as afs;
 use actix_multipart::form::tempfile::TempFileConfig;

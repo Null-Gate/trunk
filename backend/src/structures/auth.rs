@@ -1,5 +1,7 @@
 use serde::{Serialize, Deserialize};
 
+use super::dbstruct::DbUserInfo;
+
 #[derive(Serialize, Deserialize)]
 pub struct Login {
     pub username: String,

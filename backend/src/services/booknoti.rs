@@ -7,7 +7,7 @@ use futures_util::StreamExt;
 use surrealdb::{engine::local::Db, Notification, Surreal};
 use tokio::sync::Mutex;
 
-use crate::extra::structures::{BookTB, Noti};
+use crate::structures::{bookstruct::BookTB, wsstruct::Noti};
 
 pub async fn booknoti(
     db: &Surreal<Db>,

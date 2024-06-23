@@ -1,10 +1,7 @@
 use actix_web::{post, web::Path, HttpResponse};
 use surrealdb::sql::Id;
 
-use crate::extra::{
-    functions::{ct_user, internal_error},
-    structures::{BStat, BookStat, BookTB, NType, Noti, DB},
-};
+use crate::{extra::functions::{ct_user, internal_error}, structures::{bookstruct::{BStat, BookStat, BookTB}, extrastruct::DB, wsstruct::{NType, Noti}}};
 
 #[allow(clippy::future_not_send)]
 #[post("/book/deny/{id}/{token}")]

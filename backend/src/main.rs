@@ -4,7 +4,7 @@ use actix_multipart::form::tempfile::TempFileConfig;
 use actix_web::{App, HttpServer};
 use auth::{delete::delete, login::login, signup::signup};
 use extra::functions::test_token;
-use extra::structures::DATA_PATH;
+use structures::extrastruct::DATA_PATH;
 use fetch::scope::fetch;
 use post::{ava_car::post_car, car::car, driver::driver, package::package};
 use services::acbooking::acbooking;
@@ -21,6 +21,7 @@ mod fetch;
 mod post;
 mod services;
 mod wsserver;
+mod structures;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

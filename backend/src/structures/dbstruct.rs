@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub enum Roles {
+    #[default]
     Owner,
     Driver,
 }
@@ -14,20 +15,12 @@ pub struct DbPackageInfo {
     pub pkg_details: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
-pub struct SDbUserInfo {
-    pub username: String,
-    pub fullname: String,
-    pub password: String,
-    pub pik_role: Vec<Roles>,
-}
-
 #[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug, Default)]
 pub struct DbUserInfo {
     pub username: String,
     pub fullname: String,
     pub password: String,
-    pub pik_role: Vec<Roles>,
+    pub pik_role: [Roles; 2],
 }
 
 #[derive(Serialize, Deserialize, Debug)]

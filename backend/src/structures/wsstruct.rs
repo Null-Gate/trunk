@@ -33,6 +33,7 @@ pub enum NType {
     Booking,
     Bac,
     Bdn,
+    AvaCar,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

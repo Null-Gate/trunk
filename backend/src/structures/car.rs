@@ -31,8 +31,18 @@ pub struct CarPostForm {
     pub date_to_go: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Cargo {
+    pub driver: Thing,
+    pub car: Thing,
+    pub owner: Thing,
+    pub stloc: String,
+    pub fnloc: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CargoD {
+    pub id: Thing,
     pub driver: Thing,
     pub car: Thing,
     pub owner: Thing,

@@ -4,17 +4,16 @@ use actix_web::{
     HttpResponse,
 };
 use chrono::{TimeDelta, Utc};
-use serde_json::Value;
 use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::functions::{check_user, decode_token, encode_token, internal_error, verify_password},
     structures::{
         auth::Claims,
-        car::{CarPostForm, Cargo, DbCarInfo},
+        car::{CarPostForm, Cargo, CargoD, DbCarInfo},
         dbstruct::{DbUserInfo, Roles},
         extrastruct::{Resp, DB},
-        post::{OwnTB, PostD},
+        post::{OwnTB, PostD}, wsstruct::{NType, Noti},
     },
 };
 
@@ -58,10 +57,15 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                 stloc: post.from_where.clone(),
                                 fnloc: post.to_where.clone(),
                             };
-                            db.create::<Option<Value>>((
+                            let nt = Noti {
+                                data: cargo_data.clone(),
+                                ntyp: NType::AvaCar,
+                            };
+                            db.create::<Option<Cargo>>((
                                 "cargo",
                                 Id::String(post.car_id.clone()),
-                            ));
+                            )).content(cargo_data).await.unwrap().unwrap();
+                            db.create::<Option<Noti<CargoD>>>((user_info.username.clone(), post.car_id.clone())).content(nt).await.unwrap().unwrap();
                             let sql = "UPDATE type::thing($thing) SET is_available = true;";
                             db.query(sql)
                                 .bind((

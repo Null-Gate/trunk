@@ -6,7 +6,7 @@ use crate::{
     extra::functions::internal_error,
     structures::{
         auth::Signup,
-        dbstruct::SDbUserInfo,
+        dbstruct::DbUserInfo,
         extrastruct::{GenString, Resp, ARGON_CONFIG, DB},
     },
 };
@@ -21,7 +21,7 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
     let rand_salt = GenString::new().gen_string(20, 100);
 
     match db
-        .select::<Option<SDbUserInfo>>(("user", Id::String(info.username.clone())))
+        .select::<Option<DbUserInfo>>(("user", Id::String(info.username.clone())))
         .await
     {
         Ok(Some(_)) => {
@@ -39,15 +39,15 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
         &ARGON_CONFIG,
     ) {
         Ok(hash) => {
-            let user_info = SDbUserInfo {
+            let user_info = DbUserInfo {
                 username: info.username.clone(),
                 fullname: info.fullname.clone(),
                 password: hash,
-                pik_role: vec![],
+                pik_role: [],
             };
 
             match db
-                .create::<Option<SDbUserInfo>>(("user", Id::String(info.username.to_string())))
+                .create::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string())))
                 .content(user_info)
                 .await
             {

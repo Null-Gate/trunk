@@ -2,7 +2,7 @@ use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Id, Thing};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbCarInfo {
     pub car_id: Id,
     pub license_num: String,

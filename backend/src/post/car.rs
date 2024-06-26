@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use actix_multipart::form::MultipartForm;
 use actix_web::{post, web::Path as WebPath, HttpResponse};
 use chrono::{TimeDelta, Utc};
@@ -13,9 +14,9 @@ use crate::{
     structures::{
         auth::Claims,
         car::{CarForm, DbCarInfo},
-        dbstruct::{DbUserInfo, Roles},
+        dbstruct::{DbUserInfo, PState, PenCar, Roles},
         extrastruct::{Resp, DB, JWT_SECRET},
-        post::OwnTB,
+        post::OwnTB, wsstruct::{NType, Noti},
     },
 };
 
@@ -30,7 +31,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
 
     match decode_token(&token) {
         Ok(user_info) => match check_user(user_info.username.clone(), db).await {
-            Ok(mut user) => match verify_password(&user_info.password, &user.password) {
+            Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(_) => {
                     match Reader::open(form.owner_proof.file.path()) {
                         Ok(r) => match r.with_guessed_format() {
@@ -67,11 +68,23 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         is_available: false,
                         userinfo: Thing {
                             tb: "user".into(),
-                            id: Id::String(user_info.username.to_string()),
+                            id: Id::String(user_info.username.clone()),
                         },
                     };
 
-                    db.create::<Option<DbCarInfo>>(("pend_car", id.clone())).content(car_info).await.unwrap().unwrap();
+                    let pcont = PenCar {
+                        pstat: PState::Pending,
+                        data: car_info,
+                    };
+
+                    let nt = Noti {
+                        data: pcont.clone(),
+                        ntyp: NType::OwnCarForm
+                    };
+
+                    db.create::<Option<DbCarInfo>>(("pend_car", id.clone())).content(pcont).await.unwrap().unwrap();
+                    db.create::<Option<Noti<PenCar>>>((user_info.username, id)).content(nt).await.unwrap().unwrap();
+                    todo!()
 
                     /*match db
                         .create::<Option<DbCarInfo>>(("car", id.clone()))

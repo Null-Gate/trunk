@@ -16,13 +16,13 @@ pub enum PState {
     Pending
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PenCar {
     pub pstat: PState,
     pub data: DbCarInfo,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct PenCarD {
     pub id: Thing,
     pub pstat: PState,

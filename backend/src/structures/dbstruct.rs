@@ -1,11 +1,32 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Default)]
+use super::car::DbCarInfo;
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Roles {
-    #[default]
     Owner,
     Driver,
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PState {
+    Accept,
+    Deny,
+    Pending
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+pub struct PenCar {
+    pub pstat: PState,
+    pub data: DbCarInfo,
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+pub struct PenCarD {
+    pub id: Thing,
+    pub pstat: PState,
+    pub data: DbCarInfo,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -20,7 +41,7 @@ pub struct DbUserInfo {
     pub username: String,
     pub fullname: String,
     pub password: String,
-    pub pik_role: [Roles; 2],
+    pub pik_role: Vec<Roles>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -43,7 +43,7 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
                 username: info.username.clone(),
                 fullname: info.fullname.clone(),
                 password: hash,
-                pik_role: [],
+                pik_role: vec![],
             };
 
             match db

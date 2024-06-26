@@ -71,7 +71,9 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         },
                     };
 
-                    match db
+                    db.create::<Option<DbCarInfo>>(("pend_car", id.clone())).content(car_info).await.unwrap().unwrap();
+
+                    /*match db
                         .create::<Option<DbCarInfo>>(("car", id.clone()))
                         .content(car_info)
                         .await
@@ -132,7 +134,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         }
                         Ok(None) => internal_error("None Car Error"),
                         Err(e) => internal_error(e),
-                    }
+                    }*/
                 }
                 Err(e) => e,
             },

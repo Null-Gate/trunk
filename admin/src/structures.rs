@@ -1,14 +1,18 @@
 use std::fmt::Display;
 
-use lazy_static::lazy_static;
 use async_once::AsyncOnce;
-use surrealdb::{engine::remote::ws::{Client, Ws}, sql::{Id, Thing}, Surreal};
-use serde::{Serialize, Deserialize};
+use lazy_static::lazy_static;
+use serde::{Deserialize, Serialize};
+use surrealdb::{
+    engine::local::{Db, Mem},
+    sql::{Id, Thing},
+    Surreal,
+};
 use tracing::error;
 
 lazy_static! {
-    pub static ref DB: AsyncOnce<Surreal<Client>> =
-        AsyncOnce::new(async { Surreal::new::<Ws>("localhost:9070").await.unwrap() });
+    pub static ref DB: AsyncOnce<Surreal<Db>> =
+        AsyncOnce::new(async { Surreal::new::<Mem>(()).await.unwrap() });
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
@@ -16,21 +20,21 @@ pub enum Event {
     Notification,
     NewFeed,
     Csc,
-    Auth
+    Auth,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Default, Clone)]
 pub enum AccMode {
     #[default]
     Admin,
-    User
+    User,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct WSReq {
     pub event: Event,
     pub username: Option<String>,
-    pub data: Option<String>
+    pub data: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -42,7 +46,7 @@ pub struct WSResp<T> {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Msg {
     pub id: Thing,
-    pub msg: (AccMode, String)
+    pub msg: (AccMode, String),
 }
 
 impl Default for Msg {
@@ -52,7 +56,7 @@ impl Default for Msg {
                 tb: "user".into(),
                 id: Id::from("test"),
             },
-            msg: (AccMode::default(), "".into())
+            msg: (AccMode::default(), "".into()),
         }
     }
 }

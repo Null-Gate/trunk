@@ -6,8 +6,6 @@ import {
 } from 'react-native';
 import React from 'react';
 
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-
 interface CustomTextProps {
     text: string,
     textStyle?: StyleProp<TextStyle>
@@ -30,6 +28,7 @@ const styles = StyleSheet.create({
     customText: {
         fontFamily: "Poppins-Medium",
         color: "#000",
-        fontSize: 16
+        fontSize: 14,
+        flexWrap: "wrap"
     }
 })

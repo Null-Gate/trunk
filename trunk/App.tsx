@@ -20,11 +20,14 @@ import NewFeedScreen from './src/screens/NewFeedScreen';
 import MenuScreen from './src/screens/MenuScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import NotificationScreen from './src/screens/NotificationScreen';
+import PostDetailScreen from './src/screens/PostDetailScreen';
+import StatusScreen from './src/screens/StatusScreen';
 
 // icons
-import { Foundation } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 
 // styles
 import { GlobalStyles } from './src/constants/styles';
@@ -40,11 +43,13 @@ const BottomTab = () => {
 				tabBarIcon: ({ focused, color, size }) => {
 					let icon: ReactNode;
 					if (route.name === "NewFeed") {
-						icon = <TabBarIcon title='NewFeed' color={color} icon={<Foundation name="home" size={size} color={color} />} />
+						icon = <TabBarIcon title='NewFeed' color={color} icon={<MaterialCommunityIcons name="newspaper-variant-multiple-outline" size={size} color={color} />} />
 					} else if (route.name === "Notification") {
 						icon = <TabBarIcon title='Notification' color={color} icon={<Ionicons name="notifications" size={size} color={color} />} />
+					} else if (route.name === "Status") {
+						icon = <TabBarIcon title='Status' color={color} icon={<FontAwesome name="list-alt" size={size} color={color} />} />
 					} else if (route.name === "Menu") {
-						icon = <TabBarIcon title='Menu' color={color} icon={<SimpleLineIcons name="menu" size={20} color={color} />} />
+						icon = <TabBarIcon title='Menu' color={color} icon={<SimpleLineIcons name="menu" size={size} color={color} />} />
 					}
 					return icon;
 				},
@@ -59,6 +64,7 @@ const BottomTab = () => {
 		>
 			<Tab.Screen name='NewFeed' component={NewFeedScreen} />
 			<Tab.Screen name='Notification' component={NotificationScreen} />
+			<Tab.Screen name='Status' component={StatusScreen} />
 			<Tab.Screen name='Menu' component={MenuScreen} />
 		</Tab.Navigator>
 	)
@@ -106,6 +112,13 @@ export default function App() {
 							headerTitleStyle: {
 								color: "#fff",
 							}
+						}}
+					/>
+					<Stack.Screen
+						name='PostDetail'
+						component={PostDetailScreen}
+						options={{
+							headerShown: true
 						}}
 					/>
 				</Stack.Navigator>

@@ -6,13 +6,11 @@ const {width} = Dimensions.get('screen');
 interface SlidePaginationProps {
     data: any,
     scrollX: any,
-    index: any
 }
 
 const SlidePagination = ({
     data, 
     scrollX, 
-    index
 }: SlidePaginationProps) => {
   return (
     <View style={styles.container}>

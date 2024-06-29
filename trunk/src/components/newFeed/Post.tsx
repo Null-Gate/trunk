@@ -3,13 +3,12 @@ import {
     StyleSheet,
     Pressable,
 } from 'react-native'
-import React, { useState } from 'react'
+import React from 'react'
 
 // components
 import ImageContainer from '../ImageContainer'
 import CustomText from '../CustomText'
-import ImageSlider from './ImageSlider'
-import PostModal from './PostModal'
+import ImageSlider from '../ImageSlider'
 
 // icons
 import { Entypo } from '@expo/vector-icons';
@@ -23,42 +22,23 @@ interface PostProps {
     creator: string,
     title: string,
     content: string,
-    imgs: ImagesProps[]
-}
-
-interface PostModalInfoProps {
-    modalVisible: boolean
+    imgs: ImagesProps[],
+    openPostModal: () => void
 }
 
 const Post = ({
     creator,
     title,
     content,
-    imgs
+    imgs,
+    openPostModal
 }: PostProps) => {
-    const [postModalInfo, setPostModalInfo] = useState<PostModalInfoProps>({
-        modalVisible: false
-    });
 
-    const openPostModal = () => {
-        setPostModalInfo(prevInfo => {
-            const newInfo = {
-                ...prevInfo,
-                modalVisible: true,
-            }
-            return newInfo;
-        })
-    }
-
-    const closePostModal = () => {
-        setPostModalInfo(prevInfo => {
-            const newInfo = {
-                ...prevInfo,
-                modalVisible: false,
-            }
-            return newInfo;
-        })
-    }
+    // Function to get the first N words from a paragraph
+    const getFirstNWords = (paragraph: string, numWords: number) : string => {
+        const words = paragraph.split(' ').slice(0, numWords);
+        return words.join(' ') + (words.length === numWords ? ' ...' : '');
+    };
 
     return (
         <>
@@ -104,11 +84,11 @@ const Post = ({
                         {/* title */}
                         <CustomText
                             text={title}
-                            textStyle={{ fontWeight: "bold" }}
+                            textStyle={{ fontWeight: "bold", fontSize: 16 }}
                         />
                         {/* content */}
                         <CustomText
-                            text={content}
+                            text={getFirstNWords(content, 20)}
                         />
                     </View>
                     {/* image slider */}
@@ -122,10 +102,6 @@ const Post = ({
                 {/* <View style={styles.footer}></View> */}
                 {/* end footer */}
             </View>
-            <PostModal 
-                visible={postModalInfo.modalVisible} 
-                closeModal={closePostModal}
-            />
         </>
     )
 }

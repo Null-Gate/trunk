@@ -38,11 +38,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         position: "relative",
         overflow: "hidden",
-        elevation: 4,
-        shadowColor: "gray",
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4
     },
     iamge: {
         position: "absolute",

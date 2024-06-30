@@ -15,12 +15,23 @@ lazy_static! {
         AsyncOnce::new(async { Surreal::new::<Mem>(()).await.unwrap() });
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DbCarInfo {
+    pub car_id: Id,
+    pub license_num: String,
+    pub owner_proof: String,
+    pub car_details: String,
+    pub is_available: bool,
+    pub userinfo: Thing,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub enum Event {
     Notification,
     NewFeed,
     Csc,
     Auth,
+    CarFormNoti,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Default, Clone)]

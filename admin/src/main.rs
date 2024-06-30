@@ -1,5 +1,13 @@
-use std::{net::SocketAddr, sync::{atomic::{AtomicBool, Ordering}, Arc}, time::Duration};
+use std::{
+    net::SocketAddr,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+    time::Duration,
+};
 
+use carform_upload::carform_noti;
 use futures_util::{SinkExt, StreamExt};
 use live_chat::live_chat;
 use serde_json::Value;
@@ -24,9 +32,9 @@ use tracing::Level;
 
 use crate::structures::{AccMode, Event, WSReq, WSResp, DB};
 
-mod structures;
-mod live_chat;
 mod carform_upload;
+mod live_chat;
+mod structures;
 
 #[tokio::main]
 pub async fn main() {
@@ -69,8 +77,11 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             let mut dur = tokio::time::interval(Duration::from_millis(10));
             let query_state = Arc::new(AtomicBool::new(false));
             let query_result = Arc::new(Mutex::new(Value::default()));
+            let carf_notis = Arc::new(AtomicBool::new(false));
+            let carf_notir = Arc::new(Mutex::new(None));
 
             tokio::spawn(live_chat(query_state.clone(), query_result.clone(), db));
+            tokio::spawn(carform_noti(db, carf_notis.clone(), carf_notir.clone()));
 
             loop {
                 tokio::select! {
@@ -85,14 +96,21 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                          }
                          _ = dur.tick() => {
                              if query_state.load(Ordering::Relaxed) {
-                    let resp = WSResp {
-                        event: Event::Csc,
-                        data: query_result.lock().await.clone()
-                    };
-                    ws_sender.send(Message::text(serde_json::to_string_pretty(&resp).unwrap())).await.unwrap();
-                    println!("yoooo");
-                    query_state.swap(false, Ordering::Relaxed);
-                }
+                                 let resp = WSResp {
+                                     event: Event::Csc,
+                                     data: query_result.lock().await.clone()
+                                 };
+                                 ws_sender.send(Message::text(serde_json::to_string_pretty(&resp).unwrap())).await.unwrap();
+                                 query_state.swap(false, Ordering::Relaxed);
+                             }
+
+                             if carf_notis.load(Ordering::Relaxed) {
+                                 let resp = WSResp {
+                                     event: Event::CarFormNoti,
+                                     data: carf_notir.lock().await.clone().unwrap()
+                                 };
+                                 ws_sender.send(Message::text(serde_json::to_string_pretty(&resp).unwrap())).await.unwrap();
+                             }
 
                          }
                 }

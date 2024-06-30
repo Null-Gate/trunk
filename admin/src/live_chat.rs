@@ -1,7 +1,10 @@
-use std::sync::{atomic::{AtomicBool, Ordering}, Arc};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 
-use serde_json::Value;
 use futures_util::StreamExt;
+use serde_json::Value;
 use surrealdb::{engine::local::Db, Notification, Surreal};
 use tokio::sync::Mutex;
 

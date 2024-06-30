@@ -1,5 +1,6 @@
 use accept_cf::apt_cf;
 use admin_ws::wsserver;
+use deny_cf::dny_cf;
 use tracing::Level;
 
 use actix_web::{App, HttpServer};
@@ -9,6 +10,7 @@ mod live_chat;
 mod structures;
 mod admin_ws;
 mod accept_cf;
+mod deny_cf;
 
 #[tokio::main]
 pub async fn main() -> std::io::Result<()> {
@@ -22,6 +24,6 @@ pub async fn main() -> std::io::Result<()> {
         .init();
     tokio::spawn(wsserver());
     
-    HttpServer::new(move || App::new().service(apt_cf)).bind(("127.0.0.1", 9690))?.run().await
+    HttpServer::new(move || App::new().service(apt_cf).service(dny_cf)).bind(("127.0.0.1", 9690))?.run().await
 }
 

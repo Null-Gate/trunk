@@ -10,6 +10,7 @@ lto = true
 codegen-units = 1
 
 [dependencies]
+actix-web = { version = "4.8.0", features = ["rustls-0_23"] }
 async_once = "0.2.6"
 color-eyre = "0.6.3"
 futures-util = "0.3.30"

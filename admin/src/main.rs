@@ -35,6 +35,7 @@ use crate::structures::{AccMode, Event, WSReq, WSResp, DB};
 mod carform_upload;
 mod live_chat;
 mod structures;
+mod admin_http;
 
 #[tokio::main]
 pub async fn main() {

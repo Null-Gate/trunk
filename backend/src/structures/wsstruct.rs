@@ -35,6 +35,7 @@ pub enum NType {
     Bdn,
     AvaCar,
     OwnCarForm,
+    CarFormApt,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

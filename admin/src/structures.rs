@@ -60,6 +60,62 @@ pub struct Msg {
     pub msg: (AccMode, String),
 }
 
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PState {
+    Accept,
+    Deny,
+    Pending
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum NType {
+    Booking,
+    Bac,
+    Bdn,
+    AvaCar,
+    OwnCarForm,
+    CarFormApt,
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Roles {
+    Owner,
+    Driver,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OwnTB {
+    pub r#in: Thing,
+    pub out: Thing,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug, Default)]
+pub struct DbUserInfo {
+    pub username: String,
+    pub fullname: String,
+    pub password: String,
+    pub pik_role: Vec<Roles>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Noti<T> {
+    pub data: T,
+    pub ntyp: NType,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PenCar {
+    pub pstat: PState,
+    pub data: DbCarInfo,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct PenCarD {
+    pub id: Thing,
+    pub pstat: PState,
+    pub data: DbCarInfo,
+}
+
 impl Default for Msg {
     fn default() -> Self {
         Self {

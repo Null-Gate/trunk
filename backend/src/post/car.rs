@@ -84,7 +84,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
 
                     db.create::<Option<DbCarInfo>>(("pend_car", id.clone())).content(pcont).await.unwrap().unwrap();
                     db.create::<Option<Noti<PenCar>>>((user_info.username, id)).content(nt).await.unwrap().unwrap();
-                    todo!()
+                    HttpResponse::Ok().await.unwrap()
 
                     /*match db
                         .create::<Option<DbCarInfo>>(("car", id.clone()))

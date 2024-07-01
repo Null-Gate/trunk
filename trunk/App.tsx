@@ -24,6 +24,7 @@ import NotificationScreen from './src/screens/NotificationScreen';
 import PostDetailScreen from './src/screens/PostDetailScreen';
 import StatusScreen from './src/screens/StatusScreen';
 import PasswordChangeScreen from './src/screens/PasswordChangeScreen';
+import PostCreateScreen from './src/screens/PostCreateScreen';
 
 // icons
 import { SimpleLineIcons } from '@expo/vector-icons';
@@ -48,6 +49,8 @@ const BottomTab = () => {
 						icon = <TabBarIcon title='NewFeed' color={color} icon={<MaterialCommunityIcons name="newspaper-variant-multiple-outline" size={size} color={color} />} />
 					} else if (route.name === "Notification") {
 						icon = <TabBarIcon title='Notification' color={color} icon={<Ionicons name="notifications" size={size} color={color} />} />
+					} else if (route.name === "Create") {
+						icon = <TabBarIcon title='Create' color={color} icon={<Ionicons name="add" size={size} color={color} />} />
 					} else if (route.name === "Status") {
 						icon = <TabBarIcon title='Status' color={color} icon={<FontAwesome name="list-alt" size={size} color={color} />} />
 					} else if (route.name === "Menu") {
@@ -70,6 +73,7 @@ const BottomTab = () => {
 		>
 			<Tab.Screen name='NewFeed' component={NewFeedScreen} />
 			<Tab.Screen name='Notification' component={NotificationScreen} />
+			<Tab.Screen name='Create' component={PostCreateScreen} />
 			<Tab.Screen name='Status' component={StatusScreen} />
 			<Tab.Screen name='Menu' component={MenuScreen} />
 		</Tab.Navigator>

@@ -3,6 +3,7 @@ import {
     TextInput,
     StyleSheet,
     StyleProp,
+    ViewStyle,
     TextStyle
 } from 'react-native'
 import React from 'react'
@@ -15,7 +16,9 @@ interface CustomInputProps {
     value: string,
     onChangeText: any,
     placeholder: string,
-    style?: StyleProp<TextStyle>
+    style?: StyleProp<ViewStyle>,
+    inputStyle?: StyleProp<TextStyle>,
+    multiline?: boolean
 }
 
 const CustomInput = ({
@@ -23,22 +26,25 @@ const CustomInput = ({
     value,
     onChangeText,
     placeholder,
-    style
+    style,
+    inputStyle,
+    multiline = false
 }: CustomInputProps) => {
     return (
-        <View>
+        <View style={style}>
             <CustomText 
                 text={title}
                 textStyle={styles.title}
             />
             <TextInput
-                style={[styles.input, style]}
+                style={[styles.input, inputStyle]}
                 onChangeText={onChangeText}
                 value={value}
                 placeholder={placeholder}
                 placeholderTextColor="grey"
                 autoCapitalize="none"
                 autoCorrect={false}
+                multiline={multiline}
             />
         </View>
     )
@@ -52,6 +58,7 @@ const styles = StyleSheet.create({
         color: "grey",
         backgroundColor: "#F2F2F2",
         paddingHorizontal: 10,
+        paddingVertical: 10,
         fontFamily: "Poppins-Medium",
         letterSpacing: 1,
         borderRadius: 5

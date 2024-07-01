@@ -6,13 +6,14 @@ import {
     ViewStyle,
     StyleProp
 } from 'react-native'
-import React, { ReactNode } from 'react'
+import React, { useState, ReactNode } from 'react'
 
 // react navigation
 import { useNavigation } from '@react-navigation/native';
 
 // components
 import CustomText from '../components/CustomText'
+import LogoutAlert from '../components/menu/LogoutAlert';
 
 //icons
 import { MaterialIcons } from '@expo/vector-icons';
@@ -67,50 +68,68 @@ const ListItem = ({
 
 
 const MenuScreen = () => {
+    const [isVisibleLogoutAlert, setIsVisibleLogoutAlert] = useState<boolean>(false);
     const navigation = useNavigation<any>();
 
     const navigateToProfile = () => {
         navigation.navigate("Profile");
     }
 
+    const navigateToPasswordChange = () => {
+        navigation.navigate("PasswordChange");
+    }
+
+    const openLogoutAlert = () => {
+        setIsVisibleLogoutAlert(true);
+    }
+
+    const closeLogoutAlert = () => {
+        setIsVisibleLogoutAlert(false);
+    }
+
     return (
-        <View style={styles.container}>
-            <View style={{ marginBottom: 20 }}>
-                <CustomText
-                    textStyle={styles.title}
-                    text='Profile'
-                />
-                <View>
-                    <ListItem
-                        title='Profile'
-                        icon={<FontAwesome name="user-circle-o" size={24} color="black" />}
-                        onPress={navigateToProfile}
+        <>
+            <View style={styles.container}>
+                <View style={{ marginBottom: 20 }}>
+                    <CustomText
+                        textStyle={styles.title}
+                        text='Profile'
                     />
+                    <View>
+                        <ListItem
+                            title='Profile'
+                            icon={<FontAwesome name="user-circle-o" size={24} color="black" />}
+                            onPress={navigateToProfile}
+                        />
+                    </View>
+                </View>
+                <View>
+                    <CustomText
+                        textStyle={styles.title}
+                        text='Setting'
+                    />
+                    <View>
+                        <ListItem
+                            title='Change Password'
+                            icon={<MaterialCommunityIcons name="key-variant" size={24} color="black" />}
+                            onPress={navigateToPasswordChange}
+                        />
+                        <ListItem
+                            title='Contact Us'
+                            icon={<MaterialIcons name="local-phone" size={24} color="black" />}
+                        />
+                        <ListItem
+                            title='Logout'
+                            icon={<MaterialCommunityIcons name="logout" size={24} color="red" />}
+                            listItemTextStyle={{ color: "red" }}
+                            showArrowIcon={false}
+                            onPress={openLogoutAlert}
+                        />
+                    </View>
                 </View>
             </View>
-            <View>
-                <CustomText
-                    textStyle={styles.title}
-                    text='Setting'
-                />
-                <View>
-                    <ListItem
-                        title='Change Password'
-                        icon={<MaterialCommunityIcons name="key-variant" size={24} color="black" />}
-                    />
-                    <ListItem
-                        title='Contact Us'
-                        icon={<MaterialIcons name="local-phone" size={24} color="black" />}
-                    />
-                    <ListItem
-                        title='Logout'
-                        icon={<MaterialCommunityIcons name="logout" size={24} color="red" />}
-                        listItemTextStyle={{ color: "red" }}
-                        showArrowIcon={false}
-                    />
-                </View>
-            </View>
-        </View>
+            <LogoutAlert visible={isVisibleLogoutAlert} closeAlert={closeLogoutAlert} />
+        </>
     )
 }
 

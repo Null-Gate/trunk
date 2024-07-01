@@ -6,6 +6,9 @@ import {
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 
+// react navigation
+import { useNavigation } from '@react-navigation/native';
+
 // components
 import ImageContainer from '../components/ImageContainer';
 import CustomText from '../components/CustomText';
@@ -19,9 +22,17 @@ const windowWidth = Dimensions.get('window').width;
 const PostDetailScreen = () => {
 	const [post, setPost] = useState<any>(FEED_DATA[0]);
 
+	const navigation = useNavigation<any>();
+
+	useEffect(() => {
+		navigation.setOptions({
+			title: post.title
+		})
+	}, [])
+
 	return (
 		<View style={styles.container}>
-			<ScrollView 
+			<ScrollView
 				style={{ flex: 1 }}
 				showsVerticalScrollIndicator={false}
 			>

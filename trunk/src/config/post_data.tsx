@@ -40,6 +40,19 @@ export const FEED_DATA = [
 	},
 	{
 		id: "3",
+		type: "post",
+		user: "Linus Walker",
+		title: "The Sun",
+		descirption: "The Sun's gravity holds the solar system together, keeping everything – from the biggest planets to the smallest particles of debris – in its orbit. The connection and interactions between the Sun and Earth drive the seasons, ocean currents, weather, climate, radiation belts and auroras. Though it is special to us, there are billions of stars like our Sun scattered across the Milky Way galaxy.The Sun has many names in many cultures. The Latin word for Sun is “sol,” which is the main adjective for all things Sun-related: solar.",
+		imgs: [
+			{
+				id: "the-sun-9dTg44Qhx1Q",
+				url: "https://images.unsplash.com/photo-1614642264762-d0a3b8bf3700?q=80&w=580&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+			}
+		]
+	},
+	{
+		id: "4",
 		type: "drivers",
 		users: [
 			{

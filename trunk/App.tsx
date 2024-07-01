@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Button } from 'react-native';
 import { ReactNode } from 'react';
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -16,12 +16,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TabBarIcon from './src/components/TabBarIcon';
 
 // screens
+import LoginScreen from './src/screens/LoginScreen';
 import NewFeedScreen from './src/screens/NewFeedScreen';
 import MenuScreen from './src/screens/MenuScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import NotificationScreen from './src/screens/NotificationScreen';
 import PostDetailScreen from './src/screens/PostDetailScreen';
 import StatusScreen from './src/screens/StatusScreen';
+import PasswordChangeScreen from './src/screens/PasswordChangeScreen';
 
 // icons
 import { SimpleLineIcons } from '@expo/vector-icons';
@@ -59,7 +61,11 @@ const BottomTab = () => {
 					backgroundColor: "#ededed",
 					height: 60
 				},
-				tabBarShowLabel: false
+				tabBarShowLabel: false,
+				headerTitleStyle: {
+					fontFamily: "Poppins-Medium",
+					fontSize: 18,
+				}
 			})}
 		>
 			<Tab.Screen name='NewFeed' component={NewFeedScreen} />
@@ -80,7 +86,7 @@ export default function App() {
 		return (
 			<View style={{ flex: 1 }}>
 				<StatusBar
-					backgroundColor='transparent'
+					backgroundColor={"transparent"}
 					translucent={true}
 				/>
 			</View>
@@ -92,11 +98,22 @@ export default function App() {
 			<StatusBar />
 			<NavigationContainer>
 				<Stack.Navigator
-					initialRouteName='BottomTab'
-					screenOptions={{
-						headerShown: false
-					}}
+					initialRouteName='Login'
+					screenOptions={({ navigation, route }) => ({
+						headerShown: false,
+						headerTitleStyle: {
+							fontFamily: "Poppins-Medium",
+							fontSize: 18,
+						},
+					})}
 				>
+					<Stack.Screen
+						name="Login"
+						component={LoginScreen}
+						options={{
+							headerShown: false
+						}}
+					/>
 					<Stack.Screen
 						name="BottomTab"
 						component={BottomTab}
@@ -118,7 +135,18 @@ export default function App() {
 						name='PostDetail'
 						component={PostDetailScreen}
 						options={{
-							headerShown: true
+							headerShown: true,
+						}}
+					/>
+					<Stack.Screen
+						name='PasswordChange'
+						component={PasswordChangeScreen}
+						options={{
+							headerShown: true,
+							headerTitle: "",
+							headerStyle: {
+								backgroundColor: "#ededed"
+							}
 						}}
 					/>
 				</Stack.Navigator>

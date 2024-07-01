@@ -21,18 +21,18 @@ const DriverCard = ({
     user,
     img
 }: DriverCardProps) => {
-    console.log(img);
     return (
         <View style={styles.container}>
             <ImageContainer
                 imageSource={{ uri: img }}
                 imageContainerStyle={{
                     width: "100%",
-                    height: 200
+                    height: 220
                 }}
             />
             <View style={styles.detailContainer}>
-                <CustomText text='William' />
+                {/* user name */}
+                <CustomText text={user} textStyle={{ marginBottom: 5 }} />
                 <View style={{
                     flexDirection: "row",
                     justifyContent: "space-between"
@@ -59,10 +59,10 @@ const styles = StyleSheet.create({
     container: {
         width: windowWidth * .6,
         backgroundColor: "#fff",
-        borderWidth: 1,
-        borderColor: "#dbdbdb",
         marginRight: 10,
         borderRadius: 10,
+        borderWidth: 1,
+        borderColor: "#dbdbdb",
         overflow: "hidden"
     },
     detailContainer: {

@@ -37,7 +37,7 @@ const Post = ({
     // Function to get the first N words from a paragraph
     const getFirstNWords = (paragraph: string, numWords: number) : string => {
         const words = paragraph.split(' ').slice(0, numWords);
-        return words.join(' ') + (words.length === numWords ? ' ...' : '');
+        return words.join(' ') + (words.length === numWords ? ' ... ' : '');
     };
 
     return (

@@ -26,7 +26,6 @@ const DriverLists = ({
     return (
         <View style={styles.container}>
             <FlatList
-                style={{ marginBottom: 5 }}
                 data={drivers}
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -51,15 +50,17 @@ export default DriverLists
 const styles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
-        padding: 10,
+        paddingTop: 10,
+        paddingHorizontal: 10,
+        borderRadius: 10,
         borderWidth: 1,
         borderColor: "#dbdbdb",
-        borderRadius: 10,
         marginBottom: 40
     },
     button: {
         backgroundColor: "#fff",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
+        paddingVertical: 10
     }
 })

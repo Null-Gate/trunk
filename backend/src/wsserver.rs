@@ -31,13 +31,9 @@ use tokio_tungstenite::{
 use crate::{
     extra::functions::{check_user, decode_token, verify_password, wserror},
     fetch::{nf::fetch_newfeed, noti::live_select},
-    services::{booknoti::booknoti, notinit::notinit},
+    services::{booknoti::booknoti, dcarnoti::gnotifd, notinit::notinit},
     structures::{
-        auth::Claims,
-        bookstruct::BookTB,
-        dbstruct::DbUserInfo,
-        extrastruct::{AccMode, DB, JWT_SECRET},
-        wsstruct::{Event, Noti, WSReq, WSResp},
+        auth::Claims, bookstruct::BookTB, car::CargoD, dbstruct::{DbUserInfo, Roles}, extrastruct::{AccMode, DB, JWT_SECRET}, wsstruct::{Event, Noti, WSReq, WSResp}
     },
 };
 
@@ -61,6 +57,7 @@ pub async fn accept_conn(stream: TcpStream) {
     }
 }
 
+#[allow(clippy::too_many_lines)]
 pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
     let mut idk = None;
     let callback = |req: &Request, resp: Response| {
@@ -111,6 +108,8 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             let query_result = Arc::new(Mutex::new(DbUserInfo::default()));
             let acbook_state = Arc::new(AtomicBool::new(false));
             let acbook_result: Arc<Mutex<Option<Noti<BookTB>>>> = Arc::new(Mutex::new(None));
+            let cdriver_state = Arc::new(AtomicBool::new(false));
+            let cdriver_result: Arc<Mutex<Option<Noti<CargoD>>>> = Arc::new(Mutex::new(None));
             let mut dur = tokio::time::interval(Duration::from_millis(10));
             tokio::spawn(live_select(query_state.clone(), query_result.clone()));
             tokio::spawn(booknoti(
@@ -119,6 +118,10 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                 acbook_state.clone(),
                 acbook_result.clone(),
             ));
+
+            if db_user_info.lock().await.pik_role.contains(&Roles::Driver) {
+                tokio::spawn(gnotifd(db, db_user_info.lock().await.username.clone(), cdriver_state.clone(), cdriver_result.clone()));
+            }
 
             let notinit_msg = notinit(&db_user_info.lock().await.username, db).await;
             let nt = WSResp {

@@ -57,16 +57,21 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                 stloc: post.from_where.clone(),
                                 fnloc: post.to_where.clone(),
                             };
-                            let nt = Noti {
+                            let ont = Noti {
                                 data: cargo_data.clone(),
                                 ntyp: NType::AvaCar,
                             };
+                            let dnt = Noti {
+                                data: cargo_data.clone(),
+                                ntyp: NType::CDriver,
+                            };
                             db.create::<Option<Cargo>>((
-                                "cargo",
+                                "pen_cargo",
                                 Id::String(post.car_id.clone()),
                             )).content(cargo_data).await.unwrap().unwrap();
-                            db.create::<Option<Noti<CargoD>>>((user_info.username.clone(), post.car_id.clone())).content(nt).await.unwrap().unwrap();
-                            let sql = "UPDATE type::thing($thing) SET is_available = true;";
+                            db.create::<Option<Noti<CargoD>>>((user_info.username.clone(), post.car_id.clone())).content(ont).await.unwrap().unwrap();
+                            db.create::<Option<Noti<CargoD>>>((post.driver_id.clone(), Id::String(post.car_id.clone()))).content(dnt).await.unwrap().unwrap();
+                            /*let sql = "UPDATE type::thing($thing) SET is_available = true;";
                             db.query(sql)
                                 .bind((
                                     "thing",
@@ -76,7 +81,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                     },
                                 ))
                                 .await
-                                .unwrap();
+                                .unwrap();*/
 
                             let user_info = DbUserInfo {
                                 username: user_info.username,

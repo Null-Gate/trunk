@@ -28,7 +28,7 @@ pub struct WSResp<T> {
     pub data: T,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum NType {
     Booking,
     Bac,
@@ -36,6 +36,7 @@ pub enum NType {
     AvaCar,
     OwnCarForm,
     CarFormApt,
+    CDriver
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -21,7 +21,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
     }
 
     match decode_token(&paths.2) {
-        Ok(user_info) => match check_user(user_info.username.clone(), db).await {
+        Ok(user_info) => match check_user(user_info.username.clone()).await {
             Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
                     let cuery = "SELECT * FROM vote WHERE (in = type::thing($uthing) AND out = type::thing($pthing));";

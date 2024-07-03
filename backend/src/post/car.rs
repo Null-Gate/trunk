@@ -30,7 +30,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
     }
 
     match decode_token(&token) {
-        Ok(user_info) => match check_user(user_info.username.clone(), db).await {
+        Ok(user_info) => match check_user(user_info.username.clone()).await {
             Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(_) => {
                     match Reader::open(form.owner_proof.file.path()) {

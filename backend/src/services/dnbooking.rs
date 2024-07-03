@@ -19,7 +19,7 @@ async fn dnbooking(parts: Path<(String, String)>) -> HttpResponse {
         return internal_error(e);
     }
 
-    match ct_user(&parts.1, db).await {
+    match ct_user(&parts.1).await {
         Ok((_, cuser)) => {
             match db
                 .select::<Option<Noti<BookTB>>>((

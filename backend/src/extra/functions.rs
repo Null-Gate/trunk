@@ -4,14 +4,14 @@ use actix_multipart::form::tempfile::TempFile;
 use actix_web::{get, web::Path, HttpResponse};
 use argon2::verify_encoded;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use surrealdb::{engine::local::Db, sql::Id, Surreal};
+use surrealdb::sql::Id;
 use tokio::fs;
 use tracing::error;
 
 use crate::structures::{
     auth::Claims,
     dbstruct::DbUserInfo,
-    extrastruct::{GenString, Resp, DATA_PATH, JWT_SECRET},
+    extrastruct::{GenString, Resp, DATA_PATH, DB, JWT_SECRET},
 };
 
 pub fn decode_token(token: &str) -> Result<DbUserInfo, HttpResponse> {
@@ -37,9 +37,13 @@ pub fn verify_password(password: &str, hash: &str) -> Result<(), HttpResponse> {
     }
 }
 
-pub async fn check_user(username: String, db: &Surreal<Db>) -> Result<DbUserInfo, HttpResponse> {
+pub async fn check_user(username: String) -> Result<DbUserInfo, HttpResponse> {
+    let db = DB.get().await;
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return Err(internal_error(e));
+    }
     match db
-        .select::<Option<DbUserInfo>>(("user", Id::from(username.to_string())))
+        .select::<Option<DbUserInfo>>(("user", Id::from(username)))
         .await
     {
         Ok(Some(user)) => Ok(user),
@@ -104,10 +108,13 @@ pub async fn get_cache_dir() -> String {
 #[allow(clippy::future_not_send)]
 pub async fn ct_user(
     token: &str,
-    db: &Surreal<Db>,
 ) -> Result<(DbUserInfo, DbUserInfo), HttpResponse> {
+    let db = DB.get().await;
+    if let Err(e) = db.use_ns("ns").use_db("db").await {
+        return Err(internal_error(e));
+    }
     match decode_token(token) {
-        Ok(tuser_info) => match check_user(tuser_info.username.clone(), db).await {
+        Ok(tuser_info) => match check_user(tuser_info.username.clone()).await {
             Ok(cuser_info) => match verify_password(&tuser_info.password, &cuser_info.password) {
                 Ok(()) => Ok((tuser_info, cuser_info)),
                 Err(e) => Err(e),

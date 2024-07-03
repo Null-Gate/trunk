@@ -179,7 +179,7 @@ pub async fn cond_check(
         if text.event == Event::Auth {
             let user_info = decode_token(&text.data.clone().unwrap()).unwrap();
 
-            *db_user_info.lock().await = check_user(user_info.username.clone(), db).await.unwrap();
+            *db_user_info.lock().await = check_user(user_info.username.clone()).await.unwrap();
             verify_password(&user_info.password, &(db_user_info.lock().await).password).unwrap();
             authed.swap(true, Ordering::Relaxed);
         }

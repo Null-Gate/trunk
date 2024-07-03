@@ -10,10 +10,10 @@ use crate::{
     extra::functions::{check_user, decode_token, encode_token, internal_error, verify_password},
     structures::{
         auth::Claims,
-        car::{CarPostForm, Cargo, CargoD, DbCarInfo},
+        car::{CarPostForm, Cargo, CargoD},
         dbstruct::{DbUserInfo, Roles},
         extrastruct::{Resp, DB},
-        post::{OwnTB, PostD}, wsstruct::{NType, Noti},
+        post::OwnTB, wsstruct::{NType, Noti},
     },
 };
 
@@ -25,7 +25,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
         return internal_error(e);
     }
     match decode_token(&token) {
-        Ok(user_info) => match check_user(user_info.username.clone(), db).await {
+        Ok(user_info) => match check_user(user_info.username.clone()).await {
             Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
                     match db
@@ -41,15 +41,6 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         Err(e) => return internal_error(e),
                     }
 
-                    match db
-                        .create::<Option<PostD<DbCarInfo>>>((
-                            "post",
-                            Id::String(post.car_id.to_string()),
-                        ))
-                        .content(post.to_db_post(&user_info.username).await.unwrap())
-                        .await
-                    {
-                        Ok(Some(_)) => {
                             let cargo_data = Cargo {
                                 driver: Thing { tb: "user".to_string(), id: Id::String(post.driver_id.clone()) },
                                 owner: Thing { tb: "user".to_string(), id: Id::String(user_info.username.clone()) },
@@ -99,10 +90,6 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                                 |e| e,
                                 |token| HttpResponse::Ok().json(Resp::new(&token)),
                             )
-                        }
-                        Ok(None) => internal_error("None Ava Car Error"),
-                        Err(e) => internal_error(e),
-                    }
                 }
                 Err(e) => e,
             },

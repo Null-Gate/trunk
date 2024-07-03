@@ -13,7 +13,8 @@ use crate::{
         car::{CarPostForm, Cargo, CargoD},
         dbstruct::{DbUserInfo, Roles},
         extrastruct::{Resp, DB},
-        post::OwnTB, wsstruct::{NType, Noti},
+        post::OwnTB,
+        wsstruct::{NType, Noti},
     },
 };
 
@@ -41,55 +42,77 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         Err(e) => return internal_error(e),
                     }
 
-                            let cargo_data = Cargo {
-                                driver: Thing { tb: "user".to_string(), id: Id::String(post.driver_id.clone()) },
-                                owner: Thing { tb: "user".to_string(), id: Id::String(user_info.username.clone()) },
-                                car: Thing { tb: "car".to_string(), id: Id::String(post.car_id.clone())},
-                                stloc: post.from_where.clone(),
-                                fnloc: post.to_where.clone(),
-                            };
-                            let ont = Noti {
-                                data: cargo_data.clone(),
-                                ntyp: NType::AvaCar,
-                            };
-                            let dnt = Noti {
-                                data: cargo_data.clone(),
-                                ntyp: NType::CDriver,
-                            };
-                            db.create::<Option<Cargo>>((
-                                "pen_cargo",
-                                Id::String(post.car_id.clone()),
-                            )).content(cargo_data).await.unwrap().unwrap();
-                            db.create::<Option<Noti<CargoD>>>((user_info.username.clone(), post.car_id.clone())).content(ont).await.unwrap().unwrap();
-                            db.create::<Option<Noti<CargoD>>>((post.driver_id.clone(), Id::String(post.car_id.clone()))).content(dnt).await.unwrap().unwrap();
-                            /*let sql = "UPDATE type::thing($thing) SET is_available = true;";
-                            db.query(sql)
-                                .bind((
-                                    "thing",
-                                    Thing {
-                                        id: Id::String(post.car_id.to_string()),
-                                        tb: "car".into(),
-                                    },
-                                ))
-                                .await
-                                .unwrap();*/
+                    let cargo_data = Cargo {
+                        driver: Thing {
+                            tb: "user".to_string(),
+                            id: Id::String(post.driver_id.clone()),
+                        },
+                        owner: Thing {
+                            tb: "user".to_string(),
+                            id: Id::String(user_info.username.clone()),
+                        },
+                        car: Thing {
+                            tb: "car".to_string(),
+                            id: Id::String(post.car_id.clone()),
+                        },
+                        stloc: post.from_where.clone(),
+                        fnloc: post.to_where.clone(),
+                    };
+                    let ont = Noti {
+                        data: cargo_data.clone(),
+                        ntyp: NType::AvaCar,
+                    };
+                    let dnt = Noti {
+                        data: cargo_data.clone(),
+                        ntyp: NType::CDriver,
+                    };
+                    db.create::<Option<Cargo>>(("pen_cargo", Id::String(post.car_id.clone())))
+                        .content(cargo_data)
+                        .await
+                        .unwrap()
+                        .unwrap();
+                    db.create::<Option<Noti<CargoD>>>((
+                        user_info.username.clone(),
+                        post.car_id.clone(),
+                    ))
+                    .content(ont)
+                    .await
+                    .unwrap()
+                    .unwrap();
+                    db.create::<Option<Noti<CargoD>>>((
+                        post.driver_id.clone(),
+                        Id::String(post.car_id.clone()),
+                    ))
+                    .content(dnt)
+                    .await
+                    .unwrap()
+                    .unwrap();
+                    /*let sql = "UPDATE type::thing($thing) SET is_available = true;";
+                    db.query(sql)
+                        .bind((
+                            "thing",
+                            Thing {
+                                id: Id::String(post.car_id.to_string()),
+                                tb: "car".into(),
+                            },
+                        ))
+                        .await
+                        .unwrap();*/
 
-                            let user_info = DbUserInfo {
-                                username: user_info.username,
-                                password: user_info.password,
-                                fullname: user_info.fullname,
-                                pik_role: user.pik_role,
-                            };
-                            let exp = usize::try_from(
-                                (Utc::now() + TimeDelta::try_days(9_999_999).unwrap()).timestamp(),
-                            )
-                            .unwrap();
-                            let claims = Claims { user_info, exp };
+                    let user_info = DbUserInfo {
+                        username: user_info.username,
+                        password: user_info.password,
+                        fullname: user_info.fullname,
+                        pik_role: user.pik_role,
+                    };
+                    let exp = usize::try_from(
+                        (Utc::now() + TimeDelta::try_days(9_999_999).unwrap()).timestamp(),
+                    )
+                    .unwrap();
+                    let claims = Claims { user_info, exp };
 
-                            encode_token(&claims).map_or_else(
-                                |e| e,
-                                |token| HttpResponse::Ok().json(Resp::new(&token)),
-                            )
+                    encode_token(&claims)
+                        .map_or_else(|e| e, |token| HttpResponse::Ok().json(Resp::new(&token)))
                 }
                 Err(e) => e,
             },

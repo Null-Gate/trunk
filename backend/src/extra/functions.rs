@@ -106,9 +106,7 @@ pub async fn get_cache_dir() -> String {
 }
 
 #[allow(clippy::future_not_send)]
-pub async fn ct_user(
-    token: &str,
-) -> Result<(DbUserInfo, DbUserInfo), HttpResponse> {
+pub async fn ct_user(token: &str) -> Result<(DbUserInfo, DbUserInfo), HttpResponse> {
     let db = DB.get().await;
     if let Err(e) = db.use_ns("ns").use_db("db").await {
         return Err(internal_error(e));

@@ -33,7 +33,12 @@ use crate::{
     fetch::{nf::fetch_newfeed, noti::live_select},
     services::{booknoti::booknoti, dcarnoti::gnotifd, notinit::notinit},
     structures::{
-        auth::Claims, bookstruct::BookTB, car::CargoD, dbstruct::{DbUserInfo, Roles}, extrastruct::{AccMode, DB, JWT_SECRET}, wsstruct::{Event, Noti, WSReq, WSResp}
+        auth::Claims,
+        bookstruct::BookTB,
+        car::CargoD,
+        dbstruct::{DbUserInfo, Roles},
+        extrastruct::{AccMode, DB, JWT_SECRET},
+        wsstruct::{Event, Noti, WSReq, WSResp},
     },
 };
 
@@ -120,7 +125,12 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             ));
 
             if db_user_info.lock().await.pik_role.contains(&Roles::Driver) {
-                tokio::spawn(gnotifd(db, db_user_info.lock().await.username.clone(), cdriver_state.clone(), cdriver_result.clone()));
+                tokio::spawn(gnotifd(
+                    db,
+                    db_user_info.lock().await.username.clone(),
+                    cdriver_state.clone(),
+                    cdriver_result.clone(),
+                ));
             }
 
             let notinit_msg = notinit(&db_user_info.lock().await.username, db).await;

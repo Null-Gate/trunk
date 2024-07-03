@@ -13,7 +13,7 @@ pub enum Roles {
 pub enum PState {
     Accept,
     Deny,
-    Pending
+    Pending,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

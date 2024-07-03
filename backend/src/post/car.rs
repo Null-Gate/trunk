@@ -16,7 +16,8 @@ use crate::{
         car::{CarForm, DbCarInfo},
         dbstruct::{DbUserInfo, PState, PenCar, Roles},
         extrastruct::{Resp, DB, JWT_SECRET},
-        post::OwnTB, wsstruct::{NType, Noti},
+        post::OwnTB,
+        wsstruct::{NType, Noti},
     },
 };
 
@@ -79,11 +80,19 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
 
                     let nt = Noti {
                         data: pcont.clone(),
-                        ntyp: NType::OwnCarForm
+                        ntyp: NType::OwnCarForm,
                     };
 
-                    db.create::<Option<DbCarInfo>>(("pend_car", id.clone())).content(pcont).await.unwrap().unwrap();
-                    db.create::<Option<Noti<PenCar>>>((user_info.username, id)).content(nt).await.unwrap().unwrap();
+                    db.create::<Option<DbCarInfo>>(("pend_car", id.clone()))
+                        .content(pcont)
+                        .await
+                        .unwrap()
+                        .unwrap();
+                    db.create::<Option<Noti<PenCar>>>((user_info.username, id))
+                        .content(nt)
+                        .await
+                        .unwrap()
+                        .unwrap();
                     HttpResponse::Ok().await.unwrap()
 
                     /*match db

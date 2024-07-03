@@ -1,13 +1,24 @@
-use std::sync::{atomic::{AtomicBool, Ordering}, Arc};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 
+use futures_util::StreamExt;
 use serde_json::Value;
 use surrealdb::{engine::local::Db, Notification, Surreal};
-use futures_util::StreamExt;
 use tokio::sync::Mutex;
 
-use crate::structures::{car::CargoD, wsstruct::{NType, Noti}};
+use crate::structures::{
+    car::CargoD,
+    wsstruct::{NType, Noti},
+};
 
-pub async fn gnotifd(db: &Surreal<Db>, username: String, noti_status: Arc<AtomicBool>, noti_result: Arc<Mutex<Option<Noti<CargoD>>>>) {
+pub async fn gnotifd(
+    db: &Surreal<Db>,
+    username: String,
+    noti_status: Arc<AtomicBool>,
+    noti_result: Arc<Mutex<Option<Noti<CargoD>>>>,
+) {
     let mut gntf = db.select(username).live().await.unwrap();
 
     while let Some(smt) = gntf.next().await {
@@ -21,10 +32,10 @@ pub async fn gnotifd(db: &Surreal<Db>, username: String, noti_status: Arc<Atomic
                         }
                         noti_status.swap(true, Ordering::Relaxed);
                         *noti_result.lock().await = Some(kk);
-                    },
+                    }
                     Err(()) => continue,
                 }
-            },
+            }
             Err(_) => continue,
         };
     }

@@ -4,7 +4,10 @@ use surrealdb::sql::Id;
 use crate::{
     extra::functions::{ct_user, internal_error},
     structures::{
-        car::{CargoD, DbCarInfo}, extrastruct::DB, post::PostD, wsstruct::{NType, Noti}
+        car::{CargoD, DbCarInfo},
+        extrastruct::DB,
+        post::PostD,
+        wsstruct::{NType, Noti},
     },
 };
 
@@ -28,15 +31,20 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
             {
                 Some(mut ntcargo) => {
                     ntcargo.ntyp = NType::CDriverApt;
-                    let nt = db.update::<Option<Noti<CargoD>>>((
-                        &ntcargo.data.owner.id.to_raw(),
-                        Id::String(id.clone()),
-                    ))
-                    .content(ntcargo)
-                    .await
-                    .unwrap()
-                    .unwrap();
-                    db.create::<Option<PostD<DbCarInfo>>>(("post", Id::String(id.clone()))).content(nt.data.pdata).await.unwrap().unwrap();
+                    let nt = db
+                        .update::<Option<Noti<CargoD>>>((
+                            &ntcargo.data.owner.id.to_raw(),
+                            Id::String(id.clone()),
+                        ))
+                        .content(ntcargo)
+                        .await
+                        .unwrap()
+                        .unwrap();
+                    db.create::<Option<PostD<DbCarInfo>>>(("post", Id::String(id.clone())))
+                        .content(nt.data.pdata)
+                        .await
+                        .unwrap()
+                        .unwrap();
                     HttpResponse::Ok().await.unwrap()
                 }
                 None => HttpResponse::NoContent().await.unwrap(),

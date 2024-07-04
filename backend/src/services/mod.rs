@@ -1,7 +1,7 @@
 pub mod acbooking;
 pub mod booking;
 pub mod booknoti;
-pub mod dcaraccpt;
+pub mod dcardny;
 pub mod dcarnoti;
 pub mod dnbooking;
 pub mod feedbacks;

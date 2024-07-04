@@ -55,8 +55,10 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                             tb: "car".to_string(),
                             id: Id::String(post.car_id.clone()),
                         },
+                        pdata: post.to_db_post(&user_info.username).await.unwrap(),
                         stloc: post.from_where.clone(),
                         fnloc: post.to_where.clone(),
+                        ctloc: None,
                     };
                     let ont = Noti {
                         data: cargo_data.clone(),
@@ -66,7 +68,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         data: cargo_data.clone(),
                         ntyp: NType::CDriver,
                     };
-                    db.create::<Option<Cargo>>(("pen_cargo", Id::String(post.car_id.clone())))
+                    db.create::<Option<Cargo>>(("cargo", Id::String(post.car_id.clone())))
                         .content(cargo_data)
                         .await
                         .unwrap()

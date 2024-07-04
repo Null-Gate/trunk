@@ -2,6 +2,8 @@ use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Id, Thing};
 
+use super::post::Post;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbCarInfo {
     pub car_id: Id,
@@ -34,18 +36,22 @@ pub struct CarPostForm {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Cargo {
     pub driver: Thing,
-    pub car: Thing,
     pub owner: Thing,
+    pub car: Thing,
+    pub pdata: Post<DbCarInfo>,
     pub stloc: String,
     pub fnloc: String,
+    pub ctloc: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct CargoD {
     pub id: Thing,
     pub driver: Thing,
-    pub car: Thing,
     pub owner: Thing,
+    pub car: Thing,
+    pub pdata: Post<DbCarInfo>,
     pub stloc: String,
     pub fnloc: String,
+    pub ctloc: Option<String>,
 }

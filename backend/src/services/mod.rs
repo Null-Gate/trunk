@@ -7,3 +7,4 @@ pub mod dnbooking;
 pub mod feedbacks;
 pub mod notinit;
 pub mod voting;
+pub mod dcarapt;

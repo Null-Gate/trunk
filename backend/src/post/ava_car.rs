@@ -42,12 +42,23 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         Err(e) => return internal_error(e),
                     }
 
-                    let idk: DbUserInfo = db.select::<Option<DbUserInfo>>(("user", Id::String(post.driver_id.clone()))).await.unwrap().unwrap();
-                    let cidk: Option<CargoD> = db.select::<Option<CargoD>>(("cargo", Id::String(post.car_id.clone()))).await.unwrap();
-                    let didk: Option<CargoD> = db.select::<Option<CargoD>>(("dond", Id::String(post.driver_id.clone()))).await.unwrap();
+                    let idk: DbUserInfo = db
+                        .select::<Option<DbUserInfo>>(("user", Id::String(post.driver_id.clone())))
+                        .await
+                        .unwrap()
+                        .unwrap();
+                    let cidk: Option<CargoD> = db
+                        .select::<Option<CargoD>>(("cargo", Id::String(post.car_id.clone())))
+                        .await
+                        .unwrap();
+                    let didk: Option<CargoD> = db
+                        .select::<Option<CargoD>>(("dond", Id::String(post.driver_id.clone())))
+                        .await
+                        .unwrap();
 
                     if !idk.pik_role.contains(&Roles::Driver) || cidk.is_some() || didk.is_some() {
-                        return HttpResponse::NotAcceptable().json("The Driver is not a driver or the car/driver is on_going");
+                        return HttpResponse::NotAcceptable()
+                            .json("The Driver is not a driver or the car/driver is on_going");
                     }
 
                     let cargo_data = Cargo {

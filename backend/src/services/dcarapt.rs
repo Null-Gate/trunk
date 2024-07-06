@@ -45,8 +45,16 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                         .await
                         .unwrap()
                         .unwrap();
-                    db.update::<Option<DbCarInfo>>(("car", id.clone())).patch(PatchOp::replace("is_available", true)).await.unwrap().unwrap();
-                    db.create::<Option<CargoD>>(("dond", Id::String(duser.username))).content(nt).await.unwrap().unwrap();
+                    db.update::<Option<DbCarInfo>>(("car", id.clone()))
+                        .patch(PatchOp::replace("is_available", true))
+                        .await
+                        .unwrap()
+                        .unwrap();
+                    db.create::<Option<CargoD>>(("dond", Id::String(duser.username)))
+                        .content(nt)
+                        .await
+                        .unwrap()
+                        .unwrap();
                     HttpResponse::Ok().await.unwrap()
                 }
                 None => HttpResponse::NoContent().await.unwrap(),

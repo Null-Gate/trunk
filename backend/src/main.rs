@@ -3,7 +3,7 @@
 use actix_cors::Cors;
 use actix_files as afs;
 use actix_multipart::form::tempfile::TempFileConfig;
-use actix_web::{App, HttpServer};
+use actix_web::{web, App, HttpServer, Responder};
 use auth::{delete::delete, login::login, signup::signup};
 use extra::functions::test_token;
 use fetch::scope::fetch;
@@ -69,6 +69,7 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::permissive();
         App::new()
             .app_data(TempFileConfig::default().directory(&dir))
+            .default_service(web::to(root_page))
             .service(afs::Files::new("/pics", &dir))
             .service(signup)
             .service(login)
@@ -104,4 +105,8 @@ async fn main() -> std::io::Result<()> {
         ),
         tls_config,
     )?*/
+}
+
+async fn root_page() -> impl Responder {
+    "Hello World"
 }

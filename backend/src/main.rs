@@ -10,6 +10,9 @@ use fetch::scope::fetch;
 use post::{ava_car::post_car, car::car, driver::driver, package::package};
 use services::acbooking::acbooking;
 use services::booking::book;
+use services::dcarapt::driver_acpt_car;
+use services::dcardny::driver_dny_car;
+use services::dnbooking::dnbooking;
 use services::voting::up_vote;
 use std::path::Path;
 use std::{fs::File, io::BufReader};
@@ -79,6 +82,10 @@ async fn main() -> std::io::Result<()> {
             .service(up_vote)
             .service(book)
             .service(acbooking)
+            .service(book)
+            .service(driver_acpt_car)
+            .service(driver_dny_car)
+            .service(dnbooking)
             .wrap(cors)
     })
     .bind_rustls_0_23(

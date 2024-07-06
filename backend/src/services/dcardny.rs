@@ -12,7 +12,7 @@ use crate::{
 
 #[allow(clippy::future_not_send)]
 #[put("/deny/cdriver/{id}/{token}")]
-pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
+pub async fn driver_dny_car(pdata: Path<(String, String)>) -> HttpResponse {
     let id = pdata.0.clone();
     let token = &pdata.1;
 

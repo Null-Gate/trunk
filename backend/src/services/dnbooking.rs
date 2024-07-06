@@ -12,7 +12,7 @@ use crate::{
 
 #[allow(clippy::future_not_send)]
 #[post("/book/deny/{id}/{token}")]
-async fn dnbooking(parts: Path<(String, String)>) -> HttpResponse {
+pub async fn dnbooking(parts: Path<(String, String)>) -> HttpResponse {
     let parts = parts.into_inner();
     let db = DB.get().await;
     if let Err(e) = db.use_ns("ns").use_db("db").await {

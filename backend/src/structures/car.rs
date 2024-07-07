@@ -55,3 +55,10 @@ pub struct CargoD {
     pub fnloc: String,
     pub ctloc: Option<String>,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct AcData {
+    pub driver: Thing,
+    pub owner: Thing,
+    pub cargo: Thing,
+}

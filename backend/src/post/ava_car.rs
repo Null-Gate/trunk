@@ -10,7 +10,7 @@ use crate::{
     extra::functions::{check_user, decode_token, encode_token, internal_error, verify_password},
     structures::{
         auth::Claims,
-        car::{CarPostForm, Cargo, CargoD},
+        car::{AcData, CarPostForm, Cargo, CargoD},
         dbstruct::{DbUserInfo, Roles},
         extrastruct::{Resp, DB},
         post::OwnTB,
@@ -18,6 +18,7 @@ use crate::{
     },
 };
 
+#[allow(clippy::too_many_lines)]
 #[allow(clippy::future_not_send)]
 #[post("/post/car/{token}")]
 async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse {
@@ -108,18 +109,12 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                     .await
                     .unwrap()
                     .unwrap();
-                    /*let sql = "UPDATE type::thing($thing) SET is_available = true;";
-                    db.query(sql)
-                        .bind((
-                            "thing",
-                            Thing {
-                                id: Id::String(post.car_id.to_string()),
-                                tb: "car".into(),
-                            },
-                        ))
-                        .await
-                        .unwrap();*/
-
+                    let acdata = AcData {
+                        driver: Thing { tb: "user".to_string(), id: Id::String(post.driver_id.clone()) },
+                        owner: Thing { tb: "user".to_string(), id: Id::String(user_info.username.clone()) },
+                        cargo: Thing { tb: "cargo".to_string(), id: Id::String(post.car_id.clone()) }
+                    };
+                    db.create::<Option<AcData>>((&post.car_id, Id::from("cargo"))).content(acdata).await.unwrap().unwrap();
                     let user_info = DbUserInfo {
                         username: user_info.username,
                         password: user_info.password,

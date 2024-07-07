@@ -4,7 +4,7 @@ use surrealdb::sql::Id;
 use crate::{
     extra::functions::{ct_user, internal_error},
     structures::{
-        car::CargoD,
+        car::{AcData, CargoD},
         extrastruct::DB,
         wsstruct::{NType, Noti},
     },
@@ -38,10 +38,11 @@ pub async fn driver_dny_car(pdata: Path<(String, String)>) -> HttpResponse {
                     .await
                     .unwrap()
                     .unwrap();
-                    db.delete::<Option<CargoD>>(("cargo", Id::String(id)))
+                    db.delete::<Option<CargoD>>(("cargo", Id::from(&id)))
                         .await
                         .unwrap()
                         .unwrap();
+                    db.delete::<Option<AcData>>((&id, Id::from("cargo"))).await.unwrap().unwrap();
                     HttpResponse::Ok().await.unwrap()
                 }
                 None => HttpResponse::NoContent().await.unwrap(),

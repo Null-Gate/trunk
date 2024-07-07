@@ -17,6 +17,7 @@ import TabBarIcon from './src/components/TabBarIcon';
 
 // screens
 import LoginScreen from './src/screens/LoginScreen';
+import SignupScreen from './src/screens/SignupScreen';
 import NewFeedScreen from './src/screens/NewFeedScreen';
 import MenuScreen from './src/screens/MenuScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -25,6 +26,7 @@ import PostDetailScreen from './src/screens/PostDetailScreen';
 import StatusScreen from './src/screens/StatusScreen';
 import PasswordChangeScreen from './src/screens/PasswordChangeScreen';
 import PostCreateScreen from './src/screens/PostCreateScreen';
+import MapScreen from './src/screens/MapScreen';
 
 // icons
 import { SimpleLineIcons } from '@expo/vector-icons';
@@ -118,6 +120,13 @@ export default function App() {
 							headerShown: false
 						}}
 					/>
+					<Stack.Screen 
+						name="Signup"
+						component={SignupScreen}
+						options={{
+							headerShown: false
+						}}
+					/>
 					<Stack.Screen
 						name="BottomTab"
 						component={BottomTab}
@@ -152,6 +161,10 @@ export default function App() {
 								backgroundColor: "#ededed"
 							}
 						}}
+					/>
+					<Stack.Screen
+						name='Map'
+						component={MapScreen}
 					/>
 				</Stack.Navigator>
 			</NavigationContainer>

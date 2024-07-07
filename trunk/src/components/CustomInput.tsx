@@ -18,7 +18,8 @@ interface CustomInputProps {
     placeholder: string,
     style?: StyleProp<ViewStyle>,
     inputStyle?: StyleProp<TextStyle>,
-    multiline?: boolean
+    multiline?: boolean,
+    editable?: boolean
 }
 
 const CustomInput = ({
@@ -28,7 +29,8 @@ const CustomInput = ({
     placeholder,
     style,
     inputStyle,
-    multiline = false
+    multiline = false,
+    editable = true
 }: CustomInputProps) => {
     return (
         <View style={style}>
@@ -45,6 +47,7 @@ const CustomInput = ({
                 autoCapitalize="none"
                 autoCorrect={false}
                 multiline={multiline}
+                editable={editable}
             />
         </View>
     )
@@ -56,12 +59,13 @@ const styles = StyleSheet.create({
     input: {
         height: 60,
         color: "grey",
-        backgroundColor: "#F2F2F2",
         paddingHorizontal: 10,
         paddingVertical: 10,
         fontFamily: "Poppins-Medium",
         letterSpacing: 1,
-        borderRadius: 5
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: "#a6a6a6"
     },
     title: {
         color: "grey",

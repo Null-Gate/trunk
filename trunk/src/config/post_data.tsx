@@ -71,24 +71,80 @@ export const FEED_DATA = [
 
 export const NOTI_DATA = [
 	{
-	  id: "1",
-	  created_date: "4h ago",
-	  message: "commented on the status you shared.",
-	  user: {
-		id: 2,
-		name: "Otto Anderson",
-		img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-	  }
+		id: "1",
+		created_date: "4h ago",
+		message: "commented on the status you shared.",
+		user: {
+			id: 2,
+			name: "Otto Anderson",
+			img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+		}
 	},
 	{
-	  id: "",
-	  created_date: "2d ago",
-	  message: "voted on the status you shared",
-	  user: {
-		id: 2,
-		name: "Otto Anderson",
-		img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-	  }
+		id: "",
+		created_date: "2d ago",
+		message: "voted on the status you shared",
+		user: {
+			id: 2,
+			name: "Otto Anderson",
+			img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+		}
 	}
-  ]
-  
+];
+
+export const STATUS_DATA = [
+	{
+		id: "1",
+		category: "Package",
+		title: "Yangon to Mandalay",
+		items: ["One tea, Tier", "Premier Expresso"],
+		date: "2 days ago",
+		variant: "history",
+		driver: {
+			name: "U Wai Linn",
+			age: 69,
+			license: "112233445",
+		},
+		car: {
+			brand: "Fuso FJ 2528R Cargo",
+		},
+		destination: {
+			from: "Yangon",
+			to: "Mandalay",
+		},
+		period: "2 days",
+	},
+	{
+		id: "2",
+		category: "Package",
+		title: "Mandalay to Yangon",
+		items: ["One tea, Tier", "Premier Expresso"],
+		variant: "current",
+		driver: {
+			name: "U Wai Linn",
+			age: 69,
+			license: "112233445",
+		},
+		car: {
+			brand: "Fuso FJ 2528R Cargo",
+		},
+		destination: {
+			from: "Mandalay",
+			to: "Yangon",
+		},
+	},
+	{
+		id: "3",
+		category: "Driver",
+		title: "U Wai Linn",
+		desc: "I have over 3 years experience in driving",
+		variant: "history",
+	},
+	{
+		id: "4",
+		category: "Car",
+		title: "Fuso FJ 2528R Cargo",
+		desc: "yangon to mandaly",
+		variant: "history",
+	},
+];

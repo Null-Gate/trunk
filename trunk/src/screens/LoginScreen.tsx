@@ -5,7 +5,8 @@ import {
 	TouchableWithoutFeedback,
 	Keyboard,
 	KeyboardAvoidingView,
-	Platform
+	Platform,
+	Pressable
 } from 'react-native'
 import React, { useState } from 'react'
 
@@ -62,42 +63,89 @@ const LoginScreen = () => {
 					<View style={{
 						width: "100%",
 						backgroundColor: "#fff",
-						paddingVertical: 50,
+						paddingVertical: 35,
 						paddingHorizontal: 20,
 						borderTopLeftRadius: 25,
 						borderTopRightRadius: 25,
 						position: "absolute",
 						bottom: 0,
 					}}>
+						{/* start email */}
 						<CustomInput
 							title='Email'
 							value={email}
 							onChangeText={setEmail}
 							placeholder='name@example.com'
 							style={{ marginBottom: 20 }}
+							inputStyle={{
+								backgroundColor: "#F2F2F2",
+								borderWidth: 0
+							}}
 						/>
+						{/* end email */}
+
+						{/* start password */}
 						<CustomPasswordInput
 							title='Password'
 							value={password}
 							onChangeText={setPoassword}
 							placeholder='XXXXXX'
-							style={{ marginBottom: 25 }}
+							style={{ marginBottom: 5 }}
 						/>
-						<CustomButton
-							title='LOG IN'
-							onPress={() => { navigation.navigate("BottomTab") }}
-							style={styles.loginButton}
-						/>
-						<CustomText
-							text="Forgot Password?"
-							textStyle={{
-								color: "#424242",
-								textAlign: "center",
-								fontWeight: "bold",
-								fontSize: 16,
-								marginTop: 15
-							}}
-						/>
+						{/* end password */}
+
+						<View style={{
+							flexDirection: "row",
+							justifyContent: "flex-end",
+							marginBottom: 20
+						}}>
+							<Pressable
+								onPress={() => { console.log("forgot password???") }}
+							>
+								<CustomText
+									text='forgot Password ?'
+									textStyle={{
+										fontSize: 13,
+										color: "#424242",
+										textDecorationLine: "underline",
+										textDecorationColor: GlobalStyles.colors.softGrey
+									}}
+								/>
+							</Pressable>
+						</View>
+
+						<View>
+							{/* start login btn */}
+							<CustomButton
+								title='LOG IN'
+								onPress={() => { navigation.navigate("BottomTab") }}
+								style={styles.button}
+							/>
+							{/* end login btn */}
+							<View style={{
+								flexDirection: "row",
+								justifyContent: "space-between",
+								alignItems: "center"
+							}}>
+								<View style={styles.line}></View>
+								<CustomText
+									text="OR"
+									textStyle={{
+										fontSize: 12,
+										marginVertical: 5
+									}}
+								/>
+								<View style={styles.line}></View>
+							</View>
+							{/* start signup btn */}
+							<CustomButton
+								title='SIGN UP'
+								onPress={() => { navigation.navigate("Signup") }}
+								style={[styles.button, styles.signupBtn]}
+								textStyle={{ color: GlobalStyles.colors.primaryColor }}
+							/>
+							{/* end signup btn */}
+						</View>
 					</View>
 				</View>
 			</TouchableWithoutFeedback>
@@ -112,9 +160,19 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: GlobalStyles.colors.primaryColor
 	},
-	loginButton: {
+	button: {
 		height: 50,
 		justifyContent: "center",
 		alignItems: "center",
+	},
+	signupBtn: {
+		backgroundColor: "#fff",
+		borderWidth: 1,
+		borderColor: GlobalStyles.colors.primaryColor
+	},
+	line: {
+		width: "40%",
+		height: 1,
+		backgroundColor: GlobalStyles.colors.softGrey
 	}
 })

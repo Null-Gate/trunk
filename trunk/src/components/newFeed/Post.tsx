@@ -13,6 +13,9 @@ import ImageSlider from '../ImageSlider'
 // icons
 import { Entypo } from '@expo/vector-icons';
 
+// styles
+import { GlobalStyles } from '../../constants/styles'
+
 type ImagesProps = {
     id: string,
     url: string
@@ -113,7 +116,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 10,
         borderWidth: 1,
-        borderColor: "#dbdbdb"
+        borderColor: GlobalStyles.colors.softGrey
     },
     header: {
         padding: 15,

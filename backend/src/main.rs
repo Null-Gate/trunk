@@ -89,22 +89,16 @@ async fn main() -> std::io::Result<()> {
             .service(dnbooking)
             .wrap(cors)
     })
-    .bind(
-        (
-            dotenvy::var("TRUNK_HOST").unwrap(),
-            dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap(),
-        ),
-    )?
-    .run()
-    .await;
-    Ok(())
-    /*.bind_rustls_0_23(
+    .bind_rustls_0_23(
         (
             dotenvy::var("TRUNK_HOST").unwrap(),
             dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap(),
         ),
         tls_config,
-    )?*/
+    )?
+    .run()
+    .await;
+    Ok(())
 }
 
 async fn root_page() -> impl Responder {

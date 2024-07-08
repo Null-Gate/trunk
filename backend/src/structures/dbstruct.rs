@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
-use super::car::DbCarInfo;
+use super::{car::DbCarInfo, post::PostD};
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Roles {
@@ -50,4 +50,11 @@ pub struct DbDriverInfo {
     pub license_pic: String,
     pub exp_details: String,
     pub userinfo: Thing,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct PkgPsts {
+    pub owner: Thing,
+    pub pkg_data: PostD<DbPackageInfo>,
+    pub bcar_go: Thing,
 }

@@ -4,7 +4,7 @@ use surrealdb::sql::Thing;
 
 use super::post::PostD;
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)]
 pub enum BType {
     Pkg,
     Car,
@@ -23,12 +23,13 @@ pub enum BStat {
     Deny,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct BookTB {
     pub r#in: Thing,
     pub in_info: Value,
     pub out: Thing,
     pub out_info: Value,
+    pub btype: BType,
     pub utn: Thing,
     pub utr: Thing,
 }

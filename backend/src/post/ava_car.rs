@@ -10,7 +10,7 @@ use crate::{
     extra::functions::{check_user, decode_token, encode_token, internal_error, verify_password},
     structures::{
         auth::Claims,
-        car::{AcData, CarPostForm, Cargo, CargoD},
+        car::{AcData, CarPostForm, Cargo, CargoD, PaSta},
         dbstruct::{DbUserInfo, Roles},
         extrastruct::{Resp, DB},
         post::OwnTB,
@@ -76,6 +76,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                             id: Id::String(post.car_id.clone()),
                         },
                         pdata: post.to_db_post(&user_info.username).await.unwrap(),
+                        casta: PaSta::Pend,
                         stloc: post.from_where.clone(),
                         fnloc: post.to_where.clone(),
                         ctloc: None,

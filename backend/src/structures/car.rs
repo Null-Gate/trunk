@@ -34,23 +34,31 @@ pub struct CarPostForm {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
+pub enum PaSta {
+    Pend,
+    OnGo
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Cargo {
     pub driver: Thing,
     pub owner: Thing,
     pub car: Thing,
     pub pdata: Post<DbCarInfo>,
+    pub casta: PaSta,
     pub stloc: String,
     pub fnloc: String,
     pub ctloc: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct CargoD {
     pub id: Thing,
     pub driver: Thing,
     pub owner: Thing,
     pub car: Thing,
     pub pdata: Post<DbCarInfo>,
+    pub casta: PaSta,
     pub stloc: String,
     pub fnloc: String,
     pub ctloc: Option<String>,

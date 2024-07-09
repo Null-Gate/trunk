@@ -4,7 +4,7 @@ use surrealdb::{opt::PatchOp, sql::Id};
 use crate::{
     extra::functions::{ct_user, internal_error},
     structures::{
-        car::{CargoD, DbCarInfo},
+        car::{CargoD, DbCarInfo, PaSta},
         extrastruct::DB,
         post::PostD,
         wsstruct::{NType, Noti},
@@ -55,6 +55,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                         .await
                         .unwrap()
                         .unwrap();
+                    db.update::<Option<CargoD>>(("cargo", id.clone())).patch(PatchOp::replace("casta", PaSta::OnGo)).await.unwrap().unwrap();
                     HttpResponse::Ok().await.unwrap()
                 }
                 None => HttpResponse::NoContent().await.unwrap(),

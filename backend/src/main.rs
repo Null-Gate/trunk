@@ -13,6 +13,7 @@ use services::booking::book;
 use services::dcarapt::driver_acpt_car;
 use services::dcardny::driver_dny_car;
 use services::dnbooking::dnbooking;
+use services::getcargos::get_cargos;
 use services::voting::up_vote;
 use std::path::Path;
 use std::{fs::File, io::BufReader};
@@ -87,6 +88,7 @@ async fn main() -> std::io::Result<()> {
             .service(driver_acpt_car)
             .service(driver_dny_car)
             .service(dnbooking)
+            .service(get_cargos)
             .wrap(cors)
     })
     .bind_rustls_0_23(

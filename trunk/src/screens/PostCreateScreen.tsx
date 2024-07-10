@@ -1,81 +1,118 @@
-import {
-	View,
-	ScrollView,
-	StyleSheet,
-	Dimensions
-} from 'react-native'
-import React, { useState } from 'react'
+import { View, ScrollView, StyleSheet, Dimensions } from "react-native";
+import React, { useState } from "react";
 
 // icons
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 
 // components
-import CustomInput from '../components/CustomInput';
-import CustomText from '../components/CustomText';
+import CustomInput from "../components/CustomInput";
+import CustomText from "../components/CustomText";
+import { useForm } from "react-hook-form";
+import CustomButton from "../components/CustomButton";
 
-
-const windowWidth = Dimensions.get('window').width;
+const windowWidth = Dimensions.get("window").width;
 
 const PostCreateScreen = () => {
-	const [packageName, setPackageName] = useState<string>("");
-	const [packageDescription, setPackageDescription] = useState<string>("");
+  const { control, handleSubmit } = useForm();
 
-	return (
-		<ScrollView style={styles.container}>
-			<View>
-				<CustomText
-					text="Package Photos"
-					textStyle={{
-						color: "grey",
-						marginBottom: 3
-					}}
-				/>
-				<View style={{
-					height: windowWidth - 80,
-					borderWidth: 1.8,
-					borderRadius: 15,
-					borderColor: '#696969',
-					borderStyle: 'dashed',
-					flexDirection: "row",
-					justifyContent: "center",
-					alignItems: "center",
-					marginBottom: 20
-				}}>
-					<Ionicons name="add" size={70} color="#696969" />
-				</View>
-			</View>
+  const onSubmit = (data) => {
+    console.log(data)
+    console.log("submit");
+  };
 
-			<CustomInput
-				title='Package Name'
-				value={packageName}
-				onChangeText={setPackageName}
-				placeholder='Myint Chin'
-				style={{ marginBottom: 15 }}
-			/>
+  return (
+    <ScrollView style={styles.container}>
+      <View>
+        <CustomText
+          text="Package Photos"
+          textStyle={{
+            color: "grey",
+            marginBottom: 3,
+          }}
+        />
+        <View
+          style={{
+            height: windowWidth - 80,
+            borderWidth: 1.8,
+            borderRadius: 15,
+            borderColor: "#696969",
+            borderStyle: "dashed",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 20,
+          }}
+        >
+          <Ionicons name="add" size={70} color="#696969" />
+        </View>
+      </View>
 
-			<CustomInput
-				title='Package Description'
-				value={packageDescription}
-				onChangeText={setPackageDescription}
-				placeholder='Package Ka Bar Nyar Poh'
-				style={{ marginBottom: 15 }}
-				inputStyle={{
-					height: 120,
-					textAlignVertical: 'top'
-				}}
-			/>
+      <CustomInput
+        title="Package Name"
+        name="package_name"
+        control={control}
+        rules={{ required: true }}
+        placeholder="Myint Chin"
+        style={{ marginBottom: 15 }}
+      />
 
-		</ScrollView>
-	)
-}
+      <CustomInput
+        title="Date"
+        name="date_to_go"
+        control={control}
+        rules={{ required: true }}
+        placeholder="Myint Chin"
+        style={{ marginBottom: 15 }}
+      />
 
-export default PostCreateScreen
+      <CustomInput
+        title="Weight"
+        name="cper_weight"
+        control={control}
+        rules={{ required: true }}
+        placeholder="Myint Chin"
+        style={{ marginBottom: 15 }}
+      />
+
+      <CustomInput
+        title="Amount"
+        name="cper_amount"
+        control={control}
+        rules={{ required: true }}
+        placeholder="Myint Chin"
+        style={{ marginBottom: 15 }}
+      />
+
+      <CustomInput
+        title="Package Description"
+        name="pkg_details"
+        control={control}
+        rules={{ required: true }}
+        placeholder="Package Ka Bar Nyar Poh"
+        style={{ marginBottom: 15 }}
+        inputStyle={{
+          height: 120,
+          textAlignVertical: "top",
+        }}
+      />
+
+      <CustomButton
+        title="Create"
+        style={{ marginBottom: 50 }}
+        textStyle={{ textAlign: "center" }}
+        onPress={handleSubmit(onSubmit)}
+      />
+    </ScrollView>
+  );
+};
+
+export default PostCreateScreen;
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: "#fff",
-		paddingHorizontal: 15,
-		paddingTop: 20
-	}
-})
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingHorizontal: 15,
+    paddingTop: 20,
+  },
+});

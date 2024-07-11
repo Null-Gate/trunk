@@ -9,13 +9,15 @@ use surrealdb::{
     Surreal,
 };
 
+pub type Dbt = Db;
+
 lazy_static! {
     pub static ref DATA_PATH: String = dotenvy::var("DATA_DIR").unwrap();
     pub static ref SEIF: (String, u16) = (
         dotenvy::var("TRUNK_HOST").unwrap(),
         dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap()
     );
-    pub static ref DB: AsyncOnce<Surreal<Db>> =
+    pub static ref DB: AsyncOnce<Surreal<Dbt>> =
         AsyncOnce::new(async { Surreal::new::<Mem>(()).await.unwrap() });
 }
 

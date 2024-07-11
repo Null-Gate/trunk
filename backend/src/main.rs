@@ -17,7 +17,7 @@ use services::getcargos::get_cargos;
 use services::voting::up_vote;
 use std::path::Path;
 use std::{fs::File, io::BufReader};
-use structures::extrastruct::DATA_PATH;
+use structures::extrastruct::{DATA_PATH, DB};
 use tokio::fs;
 use tracing::Level;
 
@@ -91,16 +91,22 @@ async fn main() -> std::io::Result<()> {
             .service(get_cargos)
             .wrap(cors)
     })
-    .bind_rustls_0_23(
+    .bind(
+        (
+            dotenvy::var("TRUNK_HOST").unwrap(),
+            dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap(),
+        ),
+    )?
+    .run()
+    .await;
+    Ok(())
+    /*.bind_rustls_0_23(
         (
             dotenvy::var("TRUNK_HOST").unwrap(),
             dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap(),
         ),
         tls_config,
-    )?
-    .run()
-    .await;
-    Ok(())
+    )?*/
 }
 
 async fn root_page() -> impl Responder {

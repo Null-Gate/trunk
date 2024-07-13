@@ -24,19 +24,19 @@ const windowWidth = Dimensions.get("window").width;
 const slides = [
     {
         id: "1",
-        image: require("../assets/images/slides/slideOne.png"),
+        image: require("../assets/images/artist.png"),
         title: "Title Bar Nyar Poh",
         content: "Seemless experience",
     },
     {
         id: "2",
-        image: require("../assets/images/slides/slideTwo.png"),
+        image: require("../assets/images/artist.png"),
         title: "Monitor Your Ways",
         content: "Stay updated with real-time tracking of your packages from dispatch to delivery.",
     },
     {
         id: "3",
-        image: require("../assets/images/slides/slideThree.png"),
+        image: require("../assets/images/artist.png"),
         title: "Track Your Vehicle",
         content: "Keep an eye on your car's journey and status in real-time.",
     },

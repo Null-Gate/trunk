@@ -5,7 +5,7 @@ use admin_ws::wsserver;
 use deny_cf::dny_cf;
 use tracing::Level;
 
-use actix_web::{App, HttpServer};
+use actix_web::{web, App, HttpServer, Responder};
 
 mod accept_cf;
 mod admin_ws;
@@ -46,14 +46,23 @@ pub async fn main() -> std::io::Result<()> {
 
     tokio::spawn(wsserver());
 
-    HttpServer::new(move || App::new().service(apt_cf).service(dny_cf))
-        .bind_rustls_0_23(
-            (
-                dotenvy::var("ADMIN_HOST").unwrap(),
-                dotenvy::var("ADMIN_PORT").unwrap().parse().unwrap(),
-            ),
-            tls_config,
-        )?
-        .run()
-        .await
+    HttpServer::new(move || {
+        App::new()
+            .default_service(web::to(root_page))
+            .service(apt_cf)
+            .service(dny_cf)
+    })
+    .bind_rustls_0_23(
+        (
+            dotenvy::var("ADMIN_HOST").unwrap(),
+            dotenvy::var("ADMIN_PORT").unwrap().parse().unwrap(),
+        ),
+        tls_config,
+    )?
+    .run()
+    .await
+}
+
+async fn root_page() -> impl Responder {
+    "Hello World"
 }

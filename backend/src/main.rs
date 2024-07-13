@@ -91,11 +91,12 @@ async fn main() -> std::io::Result<()> {
             .service(get_cargos)
             .wrap(cors)
     })
-    .bind(
+    .bind_rustls_0_23(
         (
             dotenvy::var("TRUNK_HOST").unwrap(),
             dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap(),
         ),
+        tls_config
     )?
     .run()
     .await;

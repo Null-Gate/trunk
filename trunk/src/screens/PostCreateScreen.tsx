@@ -28,6 +28,7 @@ import DatePicker from '../components/DatePicker';
 import ImageContainer from '../components/ImageContainer';
 import CustomModal from '../components/CustomModal';
 import MapContainer from '../components/postCreate/MapContainer';
+import ImageSlider from '../components/ImageSlider';
 
 interface CoordinateProps {
 	latitude: number;
@@ -68,10 +69,6 @@ const PostCreateScreen = () => {
 	const [mapModalData, setMapModalData] = useState<any>({
 		visible: false,
 		current: 0, // 0 => from, 1 => to
-		currentCoordinate: {
-			from: null,
-			to: null
-		}
 	})
 
 	const pickImage = async () => {
@@ -158,7 +155,7 @@ const PostCreateScreen = () => {
 				return newLocations;
 			})
 		}
-		
+
 		setMapModalData((prevDatas: any) => {
 			const newData = {
 				...prevDatas,
@@ -170,32 +167,67 @@ const PostCreateScreen = () => {
 
 	return (
 		<>
-			<SafeAreaProvider>
-				<ScrollView style={styles.container}>
+			<View style={styles.container}>
+				<ScrollView style={{
+					flex: 1,
+					paddingHorizontal: 15,
+					paddingVertical: 20
+				}}>
 					{/* start photos */}
-					<View>
-						<CustomText
-							text="Photos"
-							textStyle={{
-								color: "grey",
-								marginBottom: 3
-							}}
-						/>
-						<Pressable onPress={pickImage}>
-							<View style={{
-								height: windowWidth - 80,
-								borderWidth: 1.8,
-								borderRadius: 15,
-								borderColor: '#a6a6a6',
-								borderStyle: 'dashed',
-								flexDirection: "row",
-								justifyContent: "center",
-								alignItems: "center",
-								marginBottom: 20
-							}}>
-								<Ionicons name="add" size={70} color="#a6a6a6" />
+					<View style={{ marginBottom: 20 }}>
+						{photos.length <= 0 ? (
+							<View>
+								<CustomText
+									text="Photos"
+									textStyle={{
+										color: "grey",
+										marginBottom: 3
+									}}
+								/>
+								<Pressable onPress={pickImage}>
+									<View style={{
+										height: windowWidth - 80,
+										borderWidth: 1.8,
+										borderRadius: 15,
+										borderColor: '#a6a6a6',
+										borderStyle: 'dashed',
+										flexDirection: "row",
+										justifyContent: "center",
+										alignItems: "center"
+									}}>
+										<Ionicons name="add" size={70} color="#a6a6a6" />
+									</View>
+								</Pressable>
 							</View>
-						</Pressable>
+						) : (
+							<View style={{
+								borderRadius: 15,
+								overflow: "hidden",
+								position: "relative"
+							}}>
+								<ImageSlider
+									slides={photos.map(photo => ({ id: Math.random().toString(), url: photo }))}
+									imageSliderWidth={windowWidth - 30}
+									imageSliderHeight={windowWidth - 80}
+								/>
+								<Pressable
+									style={{
+										position: "absolute",
+										right: 10,
+										bottom: 15,
+										borderRadius: 10,
+										paddingHorizontal: 10,
+										paddingVertical: 3,
+										backgroundColor: "rgba(0, 0, 0, 0.7)",
+										zIndex: 2
+									}}
+									onPress={pickImage}
+								>
+									<CustomText text='Add' textStyle={{ color: "#fff" }} />
+								</Pressable>
+							</View>
+						)}
+
 					</View>
 					{/* end photos */}
 
@@ -305,7 +337,7 @@ const PostCreateScreen = () => {
 					/>
 					{/* end description */}
 				</ScrollView>
-			</SafeAreaProvider >
+			</View>
 
 			{/* start location modal */}
 			<CustomModal
@@ -388,7 +420,6 @@ const PostCreateScreen = () => {
 				onRequestClose={closeMap}
 			>
 				<MapContainer
-					initialCoordinate={mapModalData.currentCoordinate}
 					onChooseLocation={onChooseLocation}
 				/>
 			</Modal>
@@ -402,8 +433,6 @@ export default PostCreateScreen
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#fff",
-		paddingHorizontal: 15,
-		paddingTop: 20,
+		backgroundColor: "#fff"
 	}
 })

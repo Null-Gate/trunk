@@ -8,7 +8,7 @@ import {
 	Platform,
 	Pressable
 } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 // react navigation
 import { useNavigation } from '@react-navigation/native'
@@ -32,6 +32,10 @@ const LoginScreen = () => {
 	const [password, setPoassword] = useState<string>("");
 
 	const navigation = useNavigation<any>();
+
+	useEffect(() => {
+		console.log(email);
+	}, [email])
 
 	return (
 		<KeyboardAvoidingView

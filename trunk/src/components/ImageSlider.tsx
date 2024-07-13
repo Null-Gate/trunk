@@ -1,5 +1,4 @@
 import {
-    Image,
     Pressable,
     View,
     FlatList,
@@ -9,6 +8,8 @@ import {
     NativeSyntheticEvent,
     NativeScrollEvent,
     ViewToken,
+    StyleProp,
+    ViewStyle
 } from 'react-native';
 
 import React, { useRef, useState, useEffect } from 'react';
@@ -28,13 +29,13 @@ type Slide = {
 type ImageSlider = {
     slides: Slide[],
     imageSliderWidth?: number,
-    imageSliderHeight?: number
+    imageSliderHeight?: number,
 }
 
 const ImageSlider = ({
     slides,
     imageSliderWidth = windowWidth - 22,
-    imageSliderHeight = windowWidth - 22
+    imageSliderHeight = windowWidth - 22,
 }: ImageSlider) => {
     const [index, setIndex] = useState<number>(0);
     const scrollX = useRef(new Animated.Value(0)).current;
@@ -78,17 +79,15 @@ const ImageSlider = ({
                 data={slides}
                 renderItem={({ item, index }) => {
                     return (
-                        <View>
-                            <Pressable>
-                                <ImageContainer
-                                    imageSource={{ uri: item.url }}
-                                    imageContainerStyle={{
-                                        width: imageSliderWidth,
-                                        height: imageSliderHeight
-                                    }}
-                                />
-                            </Pressable>
-                        </View>
+                        <Pressable>
+                            <ImageContainer
+                                imageSource={{ uri: item.url }}
+                                imageContainerStyle={{
+                                    width: imageSliderWidth,
+                                    height: imageSliderHeight
+                                }}
+                            />
+                        </Pressable>
                     )
                 }}
                 horizontal

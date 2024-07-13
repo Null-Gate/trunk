@@ -25,8 +25,10 @@ import NotificationScreen from './src/screens/NotificationScreen';
 import PostDetailScreen from './src/screens/PostDetailScreen';
 import StatusScreen from './src/screens/StatusScreen';
 import PasswordChangeScreen from './src/screens/PasswordChangeScreen';
+import PasswordForgotScreen from './src/screens/PasswordForgotScreen';
 import PostCreateScreen from './src/screens/PostCreateScreen';
 import MapScreen from './src/screens/MapScreen';
+import OnBoardingScreen from './src/screens/OnBoardingScreen';
 
 // icons
 import { SimpleLineIcons } from '@expo/vector-icons';
@@ -104,7 +106,7 @@ export default function App() {
 			<StatusBar />
 			<NavigationContainer>
 				<Stack.Navigator
-					initialRouteName='Login'
+					initialRouteName='OnBoarding'
 					screenOptions={({ navigation, route }) => ({
 						headerShown: false,
 						headerTitleStyle: {
@@ -113,6 +115,13 @@ export default function App() {
 						},
 					})}
 				>
+					<Stack.Screen 
+						name='OnBoarding'
+						component={OnBoardingScreen}
+						options={{
+							headerShown: false
+						}}
+					/>
 					<Stack.Screen
 						name="Login"
 						component={LoginScreen}
@@ -120,7 +129,7 @@ export default function App() {
 							headerShown: false
 						}}
 					/>
-					<Stack.Screen 
+					<Stack.Screen
 						name="Signup"
 						component={SignupScreen}
 						options={{
@@ -159,6 +168,17 @@ export default function App() {
 							headerTitle: "",
 							headerStyle: {
 								backgroundColor: "#ededed"
+							}
+						}}
+					/>
+					<Stack.Screen
+						name='PasswordForgot'
+						component={PasswordForgotScreen}
+						options={{
+							headerShown: true,
+							headerTitle: "",
+							headerStyle: {
+								backgroundColor: GlobalStyles.colors.primaryColor
 							}
 						}}
 					/>

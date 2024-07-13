@@ -19,13 +19,16 @@ interface CoordinateProps {
     longitude: number;
 }
 
+interface LocationsProps {
+    from : CoordinateProps,
+    to : CoordinateProps
+}
+
 interface MapContainerProps {
-    initialCoordinate?: CoordinateProps;
     onChooseLocation: (address: string, coordinate: CoordinateProps) => void
 }
 
 const MapContainer = ({
-    initialCoordinate,
     onChooseLocation
 }: MapContainerProps) => {
     const [pin, setPin] = useState<CoordinateProps | null>(null);
@@ -61,11 +64,6 @@ const MapContainer = ({
             console.error(error);
         }
     };
-
-    useEffect(() => {
-        const coordinate = initialCoordinate ? initialCoordinate : null;
-        setPin(coordinate);
-    }, [])
 
     return (
         <MapView

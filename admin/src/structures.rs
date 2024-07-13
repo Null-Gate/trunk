@@ -64,7 +64,7 @@ pub struct Msg {
 pub enum PState {
     Accept,
     Deny,
-    Pending
+    Pending,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

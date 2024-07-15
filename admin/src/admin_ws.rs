@@ -1,7 +1,6 @@
 use futures_util::{SinkExt, StreamExt};
 use serde_json::Value;
 use surrealdb::{
-    engine::local::Db,
     sql::{Id, Thing},
     Surreal,
 };
@@ -29,7 +28,7 @@ use std::{
 use crate::{
     carform_upload::carform_noti,
     live_chat::live_chat,
-    structures::{wserror, AccMode, Event, WSReq, WSResp, DB},
+    structures::{wserror, AccMode, Dbt, Event, WSReq, WSResp, DB},
 };
 
 pub async fn wsserver() {
@@ -107,7 +106,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
     }
 }
 
-pub async fn cond_check(msg: Message, db: &Surreal<Db>) -> Result<Message, ()> {
+pub async fn cond_check(msg: Message, db: &Surreal<Dbt>) -> Result<Message, ()> {
     if msg.is_text() || msg.is_binary() {
         let text = serde_json::from_str::<WSReq>(msg.to_text().unwrap()).unwrap();
 

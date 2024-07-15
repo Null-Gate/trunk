@@ -5,11 +5,11 @@ use lazy_static::lazy_static;
 use rand::rngs::ThreadRng;
 use serde::{Deserialize, Serialize};
 use surrealdb::{
-    engine::local::{Db, Mem},
+    engine::remote::ws::{Client, Ws},
     Surreal,
 };
 
-pub type Dbt = Db;
+pub type Dbt = Client;
 
 lazy_static! {
     pub static ref DATA_PATH: String = dotenvy::var("DATA_DIR").unwrap();
@@ -18,7 +18,7 @@ lazy_static! {
         dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap()
     );
     pub static ref DB: AsyncOnce<Surreal<Dbt>> =
-        AsyncOnce::new(async { Surreal::new::<Mem>(()).await.unwrap() });
+        AsyncOnce::new(async { Surreal::new::<Ws>("127.0.0.1:6677").await.unwrap() });
 }
 
 pub static ARGON_CONFIG: Config = {

@@ -4,13 +4,13 @@ use std::sync::{
 };
 
 use futures_util::StreamExt;
-use surrealdb::{engine::local::Db, Notification, Surreal};
+use surrealdb::{Notification, Surreal};
 use tokio::sync::Mutex;
 
-use crate::structures::DbCarInfo;
+use crate::structures::{DbCarInfo, Dbt};
 
 pub async fn carform_noti(
-    db: &Surreal<Db>,
+    db: &Surreal<Dbt>,
     state: Arc<AtomicBool>,
     result: Arc<Mutex<Option<DbCarInfo>>>,
 ) {

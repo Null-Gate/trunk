@@ -5,10 +5,12 @@ use std::sync::{
 
 use futures_util::StreamExt;
 use serde_json::Value;
-use surrealdb::{engine::local::Db, Notification, Surreal};
+use surrealdb::{Notification, Surreal};
 use tokio::sync::Mutex;
 
-pub async fn live_chat(state: Arc<AtomicBool>, result: Arc<Mutex<Value>>, db: &Surreal<Db>) {
+use crate::structures::Dbt;
+
+pub async fn live_chat(state: Arc<AtomicBool>, result: Arc<Mutex<Value>>, db: &Surreal<Dbt>) {
     db.use_ns("ns").use_db("db").await.unwrap();
     let mut stream = db.select("csc").live().await.unwrap();
 

@@ -17,7 +17,7 @@ use services::getcargos::get_cargos;
 use services::voting::up_vote;
 use std::path::Path;
 use std::{fs::File, io::BufReader};
-use structures::extrastruct::{DATA_PATH, DB};
+use structures::extrastruct::DATA_PATH;
 use tokio::fs;
 use tracing::Level;
 

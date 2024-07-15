@@ -4,13 +4,13 @@ use std::sync::{
 };
 
 use futures_util::StreamExt;
-use surrealdb::{engine::local::Db, Notification, Surreal};
+use surrealdb::{Notification, Surreal};
 use tokio::sync::Mutex;
 
-use crate::structures::{bookstruct::BookTB, wsstruct::Noti};
+use crate::structures::{bookstruct::BookTB, extrastruct::Dbt, wsstruct::Noti};
 
 pub async fn booknoti(
-    db: &Surreal<Db>,
+    db: &Surreal<Dbt>,
     username: String,
     state: Arc<AtomicBool>,
     result: Arc<Mutex<Option<Noti<BookTB>>>>,

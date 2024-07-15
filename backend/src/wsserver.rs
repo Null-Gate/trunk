@@ -11,9 +11,7 @@ use argon2::verify_encoded;
 use futures_util::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use surrealdb::{
-    engine::local::Db,
-    sql::{Id, Thing},
-    Surreal,
+    sql::{Id, Thing}, Surreal
 };
 use tokio::{
     net::{TcpListener, TcpStream},
@@ -37,7 +35,7 @@ use crate::{
         bookstruct::BookTB,
         car::CargoD,
         dbstruct::{DbUserInfo, Roles},
-        extrastruct::{AccMode, DB, JWT_SECRET},
+        extrastruct::{AccMode, Dbt, DB, JWT_SECRET},
         wsstruct::{Event, Noti, WSReq, WSResp},
     },
 };
@@ -181,7 +179,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
 pub async fn cond_check(
     msg: Message,
     db_user_info: Arc<Mutex<DbUserInfo>>,
-    db: &Surreal<Db>,
+    db: &Surreal<Dbt>,
     authed: Arc<AtomicBool>,
 ) -> Result<Message, ()> {
     if msg.is_text() || msg.is_binary() {

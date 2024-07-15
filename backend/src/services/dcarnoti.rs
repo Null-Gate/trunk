@@ -5,16 +5,15 @@ use std::sync::{
 
 use futures_util::StreamExt;
 use serde_json::Value;
-use surrealdb::{engine::local::Db, Notification, Surreal};
+use surrealdb::{Notification, Surreal};
 use tokio::sync::Mutex;
 
 use crate::structures::{
-    car::CargoD,
-    wsstruct::{NType, Noti},
+    car::CargoD, extrastruct::Dbt, wsstruct::{NType, Noti}
 };
 
 pub async fn gnotifd(
-    db: &Surreal<Db>,
+    db: &Surreal<Dbt>,
     username: String,
     noti_status: Arc<AtomicBool>,
     noti_result: Arc<Mutex<Option<Noti<CargoD>>>>,

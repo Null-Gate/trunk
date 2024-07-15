@@ -4,15 +4,15 @@ use async_once::AsyncOnce;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use surrealdb::{
-    engine::local::{Db, Mem},
-    sql::{Id, Thing},
-    Surreal,
+    engine::remote::ws::{Client, Ws}, sql::{Id, Thing}, Surreal
 };
 use tracing::error;
 
+pub type Dbt = Client;
+
 lazy_static! {
-    pub static ref DB: AsyncOnce<Surreal<Db>> =
-        AsyncOnce::new(async { Surreal::new::<Mem>(()).await.unwrap() });
+    pub static ref DB: AsyncOnce<Surreal<Dbt>> =
+        AsyncOnce::new(async { Surreal::new::<Ws>("127.0.0.1:6677").await.unwrap() });
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

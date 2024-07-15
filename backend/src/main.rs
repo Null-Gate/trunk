@@ -111,5 +111,5 @@ async fn main() -> std::io::Result<()> {
 }
 
 async fn root_page() -> impl Responder {
-    "Hello World"
+    "Backend Hello World"
 }

@@ -83,7 +83,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         ntyp: NType::OwnCarForm,
                     };
 
-                    db.create::<Option<DbCarInfo>>(("pend_car", id.clone()))
+                    db.create::<Option<PenCar>>(("pend_car", id.clone()))
                         .content(pcont)
                         .await
                         .unwrap()

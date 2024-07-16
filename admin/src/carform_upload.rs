@@ -7,7 +7,7 @@ use futures_util::StreamExt;
 use surrealdb::{Notification, Surreal};
 use tokio::sync::Mutex;
 
-use crate::structures::{DbCarInfo, Dbt};
+use crate::structures::{DbCarInfo, Dbt, PenCarD};
 
 pub async fn carform_noti(
     db: &Surreal<Dbt>,
@@ -16,8 +16,8 @@ pub async fn carform_noti(
 ) {
     let mut stream = db.select("pend_car").live().await.unwrap();
     while let Some(res) = stream.next().await {
-        let idk: Notification<DbCarInfo> = res.unwrap();
+        let idk: Notification<PenCarD> = res.unwrap();
         state.swap(true, Ordering::Relaxed);
-        *result.lock().await = Some(idk.data);
+        *result.lock().await = Some(idk.data.data);
     }
 }

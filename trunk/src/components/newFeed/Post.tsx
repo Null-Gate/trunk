@@ -3,15 +3,17 @@ import {
     StyleSheet,
     Pressable,
 } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 
 // components
 import ImageContainer from '../ImageContainer'
 import CustomText from '../CustomText'
 import ImageSlider from '../ImageSlider'
+import CustomButton from '../CustomButton'
 
 // icons
 import { Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
 // styles
 import { GlobalStyles } from '../../constants/styles'
@@ -36,12 +38,14 @@ const Post = ({
     imgs,
     openPostModal
 }: PostProps) => {
+    const [count, setCount] = useState<number>(0);
 
     // Function to get the first N words from a paragraph
-    const getFirstNWords = (paragraph: string, numWords: number) : string => {
+    const getFirstNWords = (paragraph: string, numWords: number): string => {
         const words = paragraph.split(' ').slice(0, numWords);
         return words.join(' ') + (words.length === numWords ? ' ... ' : '');
     };
+
 
     return (
         <>
@@ -71,10 +75,34 @@ const Post = ({
                             />
                         </View>
                     </View>
-                    {/* option btn */}
-                    <Pressable onPress={openPostModal}>
-                        <Entypo name="dots-three-vertical" size={22} color="black" />
-                    </Pressable>
+                    <View style={{ 
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 10
+                     }}>
+                        <CustomButton
+                            title='connect'
+                            onPress={() => { }}
+                            textStyle={{ 
+                                fontSize: 14,
+                                fontWeight: "semibold",
+                                color: "#000"
+                            }}
+                            style={{
+                                paddingHorizontal: 15,
+                                height: 30,
+                                backgroundColor: "#ededed",
+                                flexDirection: "row",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                borderRadius: 20
+                            }}
+                        />
+                        {/* option btn */}
+                        <Pressable onPress={openPostModal}>
+                            <Entypo name="dots-three-vertical" size={22} color="black" />
+                        </Pressable>
+                    </View>
                 </View>
                 {/* end post header */}
 
@@ -99,10 +127,35 @@ const Post = ({
                         slides={imgs}
                     />
                 </View>
-                {/* end post body */}
+                {/* end post body  */}
 
                 {/* star footer */}
-                {/* <View style={styles.footer}></View> */}
+                <View style={styles.footer}>
+                    <View style={{
+                        flexDirection: "row",
+                        alignItems: "center"
+                    }}>
+                        <Pressable
+                            style={styles.voteBtn}
+                            android_ripple={{ color: "#ccc" }}
+                            onPress={() => setCount(prev => prev + 1)}
+                        >
+                            <AntDesign name="like2" size={20} color="#616161" />
+                        </Pressable>
+                        <CustomText text={count.toString()} textStyle={{
+                            marginHorizontal: 12,
+                            color: "#616161"
+                        }} />
+                        <Pressable
+                            style={styles.voteBtn}
+                            android_ripple={{ color: "#ccc" }}
+                            onPress={() => setCount(prev => prev - 1)}
+                        >
+                            <AntDesign name="dislike2" size={20} color="#616161" />
+                        </Pressable>
+                    </View>
+
+                </View>
                 {/* end footer */}
             </View>
         </>
@@ -130,7 +183,15 @@ const styles = StyleSheet.create({
         borderRadius: 25
     },
     footer: {
-        paddingVertical: 15,
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        flexDirection: "row",
+        justifyContent: "center"
+    },
+    voteBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center"

@@ -19,7 +19,7 @@ interface PackageItemProps {
     endDestination: string,
     category: string,
     items: string[],
-    // onPress: () => void
+    onPress: () => void
 }
 
 const PackageItem = ({
@@ -27,11 +27,12 @@ const PackageItem = ({
     endDestination,
     category,
     items,
-    // onPress
+    onPress
 }: PackageItemProps) => {
     return (
         <Pressable
             android_ripple={{ color: "#ccc" }}
+            onPress={onPress}
         >
             <View style={styles.packageItem}>
                 <View style={{

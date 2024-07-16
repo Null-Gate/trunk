@@ -1,6 +1,7 @@
 import {
     View,
     TouchableOpacity,
+    Modal,
     StyleSheet
 } from 'react-native'
 import React, { useRef, useCallback, useMemo } from 'react'

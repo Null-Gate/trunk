@@ -11,9 +11,14 @@ import { useFonts } from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 
 // components
 import TabBarIcon from './src/components/TabBarIcon';
+import CustomButton from './src/components/CustomButton';
+
+// icons
+import { EvilIcons } from '@expo/vector-icons';
 
 // screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -21,6 +26,7 @@ import SignupScreen from './src/screens/SignupScreen';
 import NewFeedScreen from './src/screens/NewFeedScreen';
 import MenuScreen from './src/screens/MenuScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import ProfileEditScreen from './src/screens/ProfileEditScreen';
 import NotificationScreen from './src/screens/NotificationScreen';
 import PostDetailScreen from './src/screens/PostDetailScreen';
 import StatusScreen from './src/screens/StatusScreen';
@@ -115,7 +121,7 @@ export default function App() {
 						},
 					})}
 				>
-					<Stack.Screen 
+					<Stack.Screen
 						name='OnBoarding'
 						component={OnBoardingScreen}
 						options={{
@@ -141,17 +147,49 @@ export default function App() {
 						component={BottomTab}
 					/>
 					<Stack.Screen
-						name='Profile'
-						component={ProfileScreen}
+						name='ProfileEdit'
+						component={ProfileEditScreen}
 						options={{
 							headerShown: true,
+							headerTitle: "",
+							headerTintColor: "#fff",
+							headerStyle: {
+								backgroundColor: GlobalStyles.colors.primaryColor,
+							},
+						}}
+					/>
+					<Stack.Screen
+						name='Profile'
+						component={ProfileScreen}
+						options={({ navigation }) => ({
+							headerShown: true,
+							headerTintColor: "#fff",
 							headerStyle: {
 								backgroundColor: GlobalStyles.colors.primaryColor,
 							},
 							headerTitleStyle: {
 								color: "#fff",
-							}
-						}}
+							},
+							headerRight: () => (
+								<CustomButton
+									style={{
+										flexDirection: "row",
+										paddingVertical: 2,
+										backgroundColor: "#fff"
+									}}
+									textStyle={{
+										color: "#000",
+										fontSize: 16
+									}}
+									title='Edit'
+									onPress={() => {
+										navigation.navigate('ProfileEdit');
+									}}
+								>
+									<EvilIcons name="pencil" size={24} color="black" />
+								</CustomButton>
+							)
+						})}
 					/>
 					<Stack.Screen
 						name='PostDetail'

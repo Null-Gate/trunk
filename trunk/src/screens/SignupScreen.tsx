@@ -80,7 +80,7 @@ const SignupScreen = () => {
                         />
                         {/* end username */}
 
-                        {/* start username */}
+                        {/* start fullname */}
                         <CustomInput
                             title='Fullname'
                             value={fullname}
@@ -92,7 +92,7 @@ const SignupScreen = () => {
                                 borderWidth: 0
                             }}
                         />
-                        {/* end username */}
+                        {/* end fullname */}
 
                         {/* start password */}
                         <CustomPasswordInput

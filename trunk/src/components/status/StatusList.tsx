@@ -5,6 +5,9 @@ import {
 } from 'react-native'
 import React from 'react'
 
+// react navigation
+import { useNavigation } from '@react-navigation/native'
+
 // components
 import CarItem from './CarItem'
 import DriverItem from './DriverItem'
@@ -19,6 +22,11 @@ interface StatusListProps {
 const StatusList = ({
 	data
 }: StatusListProps) => {
+	const navigation = useNavigation<any>();
+
+	const navigateMapScreen = () => {
+		navigation.navigate("Map");
+	}
 
 	const renderItem = ({ item }: any) => {
 		if (item.category === "Package") {
@@ -27,7 +35,7 @@ const StatusList = ({
 				endDestination={item.destination.to}
 				category={item.category}
 				items={item.items}
-			// onPress={onPressItem}
+				onPress={navigateMapScreen}
 			/>)
 		} else if (item.category === "Driver") {
 			return (<DriverItem

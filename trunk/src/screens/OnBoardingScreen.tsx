@@ -5,8 +5,10 @@ import {
     Dimensions,
     NativeSyntheticEvent,
     NativeScrollEvent,
-} from 'react-native'
-import React, { useRef, useState, useEffect } from 'react'
+    Animated,
+    Pressable
+} from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
 
 // react navigation
 import { useNavigation } from '@react-navigation/native';
@@ -20,7 +22,7 @@ import CustomButton from '../components/CustomButton';
 
 const windowWidth = Dimensions.get("window").width;
 
-// dummy datas
+// dummy data
 const slides = [
     {
         id: "1",
@@ -43,9 +45,9 @@ const slides = [
 ];
 
 const OnBoardingScreen = () => {
-    const ScrollViewRef = useRef<ScrollView>(null);
+    const scrollViewRef = useRef<ScrollView>(null);
     const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
-
+    const scrollX = useRef(new Animated.Value(0)).current;
     const navigation = useNavigation<any>();
 
     const updateCurrentSlideIndex = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -58,9 +60,25 @@ const OnBoardingScreen = () => {
         navigation.navigate("Login");
     }
 
+    const handleNextPress = () => {
+        if (currentSlideIndex < slides.length - 1) {
+            scrollViewRef.current?.scrollTo({
+                x: windowWidth * (currentSlideIndex + 1),
+                animated: true,
+            });
+        } else {
+            navigateLogin();
+        }
+    }
+
     useEffect(() => {
         console.log(currentSlideIndex);
-    }, [currentSlideIndex])
+    }, [currentSlideIndex]);
+
+    const indicatorWidth = scrollX.interpolate({
+        inputRange: slides.map((_, i) => i * windowWidth),
+        outputRange: slides.map((_, i) => (i === currentSlideIndex ? windowWidth * 0.34 : windowWidth * 0.29)),
+    });
 
     return (
         <View style={styles.container}>
@@ -68,21 +86,30 @@ const OnBoardingScreen = () => {
             <View style={styles.indicatorsContainer}>
                 {slides.map((_, index) => {
                     return (
-                        <View
+                        <Animated.View
                             key={index}
-                            style={[styles.indicator, currentSlideIndex === index && styles.activeIndicator]}
-                        ></View>
-                    )
+                            style={[
+                                styles.indicator,
+                                currentSlideIndex === index && { 
+                                    width: indicatorWidth, 
+                                    backgroundColor: "#fff" 
+                                },
+                            ]}
+                        ></Animated.View>
+                    );
                 })}
             </View>
             {/* end slide indicators */}
             <ScrollView
-                ref={ScrollViewRef}
+                ref={scrollViewRef}
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
-                onScrollEndDrag={updateCurrentSlideIndex}
-                onMomentumScrollEnd={updateCurrentSlideIndex}
+                onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                    { useNativeDriver: false, listener: updateCurrentSlideIndex }
+                )}
+                scrollEventThrottle={16}
             >
                 {slides.map((item, index) => {
                     return (
@@ -93,29 +120,29 @@ const OnBoardingScreen = () => {
                                 content={item.content}
                             />
                         </View>
-                    )
+                    );
                 })}
             </ScrollView>
             {/* start footer */}
             <View style={styles.footer}>
                 <CustomButton
-                    title="Login"
-                    onPress={navigateLogin}
+                    title={currentSlideIndex === slides.length - 1 ? "Get Started" : "Next"}
+                    onPress={handleNextPress}
                     style={styles.btn}
                     textStyle={{ fontSize: 16 }}
                 />
             </View>
             {/* end footer */}
         </View>
-    )
+    );
 }
 
-export default OnBoardingScreen
+export default OnBoardingScreen;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: GlobalStyles.colors.primaryColor
+        backgroundColor: GlobalStyles.colors.primaryColor,
     },
     indicatorsContainer: {
         width: windowWidth,
@@ -123,23 +150,19 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "center",
         top: 50,
-        gap: 5
+        gap: 5,
     },
     indicator: {
         height: 6,
         width: windowWidth * 0.29,
         backgroundColor: "rgba(255, 255, 255, 0.5)",
-        borderRadius: 5
-    },
-    activeIndicator: {
-        backgroundColor: "#bfbfbf",
-        width: windowWidth * 0.34
+        borderRadius: 5,
     },
     footer: {
         width: windowWidth,
         position: "absolute",
         bottom: 10,
-        paddingHorizontal: 15
+        paddingHorizontal: 15,
     },
     btn: {
         height: 50,
@@ -147,5 +170,5 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-    }
-})
+    },
+});

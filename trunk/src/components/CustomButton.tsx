@@ -34,8 +34,8 @@ const CustomButton = ({
             style={[styles.buttonContainer, style]}
             onPress={onPress}
         >
-            <CustomText textStyle={[{ color: "#fff" },textStyle]} text={title}  />
             {children}
+            <CustomText textStyle={[{ color: "#fff" },textStyle]} text={title}  />
         </Pressable>
     )
 }

@@ -96,6 +96,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                                      data: carf_notir.lock().await.clone().unwrap()
                                  };
                                  ws_sender.send(Message::text(serde_json::to_string_pretty(&resp).unwrap())).await.unwrap();
+                                 carf_notis.swap(false, Ordering::Relaxed);
                              }
 
                          }

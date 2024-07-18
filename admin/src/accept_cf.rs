@@ -43,7 +43,7 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
             .unwrap()
             .unwrap();
         db.update::<Option<DbUserInfo>>(dbi.data.userinfo.clone())
-            .patch(PatchOp::add("/pik_role", Roles::Owner))
+            .patch(PatchOp::add("/pik_role", vec![Roles::Owner]))
             .await
             .unwrap()
             .unwrap();

@@ -10,6 +10,7 @@ use std::{
 use argon2::verify_encoded;
 use futures_util::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use serde_json::Value;
 use surrealdb::{
     sql::{Id, Thing}, Surreal
 };
@@ -29,7 +30,7 @@ use tokio_tungstenite::{
 use crate::{
     extra::functions::{check_user, decode_token, verify_password, wserror},
     fetch::{nf::fetch_newfeed, noti::live_select},
-    services::{booknoti::booknoti, dcarnoti::gnotifd, notinit::notinit},
+    services::{booknoti::booknoti, dcarnoti::gnotifd, ganoti::get_all_noti, notinit::notinit},
     structures::{
         auth::Claims,
         bookstruct::BookTB,
@@ -111,11 +112,12 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             let query_result = Arc::new(Mutex::new(DbUserInfo::default()));
             let acbook_state = Arc::new(AtomicBool::new(false));
             let acbook_result: Arc<Mutex<Option<Noti<BookTB>>>> = Arc::new(Mutex::new(None));
-            let cdriver_state = Arc::new(AtomicBool::new(false));
-            let cdriver_result: Arc<Mutex<Option<Noti<CargoD>>>> = Arc::new(Mutex::new(None));
+            let anstate = Arc::new(AtomicBool::new(false));
+            let anresult: Arc<Mutex<Option<Noti<Value>>>> = Arc::new(Mutex::new(None));
             let mut dur = tokio::time::interval(Duration::from_millis(10));
             tokio::spawn(live_select(query_state.clone(), query_result.clone()));
-            tokio::spawn(booknoti(
+            tokio::spawn(get_all_noti(db, db_user_info.lock().await.username.clone(), anstate.clone(), anresult.clone()));
+            /*tokio::spawn(booknoti(
                 db,
                 db_user_info.lock().await.username.clone(),
                 acbook_state.clone(),
@@ -129,7 +131,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                     cdriver_state.clone(),
                     cdriver_result.clone(),
                 ));
-            }
+            }*/
 
             let notinit_msg = notinit(&db_user_info.lock().await.username, db).await;
             let nt = WSResp {

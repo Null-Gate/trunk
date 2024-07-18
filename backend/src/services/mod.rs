@@ -9,3 +9,4 @@ pub mod feedbacks;
 pub mod notinit;
 pub mod voting;
 pub mod getcargos;
+pub mod ganoti;

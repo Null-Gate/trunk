@@ -55,7 +55,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                         .await
                         .unwrap()
                         .unwrap();
-                    db.update::<Option<CargoD>>(("cargo", id.clone())).patch(PatchOp::replace("casta", PaSta::OnGo)).await.unwrap().unwrap();
+                    db.update::<Option<CargoD>>(("cargo", id.clone())).patch(PatchOp::add("casta", PaSta::OnGo)).await.unwrap().unwrap();
                     HttpResponse::Ok().await.unwrap()
                 }
                 None => HttpResponse::NoContent().await.unwrap(),

@@ -156,10 +156,10 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                             }
                          }
                          _ = dur.tick() => {
-                             if query_state.swap(false, Ordering::Relaxed) {
+                             if anstate.swap(false, Ordering::Relaxed) {
                                  let nt = WSResp{
                                      event: Event::Notification,
-                                     data: query_result.lock().await.clone()
+                                     data: anresult.lock().await.clone()
                                  };
                                  ws_sender.send(Message::text(serde_json::to_string_pretty(&nt).unwrap())).await.unwrap();
                              }

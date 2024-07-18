@@ -109,7 +109,7 @@ pub struct PenCar {
     pub data: DbCarInfo,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PenCarD {
     pub id: Thing,
     pub pstat: PState,

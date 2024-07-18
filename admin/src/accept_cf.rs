@@ -4,30 +4,27 @@ use surrealdb::{
     sql::{Id, Thing},
 };
 
-use crate::structures::{DbCarInfo, DbUserInfo, NType, Noti, OwnTB, PState, PenCar, Roles, DB};
+use crate::structures::{DbCarInfo, DbUserInfo, NType, Noti, OwnTB, PState, PenCar, PenCarD, Roles, DB};
 
 #[put("/accept/carf/{id}")]
 pub async fn apt_cf(path: Path<String>) -> HttpResponse {
     let db = DB.get().await;
     let id = path.into_inner();
 
-    if let Some(dbi) = db
-        .delete::<Option<DbCarInfo>>(("pend_car", Id::String(id.clone())))
+    if let Some(mut dbi) = db
+        .delete::<Option<PenCarD>>(("pend_car", Id::String(id.clone())))
         .await
         .unwrap()
     {
-        let pcont = PenCar {
-            pstat: PState::Accept,
-            data: dbi.clone(),
-        };
+        dbi.pstat = PState::Accept;
 
         let nt = Noti {
-            data: pcont,
+            data: dbi.clone(),
             ntyp: NType::CarFormApt,
         };
 
         let rel = OwnTB {
-            r#in: dbi.userinfo.clone(),
+            r#in: dbi.data.userinfo.clone(),
             out: Thing {
                 tb: "car".into(),
                 id: Id::String(id.clone()),
@@ -45,12 +42,12 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
             .await
             .unwrap()
             .unwrap();
-        db.update::<Option<DbUserInfo>>(dbi.userinfo.clone())
+        db.update::<Option<DbUserInfo>>(dbi.data.userinfo.clone())
             .patch(PatchOp::replace("/pik_role", Roles::Owner))
             .await
             .unwrap()
             .unwrap();
-        db.update::<Option<Noti<PenCar>>>((dbi.userinfo.id.to_raw(), Id::String(id)))
+        db.update::<Option<Noti<PenCar>>>((dbi.data.userinfo.id.to_raw(), Id::String(id)))
             .content(nt)
             .await
             .unwrap()

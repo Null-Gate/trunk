@@ -44,10 +44,12 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                                 }
                             }
                             Err(e) => {
+                                eprintln!("48888888888888;");
                                 return internal_error(e);
                             }
                         },
                         Err(e) => {
+                            eprintln!("53333333333333333333;");
                             return internal_error(e);
                         }
                     }

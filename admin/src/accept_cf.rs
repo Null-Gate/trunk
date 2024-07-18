@@ -32,7 +32,7 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
         };
 
         db.create::<Option<DbCarInfo>>(("car", Id::String(id.clone())))
-            .content(dbi.clone())
+            .content(dbi.data.clone())
             .await
             .unwrap()
             .unwrap();

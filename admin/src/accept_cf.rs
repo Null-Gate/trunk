@@ -1,8 +1,5 @@
 use actix_web::{put, web::Path, HttpResponse};
-use surrealdb::{
-    opt::PatchOp,
-    sql::{Id, Thing},
-};
+use surrealdb::sql::{Id, Thing};
 
 use crate::structures::{DbCarInfo, DbUserInfo, NType, Noti, OwnTB, PState, PenCar, PenCarD, Roles, DB};
 
@@ -31,6 +28,8 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
             },
         };
 
+        let mut userinfo: DbUserInfo = db.select::<Option<DbUserInfo>>(dbi.data.userinfo.clone()).await.unwrap().unwrap();
+
         db.create::<Option<DbCarInfo>>(("car", Id::String(id.clone())))
             .content(dbi.data.clone())
             .await
@@ -42,11 +41,14 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
             .await
             .unwrap()
             .unwrap();
+        if !userinfo.pik_role.contains(&Roles::Owner) {
+            userinfo.pik_role.push(Roles::Owner);
         db.update::<Option<DbUserInfo>>(dbi.data.userinfo.clone())
-            .patch(PatchOp::add("/pik_role", vec![Roles::Owner]))
+            .content(userinfo)
             .await
             .unwrap()
             .unwrap();
+        }
         db.update::<Option<Noti<PenCar>>>((dbi.data.userinfo.id.to_raw(), Id::String(id)))
             .content(nt)
             .await

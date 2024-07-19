@@ -96,7 +96,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         .unwrap();
                     db.create::<Option<Noti<Cargo>>>((
                         user_info.username.clone(),
-                        post.car_id.clone(),
+                        Id::rand(),
                     ))
                     .content(ont)
                     .await
@@ -104,7 +104,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                     .unwrap();
                     db.create::<Option<Noti<Cargo>>>((
                         post.driver_id.clone(),
-                        Id::String(post.car_id.clone()),
+                        Id::rand(),
                     ))
                     .content(dnt)
                     .await

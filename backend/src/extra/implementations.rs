@@ -66,7 +66,7 @@ impl CarPostForm {
         };
 
         match db
-            .select::<Option<DbCarInfo>>(("user", Id::String(self.car_id.clone())))
+            .select::<Option<DbCarInfo>>(("car", Id::String(self.car_id.clone())))
             .await
         {
             Ok(Some(data)) => Ok(Post {

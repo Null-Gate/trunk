@@ -4,7 +4,7 @@ use std::sync::{
 };
 
 use futures_util::StreamExt;
-use surrealdb::{Notification, Surreal};
+use surrealdb::{Action, Notification, Surreal};
 use tokio::sync::Mutex;
 
 use crate::structures::{Dbt, PState, PenCarD};
@@ -17,7 +17,7 @@ pub async fn carform_noti(
     let mut stream = db.select("pend_car").live().await.unwrap();
     while let Some(res) = stream.next().await {
         let idk: Notification<PenCarD> = res.unwrap();
-        if idk.data.pstat == PState::Pending {
+        if idk.data.pstat == PState::Pending && idk.action != Action::Delete {
             state.swap(true, Ordering::Relaxed);
             *result.lock().await = Some(idk.data);
         }

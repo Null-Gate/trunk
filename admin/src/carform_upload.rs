@@ -17,10 +17,9 @@ pub async fn carform_noti(
     let mut stream = db.select("pend_car").live().await.unwrap();
     while let Some(res) = stream.next().await {
         let idk: Notification<PenCarD> = res.unwrap();
-        if idk.data.pstat != PState::Pending {
-            continue;
+        if idk.data.pstat == PState::Pending {
+            state.swap(true, Ordering::Relaxed);
+            *result.lock().await = Some(idk.data);
         }
-        state.swap(true, Ordering::Relaxed);
-        *result.lock().await = Some(idk.data);
     }
 }

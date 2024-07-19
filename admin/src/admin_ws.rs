@@ -81,22 +81,20 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                             }
                          }
                          _ = dur.tick() => {
-                             if query_state.load(Ordering::Relaxed) {
+                             if query_state.swap(false, Ordering::Relaxed) {
                                  let resp = WSResp {
                                      event: Event::Csc,
                                      data: query_result.lock().await.clone()
                                  };
                                  ws_sender.send(Message::text(serde_json::to_string_pretty(&resp).unwrap())).await.unwrap();
-                                 query_state.swap(false, Ordering::Relaxed);
                              }
 
-                             if carf_notis.load(Ordering::Relaxed) {
+                            if carf_notis.swap(false, Ordering::Relaxed) {
                                  let resp = WSResp {
                                      event: Event::CarFormNoti,
                                      data: carf_notir.lock().await.clone().unwrap()
                                  };
                                  ws_sender.send(Message::text(serde_json::to_string_pretty(&resp).unwrap())).await.unwrap();
-                                 carf_notis.swap(false, Ordering::Relaxed);
                              }
 
                          }

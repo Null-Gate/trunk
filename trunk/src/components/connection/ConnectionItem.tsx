@@ -16,7 +16,13 @@ import { GlobalStyles } from '../../constants/styles'
 // icons
 import { Entypo } from '@expo/vector-icons';
 
-const ConnectionItem = () => {
+interface ConnectionItemProps {
+    username: string
+}
+
+const ConnectionItem = ({
+    username
+}: ConnectionItemProps) => {
     const windowWidth = Dimensions.get('window').width;
 
     return (
@@ -32,7 +38,7 @@ const ConnectionItem = () => {
                 />
                 <View>
                     <CustomText 
-                        text='Otto Anderson' 
+                        text={username}
                         textStyle={{ 
                             fontSize: 16
                          }}

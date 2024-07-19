@@ -83,12 +83,12 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         ntyp: NType::OwnCarForm,
                     };
 
-                    db.create::<Option<PenCar>>(("pend_car", id.clone()))
+                    db.create::<Option<PenCar>>(("pend_car", id))
                         .content(pcont)
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Noti<PenCar>>>((user_info.username, id))
+                    db.create::<Option<Noti<PenCar>>>((user_info.username, Id::rand()))
                         .content(nt)
                         .await
                         .unwrap()

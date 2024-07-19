@@ -6,6 +6,9 @@ import {
 } from 'react-native'
 import React from 'react'
 
+// react navigation
+import { useNavigation } from '@react-navigation/native'
+
 // components
 import ImageContainer from '../components/ImageContainer'
 import CustomText from '../components/CustomText'
@@ -19,6 +22,12 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { GlobalStyles } from '../constants/styles'
 
 const ProfileScreen = () => {
+    const navigation = useNavigation<any>();
+
+    const navigateConnection = () => {
+        navigation.navigate("Connection");
+    }
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.topContainer}>
@@ -33,14 +42,48 @@ const ProfileScreen = () => {
                         marginBottom: 10
                     }}
                 />
+
+                {/* start username */}
                 <CustomText
                     text='Otto Anderson'
                     textStyle={{
                         color: "#fff",
-                        fontSize: 18,
-                        marginBottom: 20
+                        fontSize: 20,
                     }}
                 />
+                {/* end username */}
+
+                {/* start connections */}
+                <View style={{
+
+                    marginBottom: 25
+                }}>
+                    <Pressable
+                        style={{
+                            flexDirection: "row",
+                            alignItems: "baseline",
+                            gap: 5,
+                        }}
+                        onPress={navigateConnection}
+                    >
+                        <CustomText
+                            text='125'
+                            textStyle={{
+                                color: "#fff",
+                                fontSize: 14,
+                            }}
+                        />
+                        <CustomText
+                            text='Connections'
+                            textStyle={{
+                                color: "#dbdbdb",
+                                fontSize: 12
+                            }}
+                        />
+                    </Pressable>
+                </View>
+                {/* end connections */}
+
                 <View style={styles.actionContainer}>
                     <Pressable>
                         <Ionicons name="chatbox-ellipses-sharp" size={24} color="#fff" />
@@ -48,7 +91,7 @@ const ProfileScreen = () => {
                     <CustomButton
                         title='Connect'
                         onPress={() => { console.log("connected") }}
-                        style={{ 
+                        style={{
                             backgroundColor: '#FFFFFF',
                             paddingHorizontal: 20,
                             borderRadius: 20

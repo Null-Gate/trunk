@@ -62,11 +62,7 @@ const NewFeedScreen = () => {
         <>
             <View style={styles.container}>
                 <FlatList
-                    style={{
-                        flex: 1,
-                        paddingHorizontal: 10,
-                        paddingVertical: 15
-                    }}
+                    style={styles.listContainer}
                     data={feedDatas}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item }) => {
@@ -102,5 +98,10 @@ export default NewFeedScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1
+    },
+    listContainer: {
+        flex: 1,
+        paddingHorizontal: 10,
+        paddingVertical: 15
     }
 })

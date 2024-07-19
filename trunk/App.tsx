@@ -35,6 +35,7 @@ import PasswordForgotScreen from './src/screens/PasswordForgotScreen';
 import PostCreateScreen from './src/screens/PostCreateScreen';
 import MapScreen from './src/screens/MapScreen';
 import OnBoardingScreen from './src/screens/OnBoardingScreen';
+import ConnectionScreen from './src/screens/ConnectionScreen';
 
 // icons
 import { SimpleLineIcons } from '@expo/vector-icons';
@@ -215,6 +216,7 @@ export default function App() {
 						options={{
 							headerShown: true,
 							headerTitle: "",
+							headerTintColor: "#fff",
 							headerStyle: {
 								backgroundColor: GlobalStyles.colors.primaryColor
 							}
@@ -223,6 +225,14 @@ export default function App() {
 					<Stack.Screen
 						name='Map'
 						component={MapScreen}
+					/>
+					<Stack.Screen 
+						name='Connection'
+						component={ConnectionScreen}
+						options={{ 
+							headerShown: true,
+							headerTitle: "Connections",
+						 }}
 					/>
 				</Stack.Navigator>
 			</NavigationContainer>

@@ -33,10 +33,6 @@ const LoginScreen = () => {
 
 	const navigation = useNavigation<any>();
 
-	useEffect(() => {
-		console.log(email);
-	}, [email])
-
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -104,7 +100,7 @@ const LoginScreen = () => {
 							marginBottom: 20
 						}}>
 							<Pressable
-								onPress={() => { console.log("forgot password???") }}
+								onPress={() => { navigation.navigate("PasswordForgot") }}
 							>
 								<CustomText
 									text='forgot Password ?'

@@ -150,3 +150,22 @@ export const STATUS_DATA = [
 		variant: "history",
 	},
 ];
+
+export const CONNECTION_DATA = [
+	{
+		id: 1,
+		username: "Linus Walker"
+	},
+	{
+		id: 2,
+		username: "William"
+	},
+	{
+		id: 3,
+		username: "nebula-rTZW4f02zY8"
+	},
+	{
+		id: 4,
+		username: "User124045"
+	}
+]

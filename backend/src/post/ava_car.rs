@@ -10,10 +10,10 @@ use crate::{
     extra::functions::{check_user, decode_token, encode_token, internal_error, verify_password},
     structures::{
         auth::Claims,
-        car::{AcData, CarPostForm, Cargo, CargoD, PaSta},
+        car::{AcData, CarPostForm, Cargo, CargoD, DbCarInfo, PaSta},
         dbstruct::{DbUserInfo, Roles},
         extrastruct::{Resp, DB},
-        post::OwnTB,
+        post::{OwnTB, PostD},
         wsstruct::{NType, Noti},
     },
 };
@@ -81,6 +81,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         fnloc: post.to_where.clone(),
                         ctloc: None,
                     };
+                    db.create::<Option<PostD<DbCarInfo>>>(("car_post", Id::String(post.car_id.clone()))).content(post.to_db_post(&user_info.username).await.unwrap()).await.unwrap().unwrap();
                     let ont = Noti {
                         data: cargo_data.clone(),
                         ntyp: NType::AvaCar,

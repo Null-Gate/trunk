@@ -30,12 +30,11 @@ use tokio_tungstenite::{
 use crate::{
     extra::functions::{check_user, decode_token, verify_password, wserror},
     fetch::{nf::fetch_newfeed, noti::live_select},
-    services::{booknoti::booknoti, dcarnoti::gnotifd, ganoti::get_all_noti, notinit::notinit},
+    services::{ganoti::get_all_noti, notinit::notinit},
     structures::{
         auth::Claims,
         bookstruct::BookTB,
-        car::CargoD,
-        dbstruct::{DbUserInfo, Roles},
+        dbstruct::DbUserInfo,
         extrastruct::{AccMode, Dbt, DB, JWT_SECRET},
         wsstruct::{Event, Noti, WSReq, WSResp},
     },

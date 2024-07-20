@@ -13,7 +13,7 @@ async fn fetch_package() -> HttpResponse {
         return internal_error(e);
     }
 
-    let query = "SELECT * FROM post WHERE (ptype = Pkg) ORDER BY RAND() LIMIT 30;";
+    let query = "SELECT * FROM post WHERE (ptype = 'Pkg') ORDER BY RAND() LIMIT 30;";
 
     (db.query(query).await).map_or_else(internal_error, |mut resp| {
         resp.take::<Vec<PostD<Value>>>(0)

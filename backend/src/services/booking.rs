@@ -28,7 +28,7 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
     match ct_user(&token).await {
         Ok((_, _)) => {
             let db_car_info: PostD<DbCarInfo> = db
-                .select::<Option<PostD<DbCarInfo>>>(("post", Id::String(info.carp_id.to_string())))
+                .select::<Option<PostD<DbCarInfo>>>(("car_post", Id::String(info.carp_id.to_string())))
                 .await
                 .unwrap()
                 .unwrap();
@@ -44,7 +44,7 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                 BookTB {
                     r#in: Thing {
                         id: Id::String(info.carp_id.to_string()),
-                        tb: "post".into(),
+                        tb: "car_post".into(),
                     },
                     in_info: serde_json::to_value(&db_car_info).unwrap(),
                     out: Thing {
@@ -65,7 +65,7 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                     in_info: serde_json::to_value(&db_pkg_info).unwrap(),
                     out: Thing {
                         id: Id::String(info.carp_id.to_string()),
-                        tb: "post".into(),
+                        tb: "car_post".into(),
                     },
                     out_info: serde_json::to_value(&db_car_info).unwrap(),
                     btype: BType::Car,

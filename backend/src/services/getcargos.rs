@@ -2,7 +2,7 @@ use actix_web::{get, web::Path, HttpResponse};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use surrealdb::sql::{Id, Thing};
 
-use crate::{extra::functions::{ct_user, internal_error}, structures::{car::CargoD, dbstruct::{BcarGo, CargoS, Roles}, extrastruct::DB}};
+use crate::{extra::functions::{ct_user, internal_error}, structures::{car::CargoD, dbstruct::{CargoS, PkgPsts, Roles}, extrastruct::DB}};
 
 #[allow(clippy::similar_names)]
 #[allow(clippy::future_not_send)]
@@ -14,7 +14,7 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
     }
 
     let (_, duser) = ct_user(token.as_str()).await.unwrap();
-    let uql = "SELECT bcar_go FROM bkpkg WHERE owner == type::thing($uthing);";
+    let uql = "SELECT * FROM bkpkg WHERE owner == type::thing($uthing);";
     let oql = if duser.pik_role.contains(&Roles::Owner) {
         Some("SELECT * FROM cargo WHERE owner == type::thing($othing);")
     } else {
@@ -43,8 +43,9 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
         None
     };
 
-    let urd: Vec<BcarGo> = urs.await.unwrap().take(0).unwrap();
-    let prd: Vec<CargoD> = urd.par_iter().map(|v| v.bcar_go.clone()).collect();
+    let urd: Vec<PkgPsts> = urs.await.unwrap().take(0).unwrap();
+    let prd: Vec<CargoD> = urd.par_iter().map(|v| v.bcargo.clone()).collect();
+    
     let ord: Vec<CargoD> = if let Some(ors) = ors {
         ors.await.unwrap().take(0).unwrap()
     } else {

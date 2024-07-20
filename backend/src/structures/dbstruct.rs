@@ -56,12 +56,7 @@ pub struct DbDriverInfo {
 pub struct PkgPsts {
     pub owner: Thing,
     pub pkg_data: PostD<DbPackageInfo>,
-    pub bcar_go: Thing,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct BcarGo {
-    pub bcar_go: CargoD,
+    pub bcargo: CargoD,
 }
 
 #[derive(Serialize, Deserialize)]

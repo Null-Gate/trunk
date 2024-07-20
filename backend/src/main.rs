@@ -1,4 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
+#![feature(async_closure)]
 
 use actix_cors::Cors;
 use actix_files as afs;

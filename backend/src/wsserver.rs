@@ -36,7 +36,7 @@ use crate::{
         bookstruct::BookTB,
         dbstruct::DbUserInfo,
         extrastruct::{AccMode, Dbt, DB, JWT_SECRET},
-        wsstruct::{Event, Noti, WSReq, WSResp},
+        wsstruct::{Event, Noti, NotiD, WSReq, WSResp},
     },
 };
 
@@ -112,7 +112,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             let acbook_state = Arc::new(AtomicBool::new(false));
             let acbook_result: Arc<Mutex<Option<Noti<BookTB>>>> = Arc::new(Mutex::new(None));
             let anstate = Arc::new(AtomicBool::new(false));
-            let anresult: Arc<Mutex<Option<Noti<Value>>>> = Arc::new(Mutex::new(None));
+            let anresult: Arc<Mutex<Option<NotiD<Value>>>> = Arc::new(Mutex::new(None));
             let mut dur = tokio::time::interval(Duration::from_millis(10));
             tokio::spawn(live_select(query_state.clone(), query_result.clone()));
             tokio::spawn(get_all_noti(db, db_user_info.lock().await.username.clone(), anstate.clone(), anresult.clone()));

@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use surrealdb::sql::Thing;
 
 #[derive(Serialize, Deserialize)]
 pub struct NewFeed {
@@ -43,6 +44,13 @@ pub enum NType {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Noti<T> {
+    pub data: T,
+    pub ntyp: NType,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NotiD<T> {
+    pub id: Thing,
     pub data: T,
     pub ntyp: NType,
 }

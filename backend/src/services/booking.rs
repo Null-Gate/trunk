@@ -28,7 +28,10 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
     match ct_user(&token).await {
         Ok((_, _)) => {
             let db_car_info: PostD<DbCarInfo> = db
-                .select::<Option<PostD<DbCarInfo>>>(("car_post", Id::String(info.carp_id.to_string())))
+                .select::<Option<PostD<DbCarInfo>>>((
+                    "car_post",
+                    Id::String(info.carp_id.to_string()),
+                ))
                 .await
                 .unwrap()
                 .unwrap();

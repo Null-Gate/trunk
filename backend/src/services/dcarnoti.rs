@@ -9,7 +9,9 @@ use surrealdb::{Notification, Surreal};
 use tokio::sync::Mutex;
 
 use crate::structures::{
-    car::CargoD, extrastruct::Dbt, wsstruct::{NType, Noti}
+    car::CargoD,
+    extrastruct::Dbt,
+    wsstruct::{NType, Noti},
 };
 
 pub async fn gnotifd(

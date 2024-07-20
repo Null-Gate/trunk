@@ -4,7 +4,11 @@ use surrealdb::sql::Id;
 use crate::{
     extra::functions::{ct_user, internal_error},
     structures::{
-        bookstruct::{BStat, BType, BookStat, BookTB}, car::CargoD, dbstruct::PkgPsts, extrastruct::DB, wsstruct::{NType, Noti}
+        bookstruct::{BStat, BType, BookStat, BookTB},
+        car::CargoD,
+        dbstruct::PkgPsts,
+        extrastruct::DB,
+        wsstruct::{NType, Noti},
     },
 };
 
@@ -52,17 +56,35 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                             .unwrap()
                             .unwrap();
                             let (pid, uid, cdt, pdt) = if smt.data.btype == BType::Pkg {
-                                (smt.data.out.id.to_raw(), smt.data.utn, smt.data.r#in, smt.data.out_info)
+                                (
+                                    smt.data.out.id.to_raw(),
+                                    smt.data.utn,
+                                    smt.data.r#in,
+                                    smt.data.out_info,
+                                )
                             } else {
-                                (smt.data.r#in.id.to_raw(), smt.data.utr, smt.data.out, smt.data.in_info)
+                                (
+                                    smt.data.r#in.id.to_raw(),
+                                    smt.data.utr,
+                                    smt.data.out,
+                                    smt.data.in_info,
+                                )
                             };
-                            let bcargo: CargoD = db.select::<Option<CargoD>>(("cargo", cdt.id)).await.unwrap().unwrap();
+                            let bcargo: CargoD = db
+                                .select::<Option<CargoD>>(("cargo", cdt.id))
+                                .await
+                                .unwrap()
+                                .unwrap();
                             let pkgpsts = PkgPsts {
                                 owner: uid,
                                 pkg_data: serde_json::from_value(pdt).unwrap(),
-                                bcargo
+                                bcargo,
                             };
-                            db.create::<Option<PkgPsts>>(("bkpkg", Id::String(pid))).content(pkgpsts).await.unwrap().unwrap();
+                            db.create::<Option<PkgPsts>>(("bkpkg", Id::String(pid)))
+                                .content(pkgpsts)
+                                .await
+                                .unwrap()
+                                .unwrap();
                             HttpResponse::Ok().await.unwrap()
                         }
                         Ok(None) => HttpResponse::NotFound().await.unwrap(),

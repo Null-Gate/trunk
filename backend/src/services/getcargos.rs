@@ -2,7 +2,14 @@ use actix_web::{get, web::Path, HttpResponse};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use surrealdb::sql::{Id, Thing};
 
-use crate::{extra::functions::{ct_user, internal_error}, structures::{car::CargoD, dbstruct::{CargoS, PkgPsts, Roles}, extrastruct::DB}};
+use crate::{
+    extra::functions::{ct_user, internal_error},
+    structures::{
+        car::CargoD,
+        dbstruct::{CargoS, PkgPsts, Roles},
+        extrastruct::DB,
+    },
+};
 
 #[allow(clippy::similar_names)]
 #[allow(clippy::future_not_send)]
@@ -26,26 +33,35 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
         None
     };
 
-    let urs = db.query(uql).bind(("uthing", Thing {
-        id: Id::String(duser.username.clone()),
-        tb: "user".to_string()
-    }));
+    let urs = db.query(uql).bind((
+        "uthing",
+        Thing {
+            id: Id::String(duser.username.clone()),
+            tb: "user".to_string(),
+        },
+    ));
 
     let ors = if let Some(oql) = oql {
-        Some(db.query(oql).bind(Thing{id: Id::String(duser.username.clone()),tb:"user".to_string()}))
+        Some(db.query(oql).bind(Thing {
+            id: Id::String(duser.username.clone()),
+            tb: "user".to_string(),
+        }))
     } else {
         None
     };
 
     let drs = if let Some(dql) = dql {
-        Some(db.query(dql).bind(Thing{id: Id::String(duser.username),tb:"user".to_string()}))
+        Some(db.query(dql).bind(Thing {
+            id: Id::String(duser.username),
+            tb: "user".to_string(),
+        }))
     } else {
         None
     };
 
     let urd: Vec<PkgPsts> = urs.await.unwrap().take(0).unwrap();
     let prd: Vec<CargoD> = urd.par_iter().map(|v| v.bcargo.clone()).collect();
-    
+
     let ord: Vec<CargoD> = if let Some(ors) = ors {
         ors.await.unwrap().take(0).unwrap()
     } else {
@@ -61,7 +77,7 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
     let cargos = CargoS {
         ocargo: ord,
         dcargo: drd,
-        pcargo: prd
+        pcargo: prd,
     };
 
     HttpResponse::Ok().json(cargos)

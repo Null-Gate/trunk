@@ -12,7 +12,8 @@ use futures_util::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde_json::Value;
 use surrealdb::{
-    sql::{Id, Thing}, Surreal
+    sql::{Id, Thing},
+    Surreal,
 };
 use tokio::{
     net::{TcpListener, TcpStream},
@@ -115,7 +116,12 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             let anresult: Arc<Mutex<Option<NotiD<Value>>>> = Arc::new(Mutex::new(None));
             let mut dur = tokio::time::interval(Duration::from_millis(10));
             tokio::spawn(live_select(query_state.clone(), query_result.clone()));
-            tokio::spawn(get_all_noti(db, db_user_info.lock().await.username.clone(), anstate.clone(), anresult.clone()));
+            tokio::spawn(get_all_noti(
+                db,
+                db_user_info.lock().await.username.clone(),
+                anstate.clone(),
+                anresult.clone(),
+            ));
             /*tokio::spawn(booknoti(
                 db,
                 db_user_info.lock().await.username.clone(),

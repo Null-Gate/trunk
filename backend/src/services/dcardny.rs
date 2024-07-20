@@ -42,7 +42,10 @@ pub async fn driver_dny_car(pdata: Path<(String, String)>) -> HttpResponse {
                         .await
                         .unwrap()
                         .unwrap();
-                    db.delete::<Option<AcData>>((&id, Id::from("cargo"))).await.unwrap().unwrap();
+                    db.delete::<Option<AcData>>((&id, Id::from("cargo")))
+                        .await
+                        .unwrap()
+                        .unwrap();
                     HttpResponse::Ok().await.unwrap()
                 }
                 None => HttpResponse::NoContent().await.unwrap(),

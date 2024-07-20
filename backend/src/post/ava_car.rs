@@ -81,7 +81,14 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         fnloc: post.to_where.clone(),
                         ctloc: None,
                     };
-                    db.create::<Option<PostD<DbCarInfo>>>(("car_post", Id::String(post.car_id.clone()))).content(post.to_db_post(&user_info.username).await.unwrap()).await.unwrap().unwrap();
+                    db.create::<Option<PostD<DbCarInfo>>>((
+                        "car_post",
+                        Id::String(post.car_id.clone()),
+                    ))
+                    .content(post.to_db_post(&user_info.username).await.unwrap())
+                    .await
+                    .unwrap()
+                    .unwrap();
                     let ont = Noti {
                         data: cargo_data.clone(),
                         ntyp: NType::AvaCar,
@@ -95,28 +102,35 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Noti<Cargo>>>((
-                        user_info.username.clone(),
-                        Id::rand(),
-                    ))
-                    .content(ont)
-                    .await
-                    .unwrap()
-                    .unwrap();
-                    db.create::<Option<Noti<Cargo>>>((
-                        post.driver_id.clone(),
-                        Id::rand(),
-                    ))
-                    .content(dnt)
-                    .await
-                    .unwrap()
-                    .unwrap();
+                    db.create::<Option<Noti<Cargo>>>((user_info.username.clone(), Id::rand()))
+                        .content(ont)
+                        .await
+                        .unwrap()
+                        .unwrap();
+                    db.create::<Option<Noti<Cargo>>>((post.driver_id.clone(), Id::rand()))
+                        .content(dnt)
+                        .await
+                        .unwrap()
+                        .unwrap();
                     let acdata = AcData {
-                        driver: Thing { tb: "user".to_string(), id: Id::String(post.driver_id.clone()) },
-                        owner: Thing { tb: "user".to_string(), id: Id::String(user_info.username.clone()) },
-                        cargo: Thing { tb: "cargo".to_string(), id: Id::String(post.car_id.clone()) }
+                        driver: Thing {
+                            tb: "user".to_string(),
+                            id: Id::String(post.driver_id.clone()),
+                        },
+                        owner: Thing {
+                            tb: "user".to_string(),
+                            id: Id::String(user_info.username.clone()),
+                        },
+                        cargo: Thing {
+                            tb: "cargo".to_string(),
+                            id: Id::String(post.car_id.clone()),
+                        },
                     };
-                    db.create::<Option<AcData>>((&post.car_id, Id::from("cargo"))).content(acdata).await.unwrap().unwrap();
+                    db.create::<Option<AcData>>((&post.car_id, Id::from("cargo")))
+                        .content(acdata)
+                        .await
+                        .unwrap()
+                        .unwrap();
                     let user_info = DbUserInfo {
                         username: user_info.username,
                         password: user_info.password,

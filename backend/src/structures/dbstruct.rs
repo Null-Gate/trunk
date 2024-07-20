@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
-use super::{car::{CargoD, DbCarInfo}, post::PostD};
+use super::{
+    car::{CargoD, DbCarInfo},
+    post::PostD,
+};
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Roles {
@@ -63,5 +66,5 @@ pub struct PkgPsts {
 pub struct CargoS {
     pub dcargo: Vec<CargoD>,
     pub ocargo: Vec<CargoD>,
-    pub pcargo: Vec<CargoD>
+    pub pcargo: Vec<CargoD>,
 }

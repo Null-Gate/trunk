@@ -1,6 +1,10 @@
 #![allow(unused_imports)]
 
-use actix_web::{post, web::{Data, Json}, HttpResponse};
+use actix_web::{
+    post,
+    web::{Data, Json},
+    HttpResponse,
+};
 use argon2::hash_encoded;
 use surrealdb::{sql::Id, Surreal};
 
@@ -9,7 +13,7 @@ use crate::{
     structures::{
         auth::Signup,
         dbstruct::DbUserInfo,
-        extrastruct::{GenString, Resp, ARGON_CONFIG, DB, Dbt},
+        extrastruct::{Dbt, GenString, Resp, ARGON_CONFIG, DB},
     },
 };
 
@@ -22,9 +26,10 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
     let d = tokio::spawn(async {
         let db = DB.get().await;
         db.use_ns("ns").use_db("db").await.unwrap();
-        db.select::<Option<DbUserInfo>>(("user", Id::String(idk))).await
+        db.select::<Option<DbUserInfo>>(("user", Id::String(idk)))
+            .await
     });
-        /*.await
+    /*.await
     {
         Ok(Some(_)) => {
             return HttpResponse::NotAcceptable().json(Resp::new("User Already exits!"));
@@ -50,15 +55,18 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
 
             let i: Option<DbUserInfo> = d.await.unwrap().unwrap();
             if i.is_none() {
-            match db
-                .create::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string())))
-                .content(user_info)
-                .await
-            {
-                Ok(Some(_)) => return HttpResponse::Ok().json(Resp::new("All Good Account Is Created!")),
-                Ok(None) => return internal_error("None User Error"),
-                Err(e) => return internal_error(e),
-            }};
+                match db
+                    .create::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string())))
+                    .content(user_info)
+                    .await
+                {
+                    Ok(Some(_)) => {
+                        return HttpResponse::Ok().json(Resp::new("All Good Account Is Created!"))
+                    }
+                    Ok(None) => return internal_error("None User Error"),
+                    Err(e) => return internal_error(e),
+                }
+            };
             HttpResponse::NotAcceptable().json(Resp::new("User Already exits!"))
         }
         Err(e) => internal_error(e),

@@ -97,7 +97,7 @@ async fn main() -> std::io::Result<()> {
             dotenvy::var("TRUNK_HOST").unwrap(),
             dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap(),
         ),
-        tls_config
+        tls_config,
     )?
     .run()
     .await;

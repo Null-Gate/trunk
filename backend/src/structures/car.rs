@@ -36,7 +36,7 @@ pub struct CarPostForm {
 #[derive(Serialize, Deserialize, Clone)]
 pub enum PaSta {
     Pend,
-    OnGo
+    OnGo,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

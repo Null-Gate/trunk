@@ -102,7 +102,6 @@ export default DatePicker
 const styles = StyleSheet.create({
     input: {
         height: 60,
-        color: "grey",
         paddingHorizontal: 10,
         paddingVertical: 10,
         fontFamily: "Poppins-Medium",

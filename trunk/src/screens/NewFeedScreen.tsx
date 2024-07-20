@@ -6,9 +6,6 @@ import {
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 
-// react navigation
-import { useNavigation } from '@react-navigation/native'
-
 // components
 import Post from '../components/newFeed/Post'
 import PostModal from '../components/newFeed/PostModal'
@@ -17,21 +14,15 @@ import DriverLists from '../components/newFeed/DriverLists'
 // dummy data
 import { FEED_DATA } from '../config/post_data'
 
-interface PostModalInfoProps {
+interface PostModalInfo {
     modalVisible: boolean
 }
 
 const NewFeedScreen = () => {
     const [feedDatas, setFeedDatas] = useState<any>([]);
-    const [postModalInfo, setPostModalInfo] = useState<PostModalInfoProps>({
+    const [postModalInfo, setPostModalInfo] = useState<PostModalInfo>({
         modalVisible: false
     });
-
-    const navigation = useNavigation<any>();
-
-    const navigatePostDetial = () => {
-        navigation.navigate('PostDetail');
-    }
 
     const openPostModal = () => {
         setPostModalInfo(prevInfo => {
@@ -68,15 +59,13 @@ const NewFeedScreen = () => {
                     renderItem={({ item }) => {
                         if (item.type === "post") {
                             return (
-                                <Pressable onPress={navigatePostDetial}>
-                                    <Post
-                                        creator={item.user}
-                                        title={item.title}
-                                        content={item.descirption}
-                                        imgs={item.imgs}
-                                        openPostModal={openPostModal}
-                                    />
-                                </Pressable>
+                                <Post
+                                    creator={item.user}
+                                    title={item.title}
+                                    content={item.descirption}
+                                    imgs={item.imgs}
+                                    onPressOption={openPostModal}
+                                />
                             )
                         } else {
                             return <DriverLists drivers={item.users} />

@@ -24,6 +24,7 @@ import { AntDesign } from '@expo/vector-icons';
 // components
 import CustomInput from '../components/CustomInput';
 import CustomText from '../components/CustomText';
+import CustomButton from '../components/CustomButton';
 import DatePicker from '../components/DatePicker';
 import ImageContainer from '../components/ImageContainer';
 import CustomModal from '../components/CustomModal';
@@ -46,7 +47,6 @@ interface LocationsProps {
 }
 
 const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 
 const PostCreateScreen = () => {
 	const [photos, setPhotos] = useState<string[]>([]);
@@ -86,6 +86,14 @@ const PostCreateScreen = () => {
 			setPhotos(prevPhotos => [...prevPhotos, result.assets[0].uri]);
 		}
 	};
+
+	const removeImage = (photoIndex: number) => {
+		setPhotos((prevPhotos) => {
+			const newPhotos = [...prevPhotos];
+			newPhotos.splice(photoIndex, 1)
+			return newPhotos;
+		})
+	}
 
 	const openModal = () => {
 		setModalVisible(true);
@@ -184,8 +192,8 @@ const PostCreateScreen = () => {
 										marginBottom: 3
 									}}
 								/>
-								<Pressable onPress={pickImage}>
-									<View style={{
+								<Pressable
+									style={{
 										height: windowWidth - 80,
 										borderWidth: 1.8,
 										borderRadius: 15,
@@ -194,9 +202,10 @@ const PostCreateScreen = () => {
 										flexDirection: "row",
 										justifyContent: "center",
 										alignItems: "center"
-									}}>
-										<Ionicons name="add" size={70} color="#a6a6a6" />
-									</View>
+									}}
+									onPress={pickImage}
+								>
+									<Ionicons name="add" size={70} color="#a6a6a6" />
 								</Pressable>
 							</View>
 						) : (
@@ -207,20 +216,13 @@ const PostCreateScreen = () => {
 							}}>
 								<ImageSlider
 									slides={photos.map(photo => ({ id: Math.random().toString(), url: photo }))}
+									option={true}
+									removeImage={removeImage}
 									imageSliderWidth={windowWidth - 30}
 									imageSliderHeight={windowWidth - 80}
 								/>
 								<Pressable
-									style={{
-										position: "absolute",
-										right: 10,
-										bottom: 15,
-										borderRadius: 10,
-										paddingHorizontal: 10,
-										paddingVertical: 3,
-										backgroundColor: "rgba(0, 0, 0, 0.7)",
-										zIndex: 2
-									}}
+									style={styles.addImageButton}
 									onPress={pickImage}
 								>
 									<CustomText text='Add' textStyle={{ color: "#fff" }} />
@@ -336,6 +338,14 @@ const PostCreateScreen = () => {
 						}}
 					/>
 					{/* end description */}
+
+					<CustomButton
+						title='Upload'
+						onPress={() => { }}
+						style={styles.uploadButton}
+						textStyle={{ fontSize: 16 }}
+					/>
+
 				</ScrollView>
 			</View>
 
@@ -434,5 +444,21 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: "#fff"
-	}
+	},
+	addImageButton: {
+		backgroundColor: "rgba(0, 0, 0, 0.7)",
+		paddingHorizontal: 10,
+		paddingVertical: 3,
+		position: "absolute",
+		right: 10,
+		bottom: 15,
+		borderRadius: 10,
+		zIndex: 2
+	},
+	uploadButton: {
+		height: 50,
+		justifyContent: "center",
+		alignItems: "center",
+		marginBottom: 40
+	},
 })

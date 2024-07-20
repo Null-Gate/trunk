@@ -1,10 +1,12 @@
 import {
+    Pressable,
     StyleSheet
 } from 'react-native'
 import React, { useRef, useCallback } from 'react'
 
 // reactnative map
 import MapView, { Marker } from 'react-native-maps';
+
 
 // dummy datas
 const locations = [
@@ -64,6 +66,13 @@ const locations = [
     },
 ];
 
+const MYANMAR_REGION = {
+    latitude: 19.7633,
+    longitude: 96.0785,
+    latitudeDelta: 5.0,
+    longitudeDelta: 5.0,
+}
+
 const CustomMapContainer = () => {
     const MapRef = useRef<any>(null);
 
@@ -89,13 +98,14 @@ const CustomMapContainer = () => {
         <MapView
             style={styles.map}
             ref={MapRef}
+            initialRegion={MYANMAR_REGION}
         >
             {
                 locations.map(loaction => {
                     return (
                         <Marker
                             key={`${loaction.coordinate.latitude}${loaction.coordinate.longitude}`}
-                            coordinate={loaction.coordinate} 
+                            coordinate={loaction.coordinate}
                         ></Marker>
                     )
                 })

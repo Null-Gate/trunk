@@ -17,11 +17,13 @@ import { GlobalStyles } from '../../constants/styles'
 import { Entypo } from '@expo/vector-icons';
 
 interface ConnectionItemProps {
-    username: string
+    username: string,
+    onPressOption: () => void
 }
 
 const ConnectionItem = ({
-    username
+    username,
+    onPressOption
 }: ConnectionItemProps) => {
     const windowWidth = Dimensions.get('window').width;
 
@@ -37,17 +39,22 @@ const ConnectionItem = ({
                     imageContainerStyle={styles.imageContainer}
                 />
                 <View>
-                    <CustomText 
+                    <CustomText
                         text={username}
-                        textStyle={{ 
+                        textStyle={{
                             fontSize: 16
-                         }}
+                        }}
                     />
-                    <CustomText text='connected one week ago. ' />
+                    <CustomText
+                        text='connected one week ago.'
+                        textStyle={{
+                            color: "#757575"
+                        }}
+                    />
                 </View>
             </View>
             <View>
-                <Pressable>
+                <Pressable onPress={onPressOption}>
                     <Entypo name="dots-three-vertical" size={22} color="black" />
                 </Pressable>
             </View>

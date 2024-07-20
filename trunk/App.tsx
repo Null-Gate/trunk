@@ -54,6 +54,7 @@ const BottomTab = () => {
 		<Tab.Navigator
 			initialRouteName='NewFeed'
 			screenOptions={({ route }) => ({
+				tabBarHideOnKeyboard: true,
 				tabBarIcon: ({ focused, color, size }) => {
 					let icon: ReactNode;
 					if (route.name === "NewFeed") {

@@ -5,6 +5,9 @@ import {
 } from 'react-native'
 import React, { useState } from 'react'
 
+// react navigation
+import { useNavigation } from '@react-navigation/native'
+
 // components
 import ImageContainer from '../ImageContainer'
 import CustomText from '../CustomText'
@@ -28,7 +31,7 @@ interface PostProps {
     title: string,
     content: string,
     imgs: ImagesProps[],
-    openPostModal: () => void
+    onPressOption: () => void
 }
 
 const Post = ({
@@ -36,9 +39,14 @@ const Post = ({
     title,
     content,
     imgs,
-    openPostModal
+    onPressOption
 }: PostProps) => {
     const [count, setCount] = useState<number>(0);
+    const navigation = useNavigation<any>();
+
+    const navigatePostDetial = () => {
+        navigation.navigate('PostDetail');
+    }
 
     // Function to get the first N words from a paragraph
     const getFirstNWords = (paragraph: string, numWords: number): string => {
@@ -48,7 +56,7 @@ const Post = ({
 
 
     return (
-        <>
+        <Pressable onPress={navigatePostDetial}>
             <View style={styles.container}>
                 {/* start post header */}
                 <View style={styles.header}>
@@ -99,7 +107,7 @@ const Post = ({
                             }}
                         />
                         {/* option btn */}
-                        <Pressable onPress={openPostModal}>
+                        <Pressable onPress={onPressOption}>
                             <Entypo name="dots-three-vertical" size={22} color="black" />
                         </Pressable>
                     </View>
@@ -158,7 +166,7 @@ const Post = ({
                 </View>
                 {/* end footer */}
             </View>
-        </>
+        </Pressable>
     )
 }
 

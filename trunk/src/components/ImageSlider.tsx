@@ -7,9 +7,7 @@ import {
     Dimensions,
     NativeSyntheticEvent,
     NativeScrollEvent,
-    ViewToken,
-    StyleProp,
-    ViewStyle
+    ViewToken
 } from 'react-native';
 
 import React, { useRef, useState, useEffect } from 'react';
@@ -18,6 +16,9 @@ import React, { useRef, useState, useEffect } from 'react';
 import ImageContainer from './ImageContainer';
 import CustomText from './CustomText';
 import SlidePagination from './SlidePagination';
+
+// icons
+import { Entypo } from '@expo/vector-icons';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -28,17 +29,22 @@ type Slide = {
 
 type ImageSlider = {
     slides: Slide[],
+    option?: boolean,
+    removeImage?: (index: number) => void,
     imageSliderWidth?: number,
     imageSliderHeight?: number,
 }
 
 const ImageSlider = ({
     slides,
+    option,
+    removeImage,
     imageSliderWidth = windowWidth - 22,
     imageSliderHeight = windowWidth - 22,
 }: ImageSlider) => {
     const [index, setIndex] = useState<number>(0);
     const scrollX = useRef(new Animated.Value(0)).current;
+    const flatListRef = useRef<FlatList | null>(null);
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         Animated.event(
@@ -69,13 +75,38 @@ const ImageSlider = ({
 
     return (
         <View>
-            <View style={styles.pageNumberContainer}>
-                <CustomText textStyle={{
-                    color: "#fff",
-                    fontSize: 12
-                }} text={`${index + 1}/${slides.length}`} />
+            <View style={{
+                position: "absolute",
+                top: 15,
+                right: 10,
+                flexDirection: "row",
+                gap: 8
+            }}>
+                {slides.length > 1 && (
+                    <View style={styles.pageNumberContainer}>
+                        <CustomText textStyle={{
+                            color: "#fff",
+                            fontSize: 12
+                        }} text={`${index + 1}/${slides.length}`} />
+                    </View>
+                )}
+                {option && (
+                    <Pressable
+                        style={styles.optionBtn}
+                        onPress={() => {
+                            if (flatListRef.current && index > 0) {
+                                const newIndex = index - 1;
+                                flatListRef.current.scrollToIndex({ index: newIndex, animated: true });
+                            }
+                            removeImage?.(index);
+                        }}
+                    >
+                        <Entypo name="cross" size={20} color="#fff" />
+                    </Pressable>
+                )}
             </View>
             <FlatList
+                ref={flatListRef}
                 data={slides}
                 renderItem={({ item, index }) => {
                     return (
@@ -97,27 +128,34 @@ const ImageSlider = ({
                 onViewableItemsChanged={handleOnViewableItemsChanged}
                 viewabilityConfig={viewabilityConfig}
             />
-            <SlidePagination data={slides} scrollX={scrollX} />
+            {slides.length > 1 && <SlidePagination data={slides} scrollX={scrollX} />}
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     pageNumberContainer: {
-        position: "absolute",
-        top: 15,
-        right: 10,
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
         borderRadius: 10,
         paddingHorizontal: 10,
         paddingVertical: 3,
-        backgroundColor: "rgba(0, 0, 0, 0.7)",
         zIndex: 2
+    },
+    optionBtn: {
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        width: 26,
+        height: 26,
+        borderRadius: 13,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 2,
     },
     image: {
         position: "absolute",
         width: "100%",
         height: "100%",
-    }
+    },
 })
 
 export default ImageSlider

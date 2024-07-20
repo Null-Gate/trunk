@@ -34,6 +34,7 @@ import PasswordChangeScreen from './src/screens/PasswordChangeScreen';
 import PasswordForgotScreen from './src/screens/PasswordForgotScreen';
 import PostCreateScreen from './src/screens/PostCreateScreen';
 import MapScreen from './src/screens/MapScreen';
+import PackageDetailScreen from './src/screens/PackageDetailScreen';
 import OnBoardingScreen from './src/screens/OnBoardingScreen';
 import ConnectionScreen from './src/screens/ConnectionScreen';
 
@@ -227,13 +228,20 @@ export default function App() {
 						name='Map'
 						component={MapScreen}
 					/>
-					<Stack.Screen 
+					<Stack.Screen
+						name='PackageStatusDetail'
+						component={PackageDetailScreen}
+						options={{
+							headerShown: true,
+						}}
+					/>
+					<Stack.Screen
 						name='Connection'
 						component={ConnectionScreen}
-						options={{ 
+						options={{
 							headerShown: true,
 							headerTitle: "Connections",
-						 }}
+						}}
 					/>
 				</Stack.Navigator>
 			</NavigationContainer>

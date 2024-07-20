@@ -24,8 +24,12 @@ const StatusList = ({
 }: StatusListProps) => {
 	const navigation = useNavigation<any>();
 
-	const navigateMapScreen = () => {
-		navigation.navigate("Map");
+	const onPressPackage = (variant: string) => {
+		if(variant === 'history') {
+			navigation.navigate('PackageStatusDetail')
+		} else {
+			navigation.navigate("Map");
+		}
 	}
 
 	const renderItem = ({ item }: any) => {
@@ -35,7 +39,7 @@ const StatusList = ({
 				endDestination={item.destination.to}
 				category={item.category}
 				items={item.items}
-				onPress={navigateMapScreen}
+				onPress={() => { onPressPackage(item.variant) }}
 			/>)
 		} else if (item.category === "Driver") {
 			return (<DriverItem

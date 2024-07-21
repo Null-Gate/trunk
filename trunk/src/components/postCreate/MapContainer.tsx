@@ -1,86 +1,119 @@
-import {
-    View,
-    Dimensions,
-    StyleSheet
-} from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from "react";
+import MapView, { Marker } from "react-native-maps";
+import useLocationStore from "../../store/locations";
+import MapViewDirections from "react-native-maps-directions";
 
-// expo location
-import * as Location from 'expo-location';
+type MapContainerProps = {
+  isChooseFromMap: boolean;
+  type: "origin" | "destination";
+};
 
-// reactnative map
-import MapView, { Marker } from 'react-native-maps';
+const MapContainer: React.FC<MapContainerProps> = ({
+  isChooseFromMap,
+  type,
+}) => {
+  const MapRef = useRef<MapView>(null);
+  const { origin, setOrigin, destination, setDestination } = useLocationStore();
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
-
-interface CoordinateProps {
-    latitude: number;
-    longitude: number;
-}
-
-interface LocationsProps {
-    from : CoordinateProps,
-    to : CoordinateProps
-}
-
-interface MapContainerProps {
-    onChooseLocation: (address: string, coordinate: CoordinateProps) => void
-}
-
-const MapContainer = ({
-    onChooseLocation
-}: MapContainerProps) => {
-    const [pin, setPin] = useState<CoordinateProps | null>(null);
-    const mapRef = useRef(null);
-
-    const handleMapPress = async (event: any) => {
-        const { coordinate } = event.nativeEvent;
-        setPin(coordinate);
-        await reverseGeocode(coordinate);
-    }
-
-    const reverseGeocode = async (coordinate: CoordinateProps) => {
-        try {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                // setAddress('Permission to access location was denied');
-                return;
-            }
-
-            let addressData = await Location.reverseGeocodeAsync({
-                latitude: coordinate.latitude,
-                longitude: coordinate.longitude,
-            });
-
-            if (addressData.length > 0) {
-                const region = addressData[0].region;
-                const country = addressData[0].country;
-                const addressString = `${region}, ${country}`
-                onChooseLocation(addressString, coordinate);
-
-            }
-        } catch (error) {
-            console.error(error);
+  // Fit the screen to marker points
+  useEffect(() => {
+    if (!origin || !destination) return;
+    // Delay to ensure state updates
+    setTimeout(() => {
+      if (MapRef.current) {
+        if (origin && destination) {
+          MapRef.current.fitToSuppliedMarkers(["origin", "destination"], {
+            edgePadding: { top: 200, bottom: 200, right: 50, left: 50 },
+          });
+        } else if (origin) {
+          MapRef.current.animateToRegion({
+            latitude: origin.location.lat,
+            longitude: origin.location.lng,
+            latitudeDelta: 1,
+            longitudeDelta: 1,
+          });
         }
-    };
+      }
+    }, 100);
+  }, [origin, destination]);
 
-    return (
-        <MapView
-            ref={mapRef}
-            style={styles.map}
-            onPress={handleMapPress}
-        >
-            {pin && <Marker coordinate={pin} />}
-        </MapView>
-    )
-}
+  return (
+    <MapView
+      ref={MapRef}
+      showsCompass={false}
+      style={{ height: '92%' }}
+      initialRegion={{
+        latitude: 16.840808135276394,
+        longitude: 96.17339335427003,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1,
+      }}
+      onPress={(e) => {
+        if (isChooseFromMap) {
+          if (type == "origin") {
+            setOrigin({
+              location: {
+                lat: e.nativeEvent.coordinate.latitude,
+                lng: e.nativeEvent.coordinate.longitude,
+              },
+              description: "Start of location",
+            });
+          } else {
+            setDestination({
+              location: {
+                lat: e.nativeEvent.coordinate.latitude,
+                lng: e.nativeEvent.coordinate.longitude,
+              },
+              description: "End of location",
+            });
+          }
+        }
+      }}
+    >
+      {/* Origin Marker */}
+      {origin && origin.location && (
+        <Marker
+          coordinate={{
+            latitude: origin.location.lat,
+            longitude: origin.location.lng,
+          }}
+          identifier="origin"
+          description={origin.description}
+          title="Origin"
+        />
+      )}
 
-export default MapContainer
+      {/* Destination Marker */}
+      {destination && destination.location && (
+        <Marker
+          coordinate={{
+            latitude: destination.location.lat,
+            longitude: destination.location.lng,
+          }}
+          identifier="destination"
+          description={destination.description}
+          title="Destination"
+        />
+      )}
 
-const styles = StyleSheet.create({
-    map: {
-        width: windowWidth,
-        height: windowHeight
-    }
-})
+      {/* Direction for two Markers */}
+      {origin && origin.location && destination && destination.location && (
+        <MapViewDirections
+          origin={{
+            latitude: origin.location.lat,
+            longitude: origin.location.lng,
+          }}
+          destination={{
+            latitude: destination.location.lat,
+            longitude: destination.location.lng,
+          }}
+          apikey={process.env.GOOGLE_MAP_API}
+          strokeColor="#991602"
+          strokeWidth={3}
+        />
+      )}
+    </MapView>
+  );
+};
+
+export default MapContainer;

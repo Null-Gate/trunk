@@ -96,6 +96,7 @@ const CustomMapContainer = () => {
 
     return (
         <MapView
+            
             style={styles.map}
             ref={MapRef}
             initialRegion={MYANMAR_REGION}

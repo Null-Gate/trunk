@@ -1,18 +1,18 @@
-import {
-    View,
-    FlatList,
-    StyleSheet,
-    Pressable
-} from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { View, FlatList, StyleSheet, Pressable } from "react-native";
+import React, { useState, useEffect } from "react";
+
+
+// react navigation
+import { useNavigation } from "@react-navigation/native";
 
 // components
-import Post from '../components/newFeed/Post'
-import PostModal from '../components/newFeed/PostModal'
-import DriverLists from '../components/newFeed/DriverLists'
+import Post from "../components/newFeed/Post";
+import PostModal from "../components/newFeed/PostModal";
+import DriverLists from "../components/newFeed/DriverLists";
 
 // dummy data
-import { FEED_DATA } from '../config/post_data'
+import { FEED_DATA } from "../config/post_data";
+import useUserStore from "../store/userStore";
 
 interface PostModalInfo {
     modalVisible: boolean
@@ -34,20 +34,25 @@ const NewFeedScreen = () => {
         })
     }
 
-    const closePostModal = () => {
-        setPostModalInfo(prevInfo => {
-            const newInfo = {
-                ...prevInfo,
-                modalVisible: false,
-            }
-            return newInfo;
-        })
-    }
+  const openPostModal = () => {
+    setPostModalInfo((prevInfo) => {
+      const newInfo = {
+        ...prevInfo,
+        modalVisible: true,
+      };
+      return newInfo;
+    });
+  };
 
-    useEffect(() => {
-        // fetch new_feed datas
-        setFeedDatas(FEED_DATA);
-    }, [])
+  const closePostModal = () => {
+    setPostModalInfo((prevInfo) => {
+      const newInfo = {
+        ...prevInfo,
+        modalVisible: false,
+      };
+      return newInfo;
+    });
+  };
 
     return (
         <>
@@ -82,6 +87,7 @@ const NewFeedScreen = () => {
     )
 }
 
+
 export default NewFeedScreen;
 
 const styles = StyleSheet.create({
@@ -94,3 +100,4 @@ const styles = StyleSheet.create({
         paddingVertical: 15
     }
 })
+

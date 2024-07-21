@@ -1,13 +1,13 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Button } from 'react-native';
-import { ReactNode } from 'react';
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, View, Button } from "react-native";
+import { ReactNode } from "react";
 
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 //expo-fonts
-import { useFonts } from 'expo-font';
+import { useFonts } from "expo-font";
 
-// react navigation
+ // react navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -16,9 +16,6 @@ import { useNavigation } from '@react-navigation/native';
 // components
 import TabBarIcon from './src/components/TabBarIcon';
 import CustomButton from './src/components/CustomButton';
-
-// icons
-import { EvilIcons } from '@expo/vector-icons';
 
 // screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -37,15 +34,20 @@ import MapScreen from './src/screens/MapScreen';
 import PackageDetailScreen from './src/screens/PackageDetailScreen';
 import OnBoardingScreen from './src/screens/OnBoardingScreen';
 import ConnectionScreen from './src/screens/ConnectionScreen';
+import ChooseOrigin from "./src/screens/ChooseLocation/ChooseOrigin";
+import ChooseDestination from "./src/screens/ChooseLocation/ChooseDestination";
+import ChooseLocations from "./src/screens/ChooseLocation/ChooseLocations";
 
 // icons
-import { SimpleLineIcons } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { FontAwesome } from '@expo/vector-icons';
+import { SimpleLineIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
+import { EvilIcons } from '@expo/vector-icons';
 
 // styles
-import { GlobalStyles } from './src/constants/styles';
+import { GlobalStyles } from "./src/constants/styles";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -94,25 +96,24 @@ const BottomTab = () => {
 }
 
 export default function App() {
-	const [fontLoaded] = useFonts({
-		'Poppins-Medium': require('./src/assets/fonts/Poppins/Poppins-Medium.ttf'),
-		'Poppins-Thin': require('./src/assets/fonts/Poppins/Poppins-Light.ttf')
-	});
+  const queryClient = new QueryClient();
+  const [fontLoaded] = useFonts({
+    "Poppins-Medium": require("./src/assets/fonts/Poppins/Poppins-Medium.ttf"),
+    "Poppins-Thin": require("./src/assets/fonts/Poppins/Poppins-Light.ttf"),
+  });
 
-	if (!fontLoaded) {
-		return (
-			<View style={{ flex: 1 }}>
-				<StatusBar
-					backgroundColor={"transparent"}
-					translucent={true}
-				/>
-			</View>
-		)
-	}
+  if (!fontLoaded) {
+    return (
+      <View style={{ flex: 1 }}>
+        <StatusBar backgroundColor={"transparent"} translucent={true} />
+      </View>
+    );
+  }
 
 	return (
 		<SafeAreaProvider>
 			<StatusBar />
+     <QueryClientProvider client={queryClient}>
 			<NavigationContainer>
 				<Stack.Navigator
 					initialRouteName='OnBoarding'
@@ -243,17 +244,24 @@ export default function App() {
 							headerTitle: "Connections",
 						}}
 					/>
+           <Stack.Screen name="ChooseLocations" component={ChooseLocations} />
+            <Stack.Screen name="ChooseOrigin" component={ChooseOrigin} />
+            <Stack.Screen
+              name="ChooseDestination"
+              component={ChooseDestination}
+            />
 				</Stack.Navigator>
 			</NavigationContainer>
+       </QueryClientProvider>
 		</SafeAreaProvider>
 	);
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#fff',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

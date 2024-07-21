@@ -4,7 +4,7 @@ use surrealdb::{opt::PatchOp, sql::Id};
 use crate::{
     extra::functions::{ct_user, internal_error},
     structures::{
-        car::{CargoD, DbCarInfo, PaSta},
+        car::{CargoD, DbCarInfo, PaSta, Cargo},
         extrastruct::DB,
         post::PostD,
         wsstruct::{NType, Noti},
@@ -25,7 +25,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
     match ct_user(token).await {
         Ok((_, duser)) => {
             match db
-                .select::<Option<Noti<CargoD>>>((&duser.username, Id::String(id.clone())))
+                .select::<Option<Noti<Cargo>>>((&duser.username, Id::String(id.clone())))
                 .await
                 .unwrap()
             {

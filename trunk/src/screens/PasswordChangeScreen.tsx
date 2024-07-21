@@ -2,9 +2,13 @@ import {
     View,
     StyleSheet,
     TouchableWithoutFeedback,
-    Keyboard
+    Keyboard,
+    Pressable
 } from 'react-native'
 import React, { useState } from 'react'
+
+// react navigation
+import { useNavigation } from '@react-navigation/native';
 
 // components
 import Input from '../components/PasswordChange/Input';
@@ -15,9 +19,11 @@ const PasswordChangeScreen = () => {
     const [oldPassword, setOldPassword] = useState<string>("");
     const [newPassword, setNewPassword] = useState<string>("");
     const [confirmationPassword, setConfirmationPassword] = useState<string>("");
+    
+    const navigation = useNavigation<any>();
     return (
         <TouchableWithoutFeedback
-        onPress={Keyboard.dismiss}
+            onPress={Keyboard.dismiss}
         >
             <View style={styles.container}>
                 <Input
@@ -40,15 +46,26 @@ const PasswordChangeScreen = () => {
                     onPress={() => { }}
                     style={styles.button}
                 />
-                <CustomText
-                    text='Forgot Password?'
-                    textStyle={{
-                        fontSize: 16,
-                        fontWeight: "bold",
-                        textAlign: "center",
-                        marginTop: 15
+                <View
+                    style={{
+                        flexDirection: "row",
+                        justifyContent: "center"
                     }}
-                />
+                >
+                    <Pressable
+                        onPress={() => { navigation.navigate("PasswordForgot") }}
+                    >
+                        <CustomText
+                            text='Forgot Password?'
+                            textStyle={{
+                                fontSize: 16,
+                                fontWeight: "bold",
+                                textAlign: "center",
+                                marginTop: 15
+                            }}
+                        />
+                    </Pressable>
+                </View>
             </View>
         </TouchableWithoutFeedback>
     )

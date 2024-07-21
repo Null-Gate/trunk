@@ -191,7 +191,7 @@ const PostCreateScreen = () => {
     </SafeAreaProvider>
   );
 };
-
+  
 export default PostCreateScreen;
 
 const styles = StyleSheet.create({
@@ -246,3 +246,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+

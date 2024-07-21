@@ -30,6 +30,7 @@ const CustomButton = ({
   children,
   disabled,
 }: CustomButtonProps) => {
+
   return (
     <Pressable
       disabled={disabled}
@@ -42,6 +43,7 @@ const CustomButton = ({
     </Pressable>
   );
 };
+
 
 export default CustomButton;
 

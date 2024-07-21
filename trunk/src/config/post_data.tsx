@@ -137,14 +137,92 @@ export const STATUS_DATA = [
 		id: "3",
 		category: "Driver",
 		title: "U Wai Linn",
+		username: "U Wai Linn",
 		desc: "I have over 3 years experience in driving",
 		variant: "history",
 	},
 	{
 		id: "4",
 		category: "Car",
+		model: "Fuso FJ 2538R Cargo",
 		title: "Fuso FJ 2528R Cargo",
 		desc: "yangon to mandaly",
 		variant: "history",
 	},
 ];
+
+export const CONNECTION_DATA = [
+	{
+		id: 1,
+		username: "Linus Walker"
+	},
+	{
+		id: 2,
+		username: "William"
+	},
+	{
+		id: 3,
+		username: "nebula-rTZW4f02zY8"
+	},
+	{
+		id: 4,
+		username: "User124045"
+	}
+]
+
+export const PACKAGE_DATA = [
+	{
+		type: "Owner",
+		coordinate: {
+			latitude: 16.826111566733648,
+			longitude: 96.13035812250988,
+		},
+		title: "Origin",
+		description: "Start Point",
+	},
+	{
+		type: "Owner",
+		coordinate: {
+			latitude: 21.94893745302357,
+			longitude: 96.08852235463286,
+		},
+		title: "Destination",
+		description: "End Point",
+	},
+	{
+		type: "User1",
+		coordinate: {
+			latitude: 17.042428710919555,
+			longitude: 96.12878120397383,
+		},
+		title: "User1Origin",
+		description: "Start Point",
+	},
+	{
+		type: "User1",
+		coordinate: {
+			latitude: 20.881312699222843,
+			longitude: 95.86086683066863,
+		},
+		title: "User1Destination",
+		description: "End Point",
+	},
+	{
+		type: "User2",
+		coordinate: {
+			latitude: 21.433729341389252,
+			longitude: 96.10751692235945,
+		},
+		title: "User2Origin",
+		description: "Start Point",
+	},
+	{
+		type: "User2",
+		coordinate: {
+			latitude: 21.7359429298148,
+			longitude: 96.10394794148395,
+		},
+		title: "User2Destination",
+		description: "End Point",
+	},
+]

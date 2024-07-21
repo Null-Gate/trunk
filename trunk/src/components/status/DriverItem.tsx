@@ -12,33 +12,29 @@ import CustomText from '../CustomText'
 import { GlobalStyles } from '../../constants/styles'
 
 // icons
-import { Fontisto } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
-interface ListItemProps {
-    startDestination: string,
-    endDestination: string,
+interface DriverItemProps {
+    user: string,
     category: string,
-    items: string[],
-    onPress: () => void
+    description: string,
+    // onPress: () => void
 }
 
-const ListItem = ({
-    startDestination,
-    endDestination,
+const DriverItem = ({
+    user,
     category,
-    items,
-    onPress
-}: ListItemProps) => {
+    description,
+    // onPress
+}: DriverItemProps) => {
     return (
         <Pressable
             android_ripple={{ color: "#ccc" }}
-            onPress={onPress}
         >
-            <View style={styles.listItem}>
+            <View style={styles.DriverItem}>
                 <View style={{
                     flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "center"
+                    justifyContent: "space-between"
                 }}>
                     <View style={{
                         backgroundColor: GlobalStyles.colors.primaryColor,
@@ -49,19 +45,19 @@ const ListItem = ({
                     }}>
                         <CustomText text={category} textStyle={{ color: "#fff" }} />
                     </View>
-                    <Fontisto name="map" size={20} color={GlobalStyles.colors.primaryColor} />
+                    <AntDesign name="infocirlce" size={20} color={GlobalStyles.colors.primaryColor} />
                 </View>
-                <CustomText text={`${startDestination} to ${endDestination}`} textStyle={styles.destination} />
-                <CustomText text={items.toString()} textStyle={{ color: "#636363" }} />
+                <CustomText text={user} textStyle={styles.destination} />
+                <CustomText text={description} textStyle={{ color: "#636363" }} />
             </View>
         </Pressable>
     )
 }
 
-export default ListItem
+export default DriverItem
 
 const styles = StyleSheet.create({
-    listItem: {
+    DriverItem: {
         padding: 15,
         backgroundColor: "#fff",
         borderWidth: 1,

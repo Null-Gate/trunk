@@ -18,7 +18,6 @@ const MapContainer: React.FC<MapContainerProps> = ({
   // Fit the screen to marker points
   useEffect(() => {
     if (!origin || !destination) return;
-
     // Delay to ensure state updates
     setTimeout(() => {
       if (MapRef.current) {
@@ -71,7 +70,6 @@ const MapContainer: React.FC<MapContainerProps> = ({
         }
       }}
     >
-
       {/* Origin Marker */}
       {origin && origin.location && (
         <Marker

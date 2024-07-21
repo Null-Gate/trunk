@@ -99,7 +99,7 @@ const SignupScreen = () => {
             />
             {/* end username */}
 
-            {/* start username */}
+            {/* start fullname */}
             <CustomInput
               title="Fullname"
               name="fullname"
@@ -110,7 +110,7 @@ const SignupScreen = () => {
               placeholder="Linus Walker"
               style={{ marginBottom: 20 }}
             />
-            {/* end username */}
+            {/* end fullname */}
 
             {/* start password */}
             <CustomInput

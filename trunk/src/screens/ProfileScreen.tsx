@@ -1,6 +1,9 @@
 import { View, ScrollView, Pressable, StyleSheet } from "react-native";
 import React from "react";
 
+// react navigation
+import { useNavigation } from '@react-navigation/native'
+
 // components
 import ImageContainer from "../components/ImageContainer";
 import CustomText from "../components/CustomText";

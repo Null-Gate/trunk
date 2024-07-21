@@ -17,6 +17,7 @@ import TabBarIcon from "./src/components/TabBarIcon";
 
 // screens
 import LoginScreen from "./src/screens/LoginScreen";
+import SignupScreen from "./src/screens/SignupScreen";
 import NewFeedScreen from "./src/screens/NewFeedScreen";
 import MenuScreen from "./src/screens/MenuScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
@@ -25,6 +26,7 @@ import PostDetailScreen from "./src/screens/PostDetailScreen";
 import StatusScreen from "./src/screens/StatusScreen";
 import PasswordChangeScreen from "./src/screens/PasswordChangeScreen";
 import PostCreateScreen from "./src/screens/PostCreateScreen";
+import MapScreen from "./src/screens/MapScreen";
 
 // icons
 import { SimpleLineIcons } from "@expo/vector-icons";
@@ -34,11 +36,10 @@ import { FontAwesome } from "@expo/vector-icons";
 
 // styles
 import { GlobalStyles } from "./src/constants/styles";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ChooseOrigin from "./src/screens/ChooseLocation/ChooseOrigin";
+import ChooseDestination from "./src/screens/ChooseLocation/ChooseDestination";
+import ChooseLocations from "./src/screens/ChooseLocation/ChooseLocations";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -124,12 +125,11 @@ const BottomTab = () => {
 };
 
 export default function App() {
+  const queryClient = new QueryClient();
   const [fontLoaded] = useFonts({
     "Poppins-Medium": require("./src/assets/fonts/Poppins/Poppins-Medium.ttf"),
     "Poppins-Thin": require("./src/assets/fonts/Poppins/Poppins-Light.ttf"),
   });
-
-  const queryClient = new QueryClient();
 
   if (!fontLoaded) {
     return (
@@ -157,6 +157,13 @@ export default function App() {
             <Stack.Screen
               name="Login"
               component={LoginScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="Signup"
+              component={SignupScreen}
               options={{
                 headerShown: false,
               }}
@@ -192,6 +199,13 @@ export default function App() {
                   backgroundColor: "#ededed",
                 },
               }}
+            />
+            <Stack.Screen name="Map" component={MapScreen} />
+            <Stack.Screen name="ChooseLocations" component={ChooseLocations} />
+            <Stack.Screen name="ChooseOrigin" component={ChooseOrigin} />
+            <Stack.Screen
+              name="ChooseDestination"
+              component={ChooseDestination}
             />
           </Stack.Navigator>
         </NavigationContainer>

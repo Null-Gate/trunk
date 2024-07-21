@@ -7,8 +7,10 @@ import React, { useEffect } from 'react'
 
 // components
 import DriverCard from './DriverCard'
-import CustomText from '../CustomText'
 import CustomButton from '../CustomButton'
+
+// styles
+import { GlobalStyles } from '../../constants/styles'
 
 type DriverProps = {
     id: string,
@@ -54,7 +56,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: "#dbdbdb",
+        borderColor: GlobalStyles.colors.softGrey,
         marginBottom: 40
     },
     button: {

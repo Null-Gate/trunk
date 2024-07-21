@@ -1,59 +1,48 @@
-import React, { useEffect } from "react";
 import {
   View,
-  StyleSheet,
-  Dimensions,
-  TouchableWithoutFeedback,
-  Keyboard,
   KeyboardAvoidingView,
+  TouchableWithoutFeedback,
   Platform,
+  Keyboard,
+  StyleSheet,
   Alert,
-  Pressable,
 } from "react-native";
+import React from "react";
 
 // react navigation
 import { useNavigation } from "@react-navigation/native";
-
-// styles
-import { GlobalStyles } from "../constants/styles";
 
 // components
 import ImageContainer from "../components/ImageContainer";
 import CustomText from "../components/CustomText";
 import CustomInput from "../components/CustomInput";
 import CustomButton from "../components/CustomButton";
-import { useMutation } from "@tanstack/react-query";
-import { login } from "../api/auth";
+
+// styles
+import { GlobalStyles } from "../constants/styles";
 import { useForm } from "react-hook-form";
-import useUserStore from "../store/userStore";
-import { loginProps } from "../utils/types";
+import { signUp } from "../api/auth";
+import { useMutation } from "@tanstack/react-query";
+import { signUpProps } from "../utils/types";
 
-const windowHeight = Dimensions.get("window").height;
+const SignupScreen = () => {
+  const { handleSubmit, control } = useForm<signUpProps>();
 
-// 20 + 150
-const LoginScreen = () => {
-  const { setUserData } = useUserStore();
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<loginProps>();
-
-  const { mutateAsync: loginMutation, isPending } = useMutation({
-    mutationFn: login,
+  const { mutateAsync: signUpMutation, isPending } = useMutation({
+    mutationFn: signUp,
   });
 
-  const onSubmit = async (data: loginProps) => {
+  const onSubmit = async (data: signUpProps) => {
     try {
-      const loginData = await loginMutation(data);
-      setUserData(loginData);
-      navigation.navigate("BottomTab");
+      await signUpMutation(data);
+      navigation.navigate("Login");
     } catch (error: any) {
       Alert.alert(error.msg);
     }
   };
 
   const navigation = useNavigation<any>();
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -77,7 +66,7 @@ const LoginScreen = () => {
               }}
             />
             <CustomText
-              text="Welcome Back"
+              text="Create Account"
               textStyle={{
                 color: "#fff",
                 fontSize: 25,
@@ -89,7 +78,7 @@ const LoginScreen = () => {
             style={{
               width: "100%",
               backgroundColor: "#fff",
-              paddingVertical: 50,
+              paddingVertical: 35,
               paddingHorizontal: 20,
               borderTopLeftRadius: 25,
               borderTopRightRadius: 25,
@@ -97,6 +86,7 @@ const LoginScreen = () => {
               bottom: 0,
             }}
           >
+            {/* start username */}
             <CustomInput
               title="Username"
               name="username"
@@ -104,9 +94,25 @@ const LoginScreen = () => {
               rules={{
                 required: "Username is required",
               }}
-              placeholder="John Doe"
+              placeholder="Linus"
               style={{ marginBottom: 20 }}
             />
+            {/* end username */}
+
+            {/* start username */}
+            <CustomInput
+              title="Fullname"
+              name="fullname"
+              control={control}
+              rules={{
+                required: "Fullname is required",
+              }}
+              placeholder="Linus Walker"
+              style={{ marginBottom: 20 }}
+            />
+            {/* end username */}
+
+            {/* start password */}
             <CustomInput
               title="Password"
               name="password"
@@ -114,39 +120,16 @@ const LoginScreen = () => {
               rules={{
                 required: "Password is required",
               }}
-              placeholder="XXXXXX"
-              style={{ marginBottom: 25 }}
               secureTextEntry
+              placeholder="XXXXXX"
+              style={{ marginBottom: 20 }}
             />
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "flex-end",
-                marginBottom: 20,
-              }}
-            >
-              <Pressable
-                onPress={() => {
-                  console.log("forgot password???");
-                }}
-              >
-                <CustomText
-                  text="forgot Password ?"
-                  textStyle={{
-                    fontSize: 13,
-                    color: "#424242",
-                    textDecorationLine: "underline",
-                    textDecorationColor: GlobalStyles.colors.softGrey,
-                  }}
-                />
-              </Pressable>
-            </View>
+            {/* end password */}
 
             <View>
               {/* start login btn */}
               <CustomButton
-                title={isPending ? "Loading..." : "LOG IN"}
+                title={isPending ? "Loading..." : "SIGN UP"}
                 onPress={handleSubmit(onSubmit)}
                 style={styles.button}
               />
@@ -170,11 +153,11 @@ const LoginScreen = () => {
               </View>
               {/* start signup btn */}
               <CustomButton
-                title="SIGN UP"
+                title="LOG IN"
                 onPress={() => {
-                  navigation.navigate("Signup");
+                  navigation.navigate("Login");
                 }}
-                style={[styles.button, styles.signupBtn]}
+                style={[styles.button, styles.loginBtn]}
                 textStyle={{ color: GlobalStyles.colors.primaryColor }}
               />
               {/* end signup btn */}
@@ -186,7 +169,7 @@ const LoginScreen = () => {
   );
 };
 
-export default LoginScreen;
+export default SignupScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -198,7 +181,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  signupBtn: {
+  loginBtn: {
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: GlobalStyles.colors.primaryColor,

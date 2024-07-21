@@ -18,7 +18,7 @@ import CustomText from "./CustomText";
 import { Control, Controller } from "react-hook-form";
 
 interface CustomInputProps {
-  control: Control;
+  control: Control<any>;
   title: string;
   name: string;
   placeholder: string;
@@ -26,19 +26,21 @@ interface CustomInputProps {
   inputStyle?: StyleProp<TextStyle>;
   multiline?: boolean;
   secureTextEntry?: boolean;
-  rules: {};
+  rules?: {};
+  editable?: boolean;
 }
 
 const CustomInput = ({
   control,
   title,
   name,
+  rules,
   placeholder,
   style,
   inputStyle,
   multiline = false,
+  editable = true,
   secureTextEntry,
-  rules,
 }: CustomInputProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState<
     boolean | undefined
@@ -74,6 +76,7 @@ const CustomInput = ({
               autoCapitalize="none"
               autoCorrect={false}
               multiline={multiline}
+              editable={editable}
               secureTextEntry={isPasswordVisible}
             />
             {secureTextEntry && (

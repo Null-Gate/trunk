@@ -10,6 +10,9 @@ import ImageContainer from '../ImageContainer'
 import CustomText from '../CustomText';
 import CustomButton from '../CustomButton';
 
+// styles
+import { GlobalStyles } from '../../constants/styles';
+
 const windowWidth = Dimensions.get('window').width;
 
 interface DriverCardProps {
@@ -62,7 +65,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: "#dbdbdb",
+        borderColor: GlobalStyles.colors.softGrey,
         overflow: "hidden"
     },
     detailContainer: {

@@ -1,108 +1,194 @@
-import { View, ScrollView, StyleSheet, Dimensions } from "react-native";
-import React, { useState } from "react";
-
-// icons
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useForm, FieldValues } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
 
-// components
 import CustomInput from "../components/CustomInput";
 import CustomText from "../components/CustomText";
-import { useForm } from "react-hook-form";
+import DatePicker from "../components/DatePicker";
+import ImageContainer from "../components/ImageContainer";
 import CustomButton from "../components/CustomButton";
+import CustomImagePicker from "../components/CustomImagePicker";
 
-const windowWidth = Dimensions.get("window").width;
+import useLocationStore from "../store/locations";
+import useUserStore from "../store/userStore";
+import { createPost } from "../api/postCreate";
 
 const PostCreateScreen = () => {
-  const { control, handleSubmit } = useForm();
+  const navigation = useNavigation<any>();
+  const { origin, destination, resetLocationData } = useLocationStore();
+  const { token, setToken } = useUserStore();
+  const { control, handleSubmit, setValue, reset } = useForm();
+  const [resetImage, setResetImage] = useState(false); // when submit is success reset the image input
 
-  const onSubmit = (data) => {
-    console.log(data)
-    console.log("submit");
+  // Create Post Function
+  const { mutateAsync: createPackageForm, isPending } = useMutation({
+    mutationFn: createPost,
+  });
+
+  const resetFormData = () => {
+    reset(); // Form inputs in create tab
+    setResetImage(true); // Image input
+    resetLocationData(); // store data
   };
 
+  const onSubmit = async (data: FieldValues) => {
+    try {
+      const formData = new FormData();
+      formData.append("package_name", data.package_name);
+      formData.append("pkg_details", data.pkg_details);
+      formData.append("cper_weight", data.cper_weight);
+      formData.append("cper_amount", data.cper_amount);
+      formData.append("date_to_go", data.date_to_go);
+      formData.append("from_where", "From");
+      formData.append("to_where", "to");
+      formData.append("package_pic", {
+        uri: data.package_pic[0].uri,
+        name: data.package_pic[0].fileName,
+        type: data.package_pic[0].mimeType,
+      });
+
+      const result = await createPackageForm({
+        token,
+        body: formData,
+      });
+
+      // If success
+      if (result) {
+        setToken(result.msg); // change token for another route
+        resetFormData();
+        navigation.navigate("NewFeed");
+        setResetImage(false);
+      }
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+
+  // set the value for location from store
+  useEffect(() => {
+    setValue("from_where", origin);
+    setValue("to_where", destination);
+  }, [origin, destination]);
+
   return (
-    <ScrollView style={styles.container}>
-      <View>
-        <CustomText
-          text="Package Photos"
-          textStyle={{
-            color: "grey",
-            marginBottom: 3,
-          }}
+    <SafeAreaProvider>
+      <ScrollView style={styles.container}>
+        {/* Image Picker */}
+        <CustomImagePicker
+          name="package_pic"
+          control={control}
+          resetImage={resetImage}
+          title="Photos"
         />
-        <View
-          style={{
-            height: windowWidth - 80,
-            borderWidth: 1.8,
-            borderRadius: 15,
-            borderColor: "#696969",
-            borderStyle: "dashed",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: 20,
-          }}
-        >
-          <Ionicons name="add" size={70} color="#696969" />
+
+        {/* Locations */}
+        <View style={styles.section}>
+          <CustomText text="Locations" textStyle={styles.sectionTitle} />
+          {/* Warning text */}
+          <View style={styles.iconRow}>
+            <Ionicons
+              name={
+                origin && destination
+                  ? "checkmark-circle-outline"
+                  : "alert-circle-outline"
+              }
+              size={18}
+              color={origin && destination ? "green" : "orange"}
+            />
+            <CustomText
+              text={
+                origin && destination
+                  ? "Location is selected"
+                  : "Please select a location to proceed"
+              }
+              textStyle={{
+                fontSize: 12,
+                color: origin && destination ? "green" : "orange",
+              }}
+            />
+          </View>
+
+          {/* Location Image */}
+          <TouchableOpacity
+            style={[
+              styles.locationButton,
+              { borderColor: !origin ? "#a6a6a6" : "green" },
+            ]}
+            onPress={() => navigation.navigate("ChooseLocations")}
+          >
+            <ImageContainer
+              imageSource={require("../assets/images/map.png")}
+              imageContainerStyle={styles.imageContainer}
+            />
+          </TouchableOpacity>
         </View>
-      </View>
 
-      <CustomInput
-        title="Package Name"
-        name="package_name"
-        control={control}
-        rules={{ required: true }}
-        placeholder="Myint Chin"
-        style={{ marginBottom: 15 }}
-      />
+        {/* Package Name */}
+        <CustomInput
+          title="Package Name"
+          name="package_name"
+          control={control}
+          rules={{ required: "Package Name is required" }}
+          placeholder="Myint Chin"
+          style={styles.input}
+        />
 
-      <CustomInput
-        title="Date"
-        name="date_to_go"
-        control={control}
-        rules={{ required: true }}
-        placeholder="Myint Chin"
-        style={{ marginBottom: 15 }}
-      />
+        <View style={styles.row}>
+          {/* Weight */}
+          <CustomInput
+            title="Weight"
+            name="cper_weight"
+            control={control}
+            rules={{ required: "Weight is required" }}
+            placeholder="0"
+            style={styles.halfInput}
+          />
+          {/* Amount */}
+          <CustomInput
+            title="Amount"
+            name="cper_amount"
+            control={control}
+            rules={{ required: "Amount is required" }}
+            placeholder="0"
+            style={styles.halfInput}
+          />
+        </View>
 
-      <CustomInput
-        title="Weight"
-        name="cper_weight"
-        control={control}
-        rules={{ required: true }}
-        placeholder="Myint Chin"
-        style={{ marginBottom: 15 }}
-      />
+        {/* Date Picker */}
+        <DatePicker
+          labelName="Date"
+          control={control}
+          setValue={setValue}
+          name="date_to_go"
+          rules={{ required: "Date is required" }}
+          style={styles.input}
+        />
 
-      <CustomInput
-        title="Amount"
-        name="cper_amount"
-        control={control}
-        rules={{ required: true }}
-        placeholder="Myint Chin"
-        style={{ marginBottom: 15 }}
-      />
+        {/* Description */}
+        <CustomInput
+          title="Description"
+          name="pkg_details"
+          control={control}
+          rules={{ required: "Description is required" }}
+          placeholder="Package Ka Bar Nyar Poh"
+          style={styles.input}
+          inputStyle={styles.textArea}
+        />
 
-      <CustomInput
-        title="Package Description"
-        name="pkg_details"
-        control={control}
-        rules={{ required: true }}
-        placeholder="Package Ka Bar Nyar Poh"
-        style={{ marginBottom: 15 }}
-        inputStyle={{
-          height: 120,
-          textAlignVertical: "top",
-        }}
-      />
-
-      <CustomButton
-        title="Create"
-        style={{ marginBottom: 50 }}
-        textStyle={{ textAlign: "center" }}
-        onPress={handleSubmit(onSubmit)}
-      />
-    </ScrollView>
+        {/* Submit Btn */}
+        <CustomButton
+          onPress={handleSubmit(onSubmit)}
+          style={styles.button}
+          textStyle={styles.buttonText}
+          title={isPending ? "Loading..." : "Create"}
+          disabled={isPending}
+        />
+      </ScrollView>
+    </SafeAreaProvider>
   );
 };
 
@@ -114,5 +200,49 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 15,
     paddingTop: 20,
+  },
+  section: {
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    color: "grey",
+    marginBottom: 2,
+  },
+  iconRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginBottom: 3,
+  },
+  locationButton: {
+    borderRadius: 5,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  imageContainer: {
+    width: "100%",
+    height: 100,
+  },
+  input: {
+    marginBottom: 15,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  halfInput: {
+    width: "48%",
+  },
+  textArea: {
+    height: 120,
+    textAlignVertical: "top",
+  },
+  button: {
+    marginBottom: 30,
+    paddingVertical: 10,
+  },
+  buttonText: {
+    textAlign: "center",
   },
 });

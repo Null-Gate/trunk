@@ -8,6 +8,7 @@ use futures_util::StreamExt;
 use surrealdb::Notification;
 use tokio::sync::Mutex;
 
+#[allow(dead_code)]
 pub async fn live_select(state: Arc<AtomicBool>, result: Arc<Mutex<DbUserInfo>>) {
     let db = DB.get().await;
     db.use_ns("ns").use_db("db").await.unwrap();

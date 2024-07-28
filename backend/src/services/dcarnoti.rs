@@ -14,6 +14,7 @@ use crate::structures::{
     wsstruct::{NType, Noti},
 };
 
+#[allow(dead_code)]
 pub async fn gnotifd(
     db: &Surreal<Dbt>,
     username: String,

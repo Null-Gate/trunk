@@ -9,6 +9,7 @@ use tokio::sync::Mutex;
 
 use crate::structures::{bookstruct::BookTB, extrastruct::Dbt, wsstruct::Noti};
 
+#[allow(dead_code)]
 pub async fn booknoti(
     db: &Surreal<Dbt>,
     username: String,

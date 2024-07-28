@@ -32,7 +32,7 @@ use crate::{
     services::{ganoti::get_all_noti, notinit::notinit},
     structures::{
         auth::Claims,
-        car::{Cargo, CargoD},
+        car::Cargo,
         dbstruct::DbUserInfo,
         extrastruct::{Dbt, DB, JWT_SECRET},
         wsstruct::{Event, NotiD, SLoc, WSReq, WSResp, Wst},
@@ -92,7 +92,10 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             println!("NWS Conn: {peer:?}");
             let anstate = Arc::new(AtomicBool::new(false));
             let anresult: Arc<Mutex<Option<NotiD<Value>>>> = Arc::new(Mutex::new(None));
+            let ctstate = Arc::new(AtomicBool::new(false));
+            let ctresult: Arc<Mutex<SLoc>> = Arc::new(Mutex::new(SLoc::default()));
             let mut dur = tokio::time::interval(Duration::from_millis(10));
+            let mut ldur = tokio::time::interval(Duration::from_millis(500));
             tokio::spawn(get_all_noti(
                 db,
                 db_user_info.lock().await.username.clone(),
@@ -137,6 +140,22 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                                     cargodt.ctloc = ctloc;
                                     db.update::<Option<Cargo>>(("cargo", Id::String(cargod.clone()))).content(cargodt).await.unwrap().unwrap();
                                 }
+                            }
+                        }
+                    }
+                }
+            } else if wst == Wst::LocG {
+                tokio::spawn(get_loc(
+                    db,
+                    cargod.clone(),
+                    ctresult.clone(),
+                    ctstate.clone(),
+                ));
+                loop {
+                    tokio::select! {
+                        _ = ldur.tick() => {
+                            if ctstate.swap(false, Ordering::Relaxed) {
+                                ws_sender.send(Message::Text(serde_json::to_string_pretty(&*(ctresult.lock().await)).unwrap())).await.unwrap();
                             }
                         }
                     }

@@ -1,8 +1,10 @@
-use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
+use std::collections::BTreeMap;
+
+use actix_multipart::form::{json::Json, tempfile::TempFile, text::Text, MultipartForm};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::{Id, Thing};
 
-use super::post::Post;
+use super::{post::Post, wsstruct::SLoc};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbCarInfo {
@@ -26,10 +28,10 @@ pub struct CarForm {
 pub struct CarPostForm {
     pub car_id: String,
     pub driver_id: String,
-    pub from_where: String,
+    pub from_where: SLoc,
+    pub to_where: SLoc,
     pub cper_weight: u32,
     pub cper_amount: u32,
-    pub to_where: String,
     pub date_to_go: String,
 }
 
@@ -46,9 +48,10 @@ pub struct Cargo {
     pub car: Thing,
     pub pdata: Post<DbCarInfo>,
     pub casta: PaSta,
-    pub stloc: String,
-    pub fnloc: String,
-    pub ctloc: Option<String>,
+    pub stloc: SLoc,
+    pub fnloc: SLoc,
+    pub ctloc: SLoc,
+    pub tlocs: BTreeMap<i64, SLoc>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -59,9 +62,10 @@ pub struct CargoD {
     pub car: Thing,
     pub pdata: Post<DbCarInfo>,
     pub casta: PaSta,
-    pub stloc: String,
-    pub fnloc: String,
-    pub ctloc: Option<String>,
+    pub stloc: SLoc,
+    pub fnloc: SLoc,
+    pub ctloc: SLoc,
+    pub tlocs: BTreeMap<i64, SLoc>,
 }
 
 #[derive(Serialize, Deserialize)]

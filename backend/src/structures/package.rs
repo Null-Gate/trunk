@@ -1,4 +1,6 @@
-use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
+use actix_multipart::form::{json::Json, tempfile::TempFile, text::Text, MultipartForm};
+
+use super::wsstruct::SLoc;
 
 #[derive(MultipartForm)]
 pub struct PackageForm {
@@ -8,7 +10,7 @@ pub struct PackageForm {
     pub pkg_details: Text<String>,
     pub cper_weight: Text<u32>,
     pub cper_amount: Text<u32>,
-    pub to_where: Text<String>,
-    pub from_where: Text<String>,
+    pub to_where: Json<SLoc>,
+    pub from_where: Json<SLoc>,
     pub date_to_go: Text<String>,
 }

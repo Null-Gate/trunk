@@ -4,7 +4,7 @@ use surrealdb::{opt::PatchOp, sql::Id};
 use crate::{
     extra::functions::{ct_user, internal_error},
     structures::{
-        car::{CargoD, DbCarInfo, PaSta, Cargo},
+        car::{Cargo, CargoD, DbCarInfo, PaSta},
         extrastruct::DB,
         post::PostD,
         wsstruct::{NType, Noti},

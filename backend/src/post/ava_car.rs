@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use actix_web::{
     post,
     web::{Json, Path},
@@ -14,7 +16,7 @@ use crate::{
         dbstruct::{DbUserInfo, Roles},
         extrastruct::{Resp, DB},
         post::{OwnTB, PostD},
-        wsstruct::{NType, Noti},
+        wsstruct::{NType, Noti, SLoc},
     },
 };
 
@@ -79,7 +81,8 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         casta: PaSta::Pend,
                         stloc: post.from_where.clone(),
                         fnloc: post.to_where.clone(),
-                        ctloc: None,
+                        ctloc: SLoc::default(),
+                        tlocs: BTreeMap::new(),
                     };
                     db.create::<Option<PostD<DbCarInfo>>>((
                         "car_post",

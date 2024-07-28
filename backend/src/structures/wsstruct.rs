@@ -42,6 +42,13 @@ pub enum NType {
     CDriverDny,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub enum Wst {
+    Noti,
+    LocS,
+    LocG,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Noti<T> {
     pub data: T,
@@ -53,4 +60,10 @@ pub struct NotiD<T> {
     pub id: Thing,
     pub data: T,
     pub ntyp: NType,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct SLoc {
+    pub lat: f64,
+    pub lng: f64,
 }

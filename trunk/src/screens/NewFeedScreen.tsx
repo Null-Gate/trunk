@@ -18,6 +18,7 @@ interface PostModalInfo {
 }
 
 const NewFeedScreen = () => {
+  const { setToken, user } = useUserStore();
   const [feedDatas, setFeedDatas] = useState<any>([]);
   const [postModalInfo, setPostModalInfo] = useState<PostModalInfo>({
     modalVisible: false,
@@ -42,6 +43,10 @@ const NewFeedScreen = () => {
       return newInfo;
     });
   };
+
+  useEffect(() => {
+    setToken(user?.token);
+  }, []);
 
   return (
     <>

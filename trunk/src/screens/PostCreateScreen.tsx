@@ -36,6 +36,7 @@ const PostCreateScreen = () => {
   };
 
   const onSubmit = async (data: FieldValues) => {
+    console.log(data);
     try {
       const formData = new FormData();
       formData.append("package_name", data.package_name);
@@ -62,6 +63,7 @@ const PostCreateScreen = () => {
         resetFormData();
         navigation.navigate("NewFeed");
         setResetImage(false);
+        console.log("success");
       }
     } catch (error: any) {
       console.error(error);
@@ -191,7 +193,7 @@ const PostCreateScreen = () => {
     </SafeAreaProvider>
   );
 };
-  
+
 export default PostCreateScreen;
 
 const styles = StyleSheet.create({
@@ -246,4 +248,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-

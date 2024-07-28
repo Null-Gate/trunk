@@ -1,18 +1,15 @@
 import React, { useEffect } from "react";
 import {
-
-	View,
-	StyleSheet,
-	Dimensions,
-	TouchableWithoutFeedback,
-	Keyboard,
-	KeyboardAvoidingView,
-         Alert,
-	Platform,
-	Pressable
-} from 'react-native'
-import React, { useState, useEffect } from 'react'
-
+  View,
+  StyleSheet,
+  Dimensions,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Alert,
+  Platform,
+  Pressable,
+} from "react-native";
 
 // react navigation
 import { useNavigation } from "@react-navigation/native";
@@ -122,25 +119,29 @@ const LoginScreen = () => {
               secureTextEntry
             />
 
-						<View style={{
-							flexDirection: "row",
-							justifyContent: "flex-end",
-							marginBottom: 20
-						}}>
-							<Pressable
-								onPress={() => { navigation.navigate("PasswordForgot") }}
-							>
-								<CustomText
-									text='forgot Password ?'
-									textStyle={{
-										fontSize: 13,
-										color: "#424242",
-										textDecorationLine: "underline",
-										textDecorationColor: GlobalStyles.colors.softGrey
-									}}
-								/>
-							</Pressable>
-						</View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                marginBottom: 20,
+              }}
+            >
+              <Pressable
+                onPress={() => {
+                  navigation.navigate("PasswordForgot");
+                }}
+              >
+                <CustomText
+                  text="forgot Password ?"
+                  textStyle={{
+                    fontSize: 13,
+                    color: "#424242",
+                    textDecorationLine: "underline",
+                    textDecorationColor: GlobalStyles.colors.softGrey,
+                  }}
+                />
+              </Pressable>
+            </View>
 
             <View>
               {/* start login btn */}

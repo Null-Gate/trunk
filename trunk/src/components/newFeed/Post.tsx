@@ -30,7 +30,7 @@ interface PostProps {
     creator: string,
     title: string,
     content: string,
-    imgs: ImagesProps[],
+    imgs: string,
     onPressOption: () => void
 }
 

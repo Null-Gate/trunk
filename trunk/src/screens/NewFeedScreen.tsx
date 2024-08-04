@@ -1,8 +1,14 @@
-import { View, FlatList, StyleSheet, Pressable } from "react-native";
-import React, { useState, useEffect } from "react";
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Pressable,
+  RefreshControl,
+} from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
 
 // react navigation
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 // components
 import Post from "../components/newFeed/Post";
@@ -44,33 +50,75 @@ const NewFeedScreen = () => {
     });
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      const ws = new WebSocket(`ws://54.169.162.141:9000/${user?.token}`);
+
+      ws.onopen = () => {
+        // Request different data by sending a message to the server
+        ws.send(
+          JSON.stringify({
+            event: "NewFeed",
+          })
+        );
+      };
+
+      ws.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        if (data && data.data) {
+          setFeedDatas(data.data);
+          console.log(data.data);
+        }
+      };
+
+      return () => {
+        ws.onclose = () => {
+          console.log("ws is disconnected");
+        };
+      };
+    }, [])
+  );
+
   useEffect(() => {
     setToken(user?.token);
   }, []);
+
+  // console.log("New Feed", feedDatas);
 
   return (
     <>
       <View style={styles.container}>
         <FlatList
           style={styles.listContainer}
-          data={FEED_DATA}
+          data={feedDatas}
           showsVerticalScrollIndicator={false}
+          windowSize={10}
+          maxToRenderPerBatch={5}
           renderItem={({ item }) => {
-            if (item.type === "post") {
-              return (
-                <Post
-                  creator={item.user}
-                  title={item.title}
-                  content={item.descirption}
-                  imgs={item.imgs}
-                  onPressOption={openPostModal}
-                />
-              );
-            } else {
-              return <DriverLists drivers={item.users} />;
-            }
+            return (
+              <Post
+                creator={item.in.id.String}
+                title={item.data.package_name}
+                content={item.data.pkg_details}
+                imgs={item.data.package_pic}
+                onPressOption={openPostModal}
+              />
+            );
           }}
-          keyExtractor={(item) => item.id.toString()}
+          // if (item.id.tb === "post") {
+          //   return (
+          //     <Post
+          //       creator={item.in.id.String}
+          //       title={item.out.tb}
+          //       content={item.data.pkg_details}
+          //       imgs={item.data.package_pic}
+          //       onPressOption={openPostModal}
+          //     />
+          //   );
+          // } else {
+          //   return <DriverLists drivers={item.users} />;
+          // }
+          keyExtractor={(item) => item.id.id.String}
         />
       </View>
       <PostModal

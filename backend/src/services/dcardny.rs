@@ -4,7 +4,7 @@ use surrealdb::sql::Id;
 use crate::{
     extra::functions::{ct_user, internal_error},
     structures::{
-        car::{AcData, CargoD},
+        car::{AcData, Cargo},
         extrastruct::DB,
         wsstruct::{NType, Noti},
     },
@@ -24,13 +24,13 @@ pub async fn driver_dny_car(pdata: Path<(String, String)>) -> HttpResponse {
     match ct_user(token).await {
         Ok((_, duser)) => {
             match db
-                .delete::<Option<Noti<CargoD>>>((&duser.username, Id::String(id.clone())))
+                .delete::<Option<Noti<Cargo>>>((&duser.username, Id::String(id.clone())))
                 .await
                 .unwrap()
             {
                 Some(mut ntcargo) => {
                     ntcargo.ntyp = NType::CDriverDny;
-                    db.update::<Option<Noti<CargoD>>>((
+                    db.update::<Option<Noti<Cargo>>>((
                         &ntcargo.data.owner.id.to_raw(),
                         Id::String(id.clone()),
                     ))
@@ -38,7 +38,7 @@ pub async fn driver_dny_car(pdata: Path<(String, String)>) -> HttpResponse {
                     .await
                     .unwrap()
                     .unwrap();
-                    db.delete::<Option<CargoD>>(("cargo", Id::from(&id)))
+                    db.delete::<Option<Cargo>>(("cargo", Id::from(&id)))
                         .await
                         .unwrap()
                         .unwrap();

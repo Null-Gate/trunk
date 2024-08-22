@@ -14,7 +14,7 @@ pub async fn fetch_car(id: Path<String>) -> HttpResponse {
     }
 
     match db
-        .select::<Option<DbCarInfo>>(("car", Id::from(id.as_str())))
+        .select::<Option<DbCarInfo>>(("tb_car", Id::from(id.as_str())))
         .await
     {
         Ok(Some(car)) => HttpResponse::Ok().json(car),

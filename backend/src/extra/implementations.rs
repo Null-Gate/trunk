@@ -66,15 +66,15 @@ impl CarPostForm {
         };
 
         match db
-            .select::<Option<DbCarInfo>>(("car", Id::String(self.car_id.clone())))
+            .select::<Option<DbCarInfo>>(("tb_car", Id::String(self.car_id.clone())))
             .await
         {
             Ok(Some(data)) => Ok(Post {
                 r#in: Thing {
-                    tb: "user".into(),
+                    tb: "tb_user".into(),
                     id: Id::from(username),
                 },
-                out: Thing::from(("car", Id::String(self.car_id.clone()))),
+                out: Thing::from(("tb_car", Id::String(self.car_id.clone()))),
                 ptdate: 0,
                 votes: Some(0),
                 data,

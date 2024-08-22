@@ -14,7 +14,7 @@ pub async fn carform_noti(
     state: Arc<AtomicBool>,
     result: Arc<Mutex<Option<PenCarD>>>,
 ) {
-    let mut stream = db.select("pend_car").live().await.unwrap();
+    let mut stream = db.select("tb_pend_car").live().await.unwrap();
     while let Some(res) = stream.next().await {
         let idk: Notification<PenCarD> = res.unwrap();
         if idk.data.pstat == PState::Pending && idk.action != Action::Delete {

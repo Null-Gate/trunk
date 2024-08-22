@@ -13,7 +13,7 @@ async fn fetch_ava_cars() -> HttpResponse {
         return internal_error(e);
     }
 
-    let query = "SELECT * FROM car_post ORDER BY RAND() LIMIT 30;";
+    let query = "SELECT * FROM tb_car_post ORDER BY RAND() LIMIT 30;";
 
     let mut resp = db.query(query).await.unwrap();
 

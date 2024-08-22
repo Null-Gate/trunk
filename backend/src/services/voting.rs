@@ -24,7 +24,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
         Ok(user_info) => match check_user(user_info.username.clone()).await {
             Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
-                    let cuery = "SELECT * FROM vote WHERE (in = type::thing($uthing) AND out = type::thing($pthing));";
+                    let cuery = "SELECT * FROM tb_vote WHERE (in = type::thing($uthing) AND out = type::thing($pthing));";
                     let iuery = "SELECT * FROM type::thing($pthing);";
                     let mut idk = db
                         .query(cuery)
@@ -32,14 +32,14 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                         .bind((
                             "uthing",
                             Thing {
-                                tb: "user".into(),
+                                tb: "tb_user".into(),
                                 id: Id::from(user_info.username.to_string()),
                             },
                         ))
                         .bind((
                             "pthing",
                             Thing {
-                                tb: "post".into(),
+                                tb: "tb_post".into(),
                                 id: Id::from(&paths.1),
                             },
                         ))
@@ -70,7 +70,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                             }
 
                             match db
-                                .update::<Option<Post<Value>>>(("post", Id::from(&paths.1)))
+                                .update::<Option<Post<Value>>>(("tb_post", Id::from(&paths.1)))
                                 .content(post)
                                 .await
                             {
@@ -98,7 +98,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                             }
 
                             match db
-                                .update::<Option<Post<Value>>>(("post", Id::from(&paths.1)))
+                                .update::<Option<Post<Value>>>(("tb_post", Id::from(&paths.1)))
                                 .content(post)
                                 .await
                             {
@@ -119,18 +119,18 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
 
                     let tdata = VoteTB {
                         r#in: Thing {
-                            tb: "user".into(),
+                            tb: "tb_user".into(),
                             id: Id::String(user_info.username.to_string()),
                         },
                         out: Thing {
-                            tb: "post".into(),
+                            tb: "tb_post".into(),
                             id: Id::String(paths.1.to_string()),
                         },
                         vote,
                     };
 
                     let cel = match db
-                        .create::<Option<VRelate>>(("vote", Id::rand()))
+                        .create::<Option<VRelate>>(("tb_vote", Id::rand()))
                         .content(tdata)
                         .await
                     {
@@ -148,7 +148,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                         }
 
                         match db
-                            .update::<Option<Post<Value>>>(("post", Id::from(&paths.1)))
+                            .update::<Option<Post<Value>>>(("tb_post", Id::from(&paths.1)))
                             .content(post)
                             .await
                         {

@@ -120,7 +120,7 @@ impl Default for Msg {
     fn default() -> Self {
         Self {
             id: Thing {
-                tb: "user".into(),
+                tb: "tb_user".into(),
                 id: Id::from("test"),
             },
             msg: (AccMode::default(), "".into()),

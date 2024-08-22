@@ -21,14 +21,14 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
     }
 
     let (_, duser) = ct_user(token.as_str()).await.unwrap();
-    let uql = "SELECT * FROM bkpkg WHERE owner == type::thing($uthing);";
+    let uql = "SELECT * FROM tb_bkpkg WHERE owner == type::thing($uthing);";
     let oql = if duser.pik_role.contains(&Roles::Owner) {
-        Some("SELECT * FROM cargo WHERE owner == type::thing($othing);")
+        Some("SELECT * FROM tb_cargo WHERE owner == type::thing($othing);")
     } else {
         None
     };
     let dql = if duser.pik_role.contains(&Roles::Driver) {
-        Some("SELECT * FROM cargo WHERE driver == type::thing($othing);")
+        Some("SELECT * FROM tb_cargo WHERE driver == type::thing($othing);")
     } else {
         None
     };
@@ -37,14 +37,14 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
         "uthing",
         Thing {
             id: Id::String(duser.username.clone()),
-            tb: "user".to_string(),
+            tb: "tb_user".to_string(),
         },
     ));
 
     let ors = if let Some(oql) = oql {
         Some(db.query(oql).bind(Thing {
             id: Id::String(duser.username.clone()),
-            tb: "user".to_string(),
+            tb: "tb_user".to_string(),
         }))
     } else {
         None
@@ -53,7 +53,7 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
     let drs = if let Some(dql) = dql {
         Some(db.query(dql).bind(Thing {
             id: Id::String(duser.username),
-            tb: "user".to_string(),
+            tb: "tb_user".to_string(),
         }))
     } else {
         None

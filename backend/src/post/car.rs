@@ -3,7 +3,7 @@ use actix_multipart::form::MultipartForm;
 use actix_web::{post, web::Path as WebPath, HttpResponse};
 use chrono::{TimeDelta, Utc};
 use image::{
-    io::Reader,
+    ImageReader as Reader,
     ImageFormat::{Jpeg, Png},
 };
 use jsonwebtoken::{encode, EncodingKey, Header};
@@ -68,7 +68,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         car_details: form.car_details.0,
                         is_available: false,
                         userinfo: Thing {
-                            tb: "user".into(),
+                            tb: "tb_user".into(),
                             id: Id::String(user_info.username.clone()),
                         },
                     };
@@ -83,12 +83,12 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         ntyp: NType::OwnCarForm,
                     };
 
-                    db.create::<Option<PenCar>>(("pend_car", id))
+                    db.create::<Option<PenCar>>(("tb_pend_car", id))
                         .content(pcont)
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Noti<PenCar>>>((user_info.username, Id::rand()))
+                    db.create::<Option<Noti<PenCar>>>((format!("tb_{}", user_info.username), Id::rand()))
                         .content(nt)
                         .await
                         .unwrap()

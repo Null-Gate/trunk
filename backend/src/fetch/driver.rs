@@ -12,7 +12,7 @@ async fn fetch_driver() -> HttpResponse {
         return internal_error(e);
     }
 
-    let query = "SELECT * FROM driver ORDER BY RAND() LIMIT 30;";
+    let query = "SELECT * FROM tb_driver ORDER BY RAND() LIMIT 30;";
 
     (db.query(query).await).map_or_else(internal_error, |mut resp| {
         resp.take::<Vec<DbDriverInfo>>(0)

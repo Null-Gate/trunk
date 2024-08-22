@@ -25,7 +25,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
     match ct_user(token).await {
         Ok((_, duser)) => {
             match db
-                .select::<Option<Noti<Cargo>>>((&duser.username, Id::String(id.clone())))
+                .select::<Option<Noti<Cargo>>>((&format!("tb_{}", duser.username), Id::String(id.clone())))
                 .await
                 .unwrap()
             {
@@ -33,29 +33,29 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                     ntcargo.ntyp = NType::CDriverApt;
                     let nt = db
                         .update::<Option<Noti<Cargo>>>((
-                            &ntcargo.data.owner.id.to_raw(),
+                            &format!("tb_{}", ntcargo.data.owner.id),
                             Id::String(id.clone()),
                         ))
                         .content(ntcargo)
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<PostD<DbCarInfo>>>(("post", Id::String(id.clone())))
+                    db.create::<Option<PostD<DbCarInfo>>>(("tb_post", Id::String(id.clone())))
                         .content(&nt.data.pdata)
                         .await
                         .unwrap()
                         .unwrap();
-                    db.update::<Option<DbCarInfo>>(("car", id.clone()))
+                    db.update::<Option<DbCarInfo>>(("tb_car", id.clone()))
                         .patch(PatchOp::replace("is_available", true))
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Cargo>>(("dond", Id::String(duser.username)))
+                    db.create::<Option<Cargo>>(("tb_dond", Id::String(duser.username)))
                         .content(nt)
                         .await
                         .unwrap()
                         .unwrap();
-                    db.update::<Option<Cargo>>(("cargo", id.clone()))
+                    db.update::<Option<Cargo>>(("tb_cargo", id.clone()))
                         .patch(PatchOp::add("casta", PaSta::OnGo))
                         .await
                         .unwrap()

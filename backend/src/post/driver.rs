@@ -3,7 +3,7 @@ use actix_web::{post, web::Path as WebPath, HttpResponse};
 use argon2::verify_encoded;
 use chrono::{TimeDelta, Utc};
 use image::{
-    io::Reader,
+    ImageReader as Reader,
     ImageFormat::{Jpeg, Png},
 };
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
@@ -37,7 +37,7 @@ async fn driver(
         Ok(token_info) => {
             let user_info = token_info.claims.user_info;
             match db
-                .select::<Option<DbUserInfo>>(("user", Id::String(user_info.username.to_string())))
+                .select::<Option<DbUserInfo>>(("tb_user", Id::String(user_info.username.to_string())))
                 .await
             {
                 Ok(Some(mut user)) => {
@@ -84,14 +84,14 @@ async fn driver(
                                 license_pic: pic_url,
                                 exp_details: form.exp_details.0,
                                 userinfo: Thing {
-                                    tb: "user".into(),
+                                    tb: "tb_user".into(),
                                     id: Id::String(user_info.username.to_string()),
                                 },
                             };
 
                             match db
                                 .create::<Option<DbDriverInfo>>((
-                                    "driver",
+                                    "tb_driver",
                                     Id::String(user_info.username.to_string()),
                                 ))
                                 .content(driver_info)
@@ -101,7 +101,7 @@ async fn driver(
                                     user.pik_role.push(Roles::Driver);
                                     match db
                                         .update::<Option<DbUserInfo>>((
-                                            "user",
+                                            "tb_user",
                                             Id::String(user_info.username.to_string()),
                                         ))
                                         .content(user)

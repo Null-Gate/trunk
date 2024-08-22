@@ -3,7 +3,7 @@ use actix_web::{post, web::Path as WebPath, HttpResponse};
 use argon2::verify_encoded;
 use chrono::{TimeDelta, Utc};
 use image::{
-    io::Reader,
+    ImageReader as Reader,
     ImageFormat::{Jpeg, Png},
 };
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
@@ -39,7 +39,7 @@ async fn package(
         Ok(token_info) => {
             let user_info = token_info.claims.user_info;
             match db
-                .select::<Option<DbUserInfo>>(("user", Id::String(user_info.username.to_string())))
+                .select::<Option<DbUserInfo>>(("tb_user", Id::String(user_info.username.to_string())))
                 .await
             {
                 Ok(Some(user)) => {
@@ -87,11 +87,11 @@ async fn package(
 
                             let post_car_ava = Post {
                                 r#in: Thing {
-                                    tb: "user".into(),
+                                    tb: "tb_user".into(),
                                     id: Id::String(user_info.username.to_string()),
                                 },
                                 out: Thing {
-                                    tb: "package".into(),
+                                    tb: "tb_package".into(),
                                     id: id.clone(),
                                 },
                                 ptdate: 0,
@@ -106,12 +106,12 @@ async fn package(
                             };
 
                             match db
-                                .create::<Option<DbPackageInfo>>(("package", id.clone()))
+                                .create::<Option<DbPackageInfo>>(("tb_package", id.clone()))
                                 .content(package_info)
                                 .await
                             {
                                 Ok(Some(_)) => {
-                                    db.create::<Option<PostD<DbPackageInfo>>>(("post", id.clone()))
+                                    db.create::<Option<PostD<DbPackageInfo>>>(("tb_post", id.clone()))
                                         .content(post_car_ava)
                                         .await
                                         .unwrap()

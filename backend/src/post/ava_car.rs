@@ -33,7 +33,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
             Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
                     match db
-                        .select::<Option<OwnTB>>(("own", Id::String(post.car_id.clone())))
+                        .select::<Option<OwnTB>>(("tb_own", Id::String(post.car_id.clone())))
                         .await
                     {
                         Ok(Some(_)) => {
@@ -46,16 +46,16 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                     }
 
                     let idk: DbUserInfo = db
-                        .select::<Option<DbUserInfo>>(("user", Id::String(post.driver_id.clone())))
+                        .select::<Option<DbUserInfo>>(("tb_user", Id::String(post.driver_id.clone())))
                         .await
                         .unwrap()
                         .unwrap();
                     let cidk: Option<CargoD> = db
-                        .select::<Option<CargoD>>(("cargo", Id::String(post.car_id.clone())))
+                        .select::<Option<CargoD>>(("tb_cargo", Id::String(post.car_id.clone())))
                         .await
                         .unwrap();
                     let didk: Option<CargoD> = db
-                        .select::<Option<CargoD>>(("dond", Id::String(post.driver_id.clone())))
+                        .select::<Option<CargoD>>(("tb_dond", Id::String(post.driver_id.clone())))
                         .await
                         .unwrap();
 
@@ -66,15 +66,15 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
 
                     let cargo_data = Cargo {
                         driver: Thing {
-                            tb: "user".to_string(),
+                            tb: "tb_user".to_string(),
                             id: Id::String(post.driver_id.clone()),
                         },
                         owner: Thing {
-                            tb: "user".to_string(),
+                            tb: "tb_user".to_string(),
                             id: Id::String(user_info.username.clone()),
                         },
                         car: Thing {
-                            tb: "car".to_string(),
+                            tb: "tb_car".to_string(),
                             id: Id::String(post.car_id.clone()),
                         },
                         pdata: post.to_db_post(&user_info.username).await.unwrap(),
@@ -85,7 +85,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         tlocs: BTreeMap::new(),
                     };
                     db.create::<Option<PostD<DbCarInfo>>>((
-                        "car_post",
+                        "tb_car_post",
                         Id::String(post.car_id.clone()),
                     ))
                     .content(post.to_db_post(&user_info.username).await.unwrap())
@@ -100,36 +100,36 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         data: cargo_data.clone(),
                         ntyp: NType::CDriver,
                     };
-                    db.create::<Option<Cargo>>(("cargo", Id::String(post.car_id.clone())))
+                    db.create::<Option<Cargo>>(("tb_cargo", Id::String(post.car_id.clone())))
                         .content(cargo_data)
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Noti<Cargo>>>((user_info.username.clone(), Id::rand()))
+                    db.create::<Option<Noti<Cargo>>>((format!("tb_{}", user_info.username), Id::rand()))
                         .content(ont)
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Noti<Cargo>>>((post.driver_id.clone(), Id::rand()))
+                    db.create::<Option<Noti<Cargo>>>((format!("tb_{}", post.driver_id), Id::rand()))
                         .content(dnt)
                         .await
                         .unwrap()
                         .unwrap();
                     let acdata = AcData {
                         driver: Thing {
-                            tb: "user".to_string(),
+                            tb: "tb_user".to_string(),
                             id: Id::String(post.driver_id.clone()),
                         },
                         owner: Thing {
-                            tb: "user".to_string(),
+                            tb: "tb_user".to_string(),
                             id: Id::String(user_info.username.clone()),
                         },
                         cargo: Thing {
-                            tb: "cargo".to_string(),
+                            tb: "tb_cargo".to_string(),
                             id: Id::String(post.car_id.clone()),
                         },
                     };
-                    db.create::<Option<AcData>>((&post.car_id, Id::from("cargo")))
+                    db.create::<Option<AcData>>((&format!("tb_{}", post.car_id), Id::from("cargo")))
                         .content(acdata)
                         .await
                         .unwrap()

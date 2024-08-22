@@ -29,7 +29,7 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
         Ok((_, _)) => {
             let db_car_info: PostD<DbCarInfo> = db
                 .select::<Option<PostD<DbCarInfo>>>((
-                    "car_post",
+                    "tb_car_post",
                     Id::String(info.carp_id.to_string()),
                 ))
                 .await
@@ -37,7 +37,7 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                 .unwrap();
             let db_pkg_info: PostD<DbPackageInfo> = db
                 .select::<Option<PostD<DbPackageInfo>>>((
-                    "post",
+                    "tb_post",
                     Id::String(info.pkgp_id.to_string()),
                 ))
                 .await
@@ -47,12 +47,12 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                 BookTB {
                     r#in: Thing {
                         id: Id::String(info.carp_id.to_string()),
-                        tb: "car_post".into(),
+                        tb: "tb_car_post".into(),
                     },
                     in_info: serde_json::to_value(&db_car_info).unwrap(),
                     out: Thing {
                         id: Id::String(info.pkgp_id.to_string()),
-                        tb: "post".into(),
+                        tb: "tb_post".into(),
                     },
                     out_info: serde_json::to_value(&db_pkg_info).unwrap(),
                     btype: BType::Pkg,
@@ -63,12 +63,12 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                 BookTB {
                     r#in: Thing {
                         id: Id::String(info.pkgp_id.to_string()),
-                        tb: "post".into(),
+                        tb: "tb_post".into(),
                     },
                     in_info: serde_json::to_value(&db_pkg_info).unwrap(),
                     out: Thing {
                         id: Id::String(info.carp_id.to_string()),
-                        tb: "car_post".into(),
+                        tb: "tb_car_post".into(),
                     },
                     out_info: serde_json::to_value(&db_car_info).unwrap(),
                     btype: BType::Car,
@@ -83,7 +83,7 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
             };
 
             match db
-                .create::<Option<Noti<BookTB>>>((content.data.utn.id.to_raw(), Id::rand()))
+                .create::<Option<Noti<BookTB>>>((format!("tb_{}", content.data.utn.id), Id::rand()))
                 .content(content)
                 .await
             {

@@ -26,7 +26,7 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
     let d = tokio::spawn(async {
         let db = DB.get().await;
         db.use_ns("ns").use_db("db").await.unwrap();
-        db.select::<Option<DbUserInfo>>(("user", Id::String(idk)))
+        db.select::<Option<DbUserInfo>>(("tb_user", Id::String(idk)))
             .await
     });
     /*.await
@@ -39,6 +39,10 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
         }
         Ok(None) => {}
     }*/
+
+    if contains_special_chars(&info.username) {
+        return HttpResponse::NotAcceptable().json(Resp::new("Sorry Only lowercase eng latters and number are allow for username."));
+    }
 
     match hash_encoded(
         info.password.as_bytes(),
@@ -56,7 +60,7 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
             let i: Option<DbUserInfo> = d.await.unwrap().unwrap();
             if i.is_none() {
                 match db
-                    .create::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string())))
+                    .create::<Option<DbUserInfo>>(("tb_user", Id::String(info.username.to_string())))
                     .content(user_info)
                     .await
                 {
@@ -71,4 +75,21 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
         }
         Err(e) => internal_error(e),
     }
+}
+
+fn contains_special_chars(input: &str) -> bool {
+    if !input.is_ascii() {
+        return true;
+    }
+
+    if input.chars().any(char::is_whitespace) {
+        return true;
+    }
+
+    let special_chars = "!@#$%^&*()_+-=~`{}[]|:;'<>,.?/ \\";
+    if input.chars().any(|c| special_chars.contains(c)) {
+        return true;
+    }
+
+    false
 }

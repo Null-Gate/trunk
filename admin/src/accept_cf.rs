@@ -9,7 +9,7 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
 
     if let Some(mut dbi) = db
-        .delete::<Option<PenCarD>>(("pend_car", Id::String(id.clone())))
+        .delete::<Option<PenCarD>>(("tb_pend_car", Id::String(id.clone())))
         .await
         .unwrap()
     {
@@ -23,20 +23,20 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
         let rel = OwnTB {
             r#in: dbi.data.userinfo.clone(),
             out: Thing {
-                tb: "car".into(),
+                tb: "tb_car".into(),
                 id: Id::String(id.clone()),
             },
         };
 
         let mut userinfo: DbUserInfo = db.select::<Option<DbUserInfo>>(dbi.data.userinfo.clone()).await.unwrap().unwrap();
 
-        db.create::<Option<DbCarInfo>>(("car", Id::String(id.clone())))
+        db.create::<Option<DbCarInfo>>(("tb_car", Id::String(id.clone())))
             .content(dbi.data.clone())
             .await
             .unwrap()
             .unwrap();
 
-        db.create::<Option<OwnTB>>(("own", Id::String(id.clone())))
+        db.create::<Option<OwnTB>>(("tb_own", Id::String(id.clone())))
             .content(rel)
             .await
             .unwrap()
@@ -49,7 +49,7 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
             .unwrap()
             .unwrap();
         }
-        db.create::<Option<Noti<PenCar>>>((dbi.data.userinfo.id.to_raw(), Id::rand()))
+        db.create::<Option<Noti<PenCar>>>((format!("tb_{}", dbi.data.userinfo.id), Id::rand()))
             .content(nt)
             .await
             .unwrap()

@@ -25,7 +25,7 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
         Ok((_, cuser)) => {
             match db
                 .select::<Option<Noti<BookTB>>>((
-                    cuser.username.to_string(),
+                    format!("tb_{}", cuser.username),
                     Id::String(parts.0.clone()),
                 ))
                 .await
@@ -33,7 +33,7 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                 Ok(Some(_)) => {
                     match db
                         .delete::<Option<Noti<BookTB>>>((
-                            cuser.username.to_string(),
+                            format!("tb_{}", cuser.username),
                             Id::String(parts.0),
                         ))
                         .await
@@ -48,7 +48,7 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                                 data: stat,
                             };
                             db.create::<Option<Noti<BookStat>>>((
-                                smt.data.utr.id.to_raw(),
+                                format!("tb_{}", smt.data.utr.id),
                                 Id::rand(),
                             ))
                             .content(nt)
@@ -71,7 +71,7 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                                 )
                             };
                             let bcargo: CargoD = db
-                                .select::<Option<CargoD>>(("cargo", cdt.id))
+                                .select::<Option<CargoD>>(("tb_cargo", cdt.id))
                                 .await
                                 .unwrap()
                                 .unwrap();
@@ -80,7 +80,7 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                                 pkg_data: serde_json::from_value(pdt).unwrap(),
                                 bcargo,
                             };
-                            db.create::<Option<PkgPsts>>(("bkpkg", Id::String(pid)))
+                            db.create::<Option<PkgPsts>>(("tb_bkpkg", Id::String(pid)))
                                 .content(pkgpsts)
                                 .await
                                 .unwrap()

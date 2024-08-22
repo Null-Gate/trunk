@@ -12,7 +12,7 @@ pub async fn fetch_newfeed() -> Result<Vec<Value>, tokio_tungstenite::tungstenit
         return Err(wserror(e));
     }
 
-    let pql = "SELECT * FROM post ORDER BY RAND() LIMIT 50;";
+    let pql = "SELECT * FROM tb_post ORDER BY RAND() LIMIT 50;";
 
     let mut ret = db.query(pql).await.unwrap();
     let new_feed = ret.take::<Vec<PostD<Value>>>(0).unwrap();

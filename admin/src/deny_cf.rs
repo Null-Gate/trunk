@@ -9,7 +9,7 @@ pub async fn dny_cf(path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
 
     if let Some(mut dbi) = db
-        .delete::<Option<PenCarD>>(("pend_car", Id::String(id.clone())))
+        .delete::<Option<PenCarD>>(("tb_pend_car", Id::String(id.clone())))
         .await
         .unwrap()
     {
@@ -20,7 +20,7 @@ pub async fn dny_cf(path: Path<String>) -> HttpResponse {
             ntyp: NType::CarFormApt,
         };
 
-        db.update::<Option<Noti<PenCarD>>>((dbi.data.userinfo.id.to_raw(), Id::String(id)))
+        db.update::<Option<Noti<PenCarD>>>((format!("tb_{}", dbi.data.userinfo.id.to_raw()), Id::String(id)))
             .content(nt)
             .await
             .unwrap()

@@ -129,7 +129,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                                     }
 
                                     let ctloc: SLoc = serde_json::from_str(msg.to_text().unwrap()).unwrap();
-                                    let mut cargodt: Cargo = db.select::<Option<Cargo>>(("cargo", Id::String(cargod.clone()))).await.unwrap().unwrap();
+                                    let mut cargodt: Cargo = db.select::<Option<Cargo>>(("tb_cargo", Id::String(cargod.clone()))).await.unwrap().unwrap();
                                     if cargodt.driver.id.to_string() != db_user_info.lock().await.username {
                                         ws_sender.send(Message::Close(Some(CloseFrame {
                                             code: CloseCode::Policy,
@@ -138,7 +138,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                                     }
                                     cargodt.tlocs.insert(Utc::now().timestamp(), ctloc.clone());
                                     cargodt.ctloc = ctloc;
-                                    db.update::<Option<Cargo>>(("cargo", Id::String(cargod.clone()))).content(cargodt).await.unwrap().unwrap();
+                                    db.update::<Option<Cargo>>(("tb_cargo", Id::String(cargod.clone()))).content(cargodt).await.unwrap().unwrap();
                                 }
                             }
                         }
@@ -242,7 +242,7 @@ async fn check_ws(
         .unwrap();
         let cuserinfo: DbUserInfo = db
             .select::<Option<DbUserInfo>>((
-                "user",
+                "tb_user",
                 Id::String(tuserinfo.claims.user_info.username.to_string()),
             ))
             .await
@@ -270,7 +270,7 @@ async fn get_loc(
     ctstat: Arc<AtomicBool>,
 ) {
     let mut stream = db
-        .select(("cargo", Id::String(cargod)))
+        .select(("tb_cargo", Id::String(cargod)))
         .live()
         .await
         .unwrap();

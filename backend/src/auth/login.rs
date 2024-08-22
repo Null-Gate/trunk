@@ -22,7 +22,7 @@ pub async fn login(info: Json<Login>) -> HttpResponse {
     }
 
     match db
-        .select::<Option<DbUserInfo>>(("user", Id::String(info.username.to_string())))
+        .select::<Option<DbUserInfo>>(("tb_user", Id::String(info.username.to_string())))
         .await
     {
         Ok(Some(user_info)) => {

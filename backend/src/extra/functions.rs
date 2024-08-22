@@ -43,7 +43,7 @@ pub async fn check_user(username: String) -> Result<DbUserInfo, HttpResponse> {
         return Err(internal_error(e));
     }
     match db
-        .select::<Option<DbUserInfo>>(("user", Id::from(username)))
+        .select::<Option<DbUserInfo>>(("tb_user", Id::from(username)))
         .await
     {
         Ok(Some(user)) => Ok(user),
@@ -78,7 +78,7 @@ pub async fn save_img(img: TempFile) -> Result<String, HttpResponse> {
         let img_dir = format!("{dir}/{}-{img_name}", GenString::new().gen_string(10, 30));
         (
             img_dir.clone(),
-            format!("http://54.169.162.141:80/pics{img_dir}"),
+            format!("https://kargate.site/pics{img_dir}"),
         )
     } else {
         return Err(HttpResponse::BadRequest().json(Resp::new(
@@ -107,10 +107,6 @@ pub async fn get_cache_dir() -> String {
 
 #[allow(clippy::future_not_send)]
 pub async fn ct_user(token: &str) -> Result<(DbUserInfo, DbUserInfo), HttpResponse> {
-    let db = DB.get().await;
-    if let Err(e) = db.use_ns("ns").use_db("db").await {
-        return Err(internal_error(e));
-    }
     match decode_token(token) {
         Ok(tuser_info) => match check_user(tuser_info.username.clone()).await {
             Ok(cuser_info) => match verify_password(&tuser_info.password, &cuser_info.password) {

@@ -15,12 +15,12 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
     }
 
     match db
-        .select::<Option<DbUserInfo>>(("user", Id::from(id.as_str())))
+        .select::<Option<DbUserInfo>>(("tb_user", Id::from(id.as_str())))
         .await
     {
         Ok(Some(user)) => {
-            let own_carsql = "SELECT * FROM car WHERE userinfo=type::thing($thing);";
-            let postsql = "SELECT * FROM post WHERE in=type::thing($thing);";
+            let own_carsql = "SELECT * FROM tb_car WHERE userinfo=type::thing($thing);";
+            let postsql = "SELECT * FROM tb_post WHERE in=type::thing($thing);";
             let mut idk = db
                 .query(own_carsql)
                 .query(postsql)
@@ -28,7 +28,7 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
                     "thing",
                     Thing {
                         id: Id::from(id.as_str()),
-                        tb: "user".into(),
+                        tb: "tb_user".into(),
                     },
                 ))
                 .await

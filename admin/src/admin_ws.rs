@@ -116,7 +116,7 @@ pub async fn cond_check(msg: Message, db: &Surreal<Dbt>) -> Result<Message, ()> 
                     .bind((
                         "cscthing",
                         Thing {
-                            tb: "csc".into(),
+                            tb: "tb_csc".into(),
                             id: Id::String(text.username.unwrap()),
                         },
                     ))

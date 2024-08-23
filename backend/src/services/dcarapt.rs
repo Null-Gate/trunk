@@ -36,7 +36,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                             &ntcargo.data.owner.id.to_raw(),
                             Id::String(id.clone()),
                         ))
-                        .content(ntcargo)
+                        .content(&ntcargo)
                         .await
                         .unwrap()
                         .unwrap();
@@ -45,7 +45,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                         .await
                         .unwrap()
                         .unwrap();
-                    db.update::<Option<DbCarInfo>>(("tb_car", id.clone()))
+                    db.update::<Option<DbCarInfo>>(ntcargo.data.car)
                         .patch(PatchOp::replace("is_available", true))
                         .await
                         .unwrap()

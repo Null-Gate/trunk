@@ -25,7 +25,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
     match ct_user(token).await {
         Ok((_, duser)) => {
             match db
-                .select::<Option<Noti<Cargo>>>((&format!("tb_{}", duser.username), Id::String(id.clone())))
+                .select::<Option<Noti<Cargo>>>((&duser.username, Id::String(id.clone())))
                 .await
                 .unwrap()
             {
@@ -33,7 +33,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                     ntcargo.ntyp = NType::CDriverApt;
                     let nt = db
                         .update::<Option<Noti<Cargo>>>((
-                            &format!("tb_{}", ntcargo.data.owner.id),
+                            &ntcargo.data.owner.id.to_raw(),
                             Id::String(id.clone()),
                         ))
                         .content(ntcargo)

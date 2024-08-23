@@ -23,7 +23,7 @@ pub async fn dnbooking(parts: Path<(String, String)>) -> HttpResponse {
         Ok((_, cuser)) => {
             match db
                 .select::<Option<Noti<BookTB>>>((
-                    format!("tb_{}", cuser.username),
+                    &cuser.username,
                     Id::String(parts.0.clone()),
                 ))
                 .await
@@ -31,7 +31,7 @@ pub async fn dnbooking(parts: Path<(String, String)>) -> HttpResponse {
                 Ok(Some(_)) => {
                     match db
                         .delete::<Option<Noti<BookTB>>>((
-                            format!("tb_{}", cuser.username),
+                            cuser.username,
                             Id::String(parts.0),
                         ))
                         .await
@@ -46,7 +46,7 @@ pub async fn dnbooking(parts: Path<(String, String)>) -> HttpResponse {
                                 data: stat,
                             };
                             db.create::<Option<Noti<BookStat>>>((
-                                format!("tb_{}", smt.data.utr.id),
+                                smt.data.utr.id.to_raw(),
                                 Id::rand(),
                             ))
                             .content(nt)

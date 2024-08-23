@@ -83,7 +83,7 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
             };
 
             match db
-                .create::<Option<Noti<BookTB>>>((format!("tb_{}", content.data.utn.id), Id::rand()))
+                .create::<Option<Noti<BookTB>>>((content.data.utn.id.to_raw(), Id::rand()))
                 .content(content)
                 .await
             {

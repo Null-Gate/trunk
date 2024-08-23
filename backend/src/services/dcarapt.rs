@@ -51,7 +51,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                         .unwrap()
                         .unwrap();
                     db.create::<Option<Cargo>>(("tb_dond", Id::String(duser.username)))
-                        .content(nt)
+                        .content(nt.data)
                         .await
                         .unwrap()
                         .unwrap();

@@ -3,8 +3,8 @@ use actix_web::{post, web::Path as WebPath, HttpResponse};
 use argon2::verify_encoded;
 use chrono::{TimeDelta, Utc};
 use image::{
-    ImageReader as Reader,
     ImageFormat::{Jpeg, Png},
+    ImageReader as Reader,
 };
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use surrealdb::sql::{Id, Thing};
@@ -37,7 +37,10 @@ async fn driver(
         Ok(token_info) => {
             let user_info = token_info.claims.user_info;
             match db
-                .select::<Option<DbUserInfo>>(("tb_user", Id::String(user_info.username.to_string())))
+                .select::<Option<DbUserInfo>>((
+                    "tb_user",
+                    Id::String(user_info.username.to_string()),
+                ))
                 .await
             {
                 Ok(Some(mut user)) => {

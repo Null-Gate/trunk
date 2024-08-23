@@ -22,18 +22,12 @@ pub async fn dnbooking(parts: Path<(String, String)>) -> HttpResponse {
     match ct_user(&parts.1).await {
         Ok((_, cuser)) => {
             match db
-                .select::<Option<Noti<BookTB>>>((
-                    &cuser.username,
-                    Id::String(parts.0.clone()),
-                ))
+                .select::<Option<Noti<BookTB>>>((&cuser.username, Id::String(parts.0.clone())))
                 .await
             {
                 Ok(Some(_)) => {
                     match db
-                        .delete::<Option<Noti<BookTB>>>((
-                            cuser.username,
-                            Id::String(parts.0),
-                        ))
+                        .delete::<Option<Noti<BookTB>>>((cuser.username, Id::String(parts.0)))
                         .await
                     {
                         Ok(Some(smt)) => {

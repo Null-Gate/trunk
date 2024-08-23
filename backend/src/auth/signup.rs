@@ -41,7 +41,9 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
     }*/
 
     if contains_special_chars(&info.username) {
-        return HttpResponse::NotAcceptable().json(Resp::new("Sorry Only lowercase eng latters and number are allow for username."));
+        return HttpResponse::NotAcceptable().json(Resp::new(
+            "Sorry Only lowercase eng latters and number are allow for username.",
+        ));
     }
 
     match hash_encoded(
@@ -60,7 +62,10 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
             let i: Option<DbUserInfo> = d.await.unwrap().unwrap();
             if i.is_none() {
                 match db
-                    .create::<Option<DbUserInfo>>(("tb_user", Id::String(info.username.to_string())))
+                    .create::<Option<DbUserInfo>>((
+                        "tb_user",
+                        Id::String(info.username.to_string()),
+                    ))
                     .content(user_info)
                     .await
                 {

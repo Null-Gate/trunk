@@ -3,8 +3,8 @@ use actix_web::{post, web::Path as WebPath, HttpResponse};
 use argon2::verify_encoded;
 use chrono::{TimeDelta, Utc};
 use image::{
-    ImageReader as Reader,
     ImageFormat::{Jpeg, Png},
+    ImageReader as Reader,
 };
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use surrealdb::sql::{Id, Thing};
@@ -39,7 +39,10 @@ async fn package(
         Ok(token_info) => {
             let user_info = token_info.claims.user_info;
             match db
-                .select::<Option<DbUserInfo>>(("tb_user", Id::String(user_info.username.to_string())))
+                .select::<Option<DbUserInfo>>((
+                    "tb_user",
+                    Id::String(user_info.username.to_string()),
+                ))
                 .await
             {
                 Ok(Some(user)) => {
@@ -111,11 +114,14 @@ async fn package(
                                 .await
                             {
                                 Ok(Some(_)) => {
-                                    db.create::<Option<PostD<DbPackageInfo>>>(("tb_post", id.clone()))
-                                        .content(post_car_ava)
-                                        .await
-                                        .unwrap()
-                                        .unwrap();
+                                    db.create::<Option<PostD<DbPackageInfo>>>((
+                                        "tb_post",
+                                        id.clone(),
+                                    ))
+                                    .content(post_car_ava)
+                                    .await
+                                    .unwrap()
+                                    .unwrap();
                                     let exp = usize::try_from(
                                         (Utc::now() + TimeDelta::try_days(9_999_999).unwrap())
                                             .timestamp(),

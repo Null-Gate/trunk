@@ -28,7 +28,7 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
         None
     };
     let dql = if duser.pik_role.contains(&Roles::Driver) {
-        Some("SELECT * FROM tb_cargo WHERE driver == type::thing($othing);")
+        Some("SELECT * FROM tb_cargo WHERE driver == type::thing($dthing);")
     } else {
         None
     };
@@ -42,19 +42,25 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
     ));
 
     let ors = if let Some(oql) = oql {
-        Some(db.query(oql).bind(Thing {
-            id: Id::String(duser.username.clone()),
-            tb: "tb_user".to_string(),
-        }))
+        Some(db.query(oql).bind((
+            "othing",
+            Thing {
+                id: Id::String(duser.username.clone()),
+                tb: "tb_user".to_string(),
+            },
+        )))
     } else {
         None
     };
 
     let drs = if let Some(dql) = dql {
-        Some(db.query(dql).bind(Thing {
-            id: Id::String(duser.username),
-            tb: "tb_user".to_string(),
-        }))
+        Some(db.query(dql).bind((
+            "dthing",
+            Thing {
+                id: Id::String(duser.username),
+                tb: "tb_user".to_string(),
+            },
+        )))
     } else {
         None
     };

@@ -3,8 +3,8 @@ use actix_multipart::form::MultipartForm;
 use actix_web::{post, web::Path as WebPath, HttpResponse};
 use chrono::{TimeDelta, Utc};
 use image::{
-    ImageReader as Reader,
     ImageFormat::{Jpeg, Png},
+    ImageReader as Reader,
 };
 use jsonwebtoken::{encode, EncodingKey, Header};
 use surrealdb::sql::{Id, Thing};

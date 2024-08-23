@@ -46,7 +46,10 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                     }
 
                     let idk: DbUserInfo = db
-                        .select::<Option<DbUserInfo>>(("tb_user", Id::String(post.driver_id.clone())))
+                        .select::<Option<DbUserInfo>>((
+                            "tb_user",
+                            Id::String(post.driver_id.clone()),
+                        ))
                         .await
                         .unwrap()
                         .unwrap();

@@ -27,7 +27,10 @@ pub async fn delete(jwt: Path<String>) -> HttpResponse {
         Ok(token_info) => {
             let user_info = token_info.claims.user_info;
             match db
-                .select::<Option<DbUserInfo>>(("tb_user", Id::String(user_info.username.to_string())))
+                .select::<Option<DbUserInfo>>((
+                    "tb_user",
+                    Id::String(user_info.username.to_string()),
+                ))
                 .await
             {
                 Ok(Some(user)) => {

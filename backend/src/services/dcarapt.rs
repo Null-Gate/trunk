@@ -45,7 +45,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                         .await
                         .unwrap()
                         .unwrap();
-                    db.update::<Option<DbCarInfo>>(ntcargo.data.car)
+                    db.update::<Option<DbCarInfo>>(&ntcargo.data.car)
                         .patch(PatchOp::replace("is_available", true))
                         .await
                         .unwrap()
@@ -55,7 +55,7 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                         .await
                         .unwrap()
                         .unwrap();
-                    db.update::<Option<Cargo>>(("tb_cargo", id.clone()))
+                    db.update::<Option<Cargo>>(("tb_cargo", ntcargo.data.car.id))
                         .patch(PatchOp::add("casta", PaSta::OnGo))
                         .await
                         .unwrap()

@@ -16,7 +16,7 @@ pub async fn booknoti(
     state: Arc<AtomicBool>,
     result: Arc<Mutex<Option<Noti<BookTB>>>>,
 ) {
-    let mut stream = db.select(format!("tb_{username}")).live().await.unwrap();
+    let mut stream = db.select(username).live().await.unwrap();
     while let Some(res) = stream.next().await {
         let idk: Notification<Noti<BookTB>> = res.unwrap();
         state.swap(true, Ordering::Relaxed);

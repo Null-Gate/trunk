@@ -105,12 +105,12 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Noti<Cargo>>>((format!("tb_{}", user_info.username), Id::rand()))
+                    db.create::<Option<Noti<Cargo>>>((&user_info.username, Id::rand()))
                         .content(ont)
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Noti<Cargo>>>((format!("tb_{}", post.driver_id), Id::rand()))
+                    db.create::<Option<Noti<Cargo>>>((&post.driver_id, Id::rand()))
                         .content(dnt)
                         .await
                         .unwrap()
@@ -129,7 +129,7 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                             id: Id::String(post.car_id.clone()),
                         },
                     };
-                    db.create::<Option<AcData>>((&format!("tb_{}", post.car_id), Id::from("cargo")))
+                    db.create::<Option<AcData>>((&post.car_id, Id::from("cargo")))
                         .content(acdata)
                         .await
                         .unwrap()

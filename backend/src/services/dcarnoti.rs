@@ -21,7 +21,7 @@ pub async fn gnotifd(
     noti_status: Arc<AtomicBool>,
     noti_result: Arc<Mutex<Option<Noti<CargoD>>>>,
 ) {
-    let mut gntf = db.select(format!("tb_{username}")).live().await.unwrap();
+    let mut gntf = db.select(username).live().await.unwrap();
 
     while let Some(smt) = gntf.next().await {
         match smt {

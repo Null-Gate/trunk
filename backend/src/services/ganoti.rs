@@ -16,7 +16,7 @@ pub async fn get_all_noti(
     state: Arc<AtomicBool>,
     result: Arc<Mutex<Option<NotiD<Value>>>>,
 ) {
-    let mut stream = db.select(format!("tb_{username}")).live().await.unwrap();
+    let mut stream = db.select(username).live().await.unwrap();
     while let Some(res) = stream.next().await {
         let idk: Notification<NotiD<Value>> = res.unwrap();
         state.swap(true, Ordering::Relaxed);

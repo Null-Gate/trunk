@@ -24,14 +24,14 @@ pub async fn driver_dny_car(pdata: Path<(String, String)>) -> HttpResponse {
     match ct_user(token).await {
         Ok((_, duser)) => {
             match db
-                .delete::<Option<Noti<Cargo>>>((format!("tb_{}", duser.username), Id::String(id.clone())))
+                .delete::<Option<Noti<Cargo>>>((duser.username, Id::String(id.clone())))
                 .await
                 .unwrap()
             {
                 Some(mut ntcargo) => {
                     ntcargo.ntyp = NType::CDriverDny;
                     db.update::<Option<Noti<Cargo>>>((
-                        &format!("tb_{}", ntcargo.data.owner.id),
+                        ntcargo.data.owner.id.to_raw(),
                         Id::String(id.clone()),
                     ))
                     .content(ntcargo)
@@ -42,7 +42,7 @@ pub async fn driver_dny_car(pdata: Path<(String, String)>) -> HttpResponse {
                         .await
                         .unwrap()
                         .unwrap();
-                    db.delete::<Option<AcData>>((&format!("tb_{id}"), Id::from("cargo")))
+                    db.delete::<Option<AcData>>((id, Id::from("cargo")))
                         .await
                         .unwrap()
                         .unwrap();

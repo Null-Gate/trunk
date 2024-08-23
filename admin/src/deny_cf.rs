@@ -20,7 +20,7 @@ pub async fn dny_cf(path: Path<String>) -> HttpResponse {
             ntyp: NType::CarFormApt,
         };
 
-        db.update::<Option<Noti<PenCarD>>>((format!("tb_{}", dbi.data.userinfo.id.to_raw()), Id::String(id)))
+        db.update::<Option<Noti<PenCarD>>>((dbi.data.userinfo.id.to_raw(), Id::String(id)))
             .content(nt)
             .await
             .unwrap()

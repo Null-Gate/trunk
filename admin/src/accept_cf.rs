@@ -49,7 +49,7 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
             .unwrap()
             .unwrap();
         }
-        db.create::<Option<Noti<PenCar>>>((format!("tb_{}", dbi.data.userinfo.id), Id::rand()))
+        db.create::<Option<Noti<PenCar>>>((dbi.data.userinfo.id.to_raw(), Id::rand()))
             .content(nt)
             .await
             .unwrap()

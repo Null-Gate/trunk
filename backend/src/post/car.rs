@@ -88,7 +88,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Noti<PenCar>>>((format!("tb_{}", user_info.username), Id::rand()))
+                    db.create::<Option<Noti<PenCar>>>((user_info.username, Id::rand()))
                         .content(nt)
                         .await
                         .unwrap()

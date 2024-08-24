@@ -13,7 +13,7 @@ async fn apt_dreg(path: Path<String>) -> HttpResponse {
 
     DELETE type::thing($tbthing);
 
-    UPDATE type::thing($dthing) SET pik_role += \"Driver\";
+    UPDATE type::thing($dthing) SET pik_role += 'Driver';
 
     CREATE type::thing($uthing) CONTENT type::object($othing);
 

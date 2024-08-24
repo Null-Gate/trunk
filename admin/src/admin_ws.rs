@@ -26,7 +26,10 @@ use std::{
 };
 
 use crate::{
-    carform_upload::carform_noti, driver_register::drivereg_noti, live_chat::live_chat, structures::{wserror, AccMode, Dbt, Event, WSReq, WSResp, DB}
+    carform_upload::carform_noti,
+    driver_register::drivereg_noti,
+    live_chat::live_chat,
+    structures::{wserror, AccMode, Dbt, Event, WSReq, WSResp, DB},
 };
 
 pub async fn wsserver() {

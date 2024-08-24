@@ -7,13 +7,13 @@ use tracing::Level;
 
 use actix_web::{web, App, HttpServer, Responder};
 
-mod accept_dreg;
-mod deny_dreg;
-mod driver_register;
 mod accept_cf;
+mod accept_dreg;
 mod admin_ws;
 mod carform_upload;
 mod deny_cf;
+mod deny_dreg;
+mod driver_register;
 mod live_chat;
 mod structures;
 

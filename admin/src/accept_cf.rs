@@ -1,7 +1,9 @@
 use actix_web::{put, web::Path, HttpResponse};
 use surrealdb::sql::{Id, Thing};
 
-use crate::structures::{DbCarInfo, DbUserInfo, NType, Noti, OwnTB, PState, PenCar, PenCarD, Roles, DB};
+use crate::structures::{
+    DbCarInfo, DbUserInfo, NType, Noti, OwnTB, PState, PenCar, PenCarD, Roles, DB,
+};
 
 #[put("/accept/carf/{id}")]
 pub async fn apt_cf(path: Path<String>) -> HttpResponse {
@@ -29,7 +31,11 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
             },
         };
 
-        let mut userinfo: DbUserInfo = db.select::<Option<DbUserInfo>>(dbi.data.userinfo.clone()).await.unwrap().unwrap();
+        let mut userinfo: DbUserInfo = db
+            .select::<Option<DbUserInfo>>(dbi.data.userinfo.clone())
+            .await
+            .unwrap()
+            .unwrap();
 
         db.create::<Option<DbCarInfo>>(("tb_car", Id::String(id.clone())))
             .content(dbi.data.clone())
@@ -44,11 +50,11 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
             .unwrap();
         if !userinfo.pik_role.contains(&Roles::Owner) {
             userinfo.pik_role.push(Roles::Owner);
-        db.update::<Option<DbUserInfo>>(dbi.data.userinfo.clone())
-            .content(userinfo)
-            .await
-            .unwrap()
-            .unwrap();
+            db.update::<Option<DbUserInfo>>(dbi.data.userinfo.clone())
+                .content(userinfo)
+                .await
+                .unwrap()
+                .unwrap();
         }
         db.create::<Option<Noti<PenCar>>>((dbi.data.userinfo.id.to_raw(), Id::rand()))
             .content(nt)

@@ -4,7 +4,9 @@ use async_once::AsyncOnce;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use surrealdb::{
-    engine::remote::ws::{Client, Ws}, sql::{Id, Thing}, Surreal
+    engine::remote::ws::{Client, Ws},
+    sql::{Id, Thing},
+    Surreal,
 };
 use tracing::error;
 

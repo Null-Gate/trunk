@@ -13,7 +13,8 @@ use crate::{
     structures::{
         auth::Claims,
         dbstruct::{DbDriverInfo, DbUserInfo, PState, PenDReg, Roles},
-        extrastruct::{DriverForm, Resp, DB, JWT_SECRET}, wsstruct::{NType, Noti},
+        extrastruct::{DriverForm, Resp, DB, JWT_SECRET},
+        wsstruct::{NType, Noti},
     },
 };
 
@@ -99,12 +100,23 @@ async fn driver(
 
                             let nt = Noti {
                                 data: pdreg.clone(),
-                                ntyp: NType::DriverRegForm
+                                ntyp: NType::DriverRegForm,
                             };
 
-                            db.create::<Option<DbDriverInfo>>(("tb_pend_driver", Id::String(user_info.username.clone()))).content(pdreg).await.unwrap().unwrap();
+                            db.create::<Option<DbDriverInfo>>((
+                                "tb_pend_driver",
+                                Id::String(user_info.username.clone()),
+                            ))
+                            .content(pdreg)
+                            .await
+                            .unwrap()
+                            .unwrap();
 
-                            db.create::<Option<Noti<PenDReg>>>((user_info.username, Id::rand())).content(nt).await.unwrap().unwrap();
+                            db.create::<Option<Noti<PenDReg>>>((user_info.username, Id::rand()))
+                                .content(nt)
+                                .await
+                                .unwrap()
+                                .unwrap();
                             HttpResponse::Ok().await.unwrap()
 
                             /*match db

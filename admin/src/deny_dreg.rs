@@ -18,25 +18,30 @@ async fn dny_dreg(path: Path<String>) -> HttpResponse {
     COMMIT TRANSACTION;
     "#;
 
-    db.query(sql).bind((
+    db.query(sql)
+        .bind((
             "tbthing",
             Thing {
                 tb: "tb_pend_driver".to_string(),
-                id: Id::String(path.to_string())
-            }
-    )).bind((
-    "uthing",
-    Thing {
-        tb: path.to_string(),
-        id: Id::rand()
-    }
-    )).bind((
-    "othing",
-    Noti {
-        data: "The Driver Registration Has Been Denied!",
-        ntyp: NType::DriverRegDny
-    }
-    )).await.unwrap();
+                id: Id::String(path.to_string()),
+            },
+        ))
+        .bind((
+            "uthing",
+            Thing {
+                tb: path.to_string(),
+                id: Id::rand(),
+            },
+        ))
+        .bind((
+            "othing",
+            Noti {
+                data: "The Driver Registration Has Been Denied!",
+                ntyp: NType::DriverRegDny,
+            },
+        ))
+        .await
+        .unwrap();
 
     HttpResponse::Ok().await.unwrap()
 }

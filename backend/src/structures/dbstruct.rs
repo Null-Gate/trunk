@@ -25,6 +25,20 @@ pub struct PenCar {
     pub data: DbCarInfo,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PenDReg {
+    pub pstat: PState,
+    pub data: DbDriverInfo,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DbDriverInfo {
+    pub license_num: String,
+    pub license_pic: String,
+    pub exp_details: String,
+    pub userinfo: Thing,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PenCarD {
     pub id: Thing,
@@ -45,14 +59,6 @@ pub struct DbUserInfo {
     pub fullname: String,
     pub password: String,
     pub pik_role: Vec<Roles>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct DbDriverInfo {
-    pub license_num: String,
-    pub license_pic: String,
-    pub exp_details: String,
-    pub userinfo: Thing,
 }
 
 #[derive(Serialize, Deserialize)]

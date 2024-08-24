@@ -17,7 +17,7 @@ pub async fn dny_cf(path: Path<String>) -> HttpResponse {
 
         let nt = Noti {
             data: dbi.clone(),
-            ntyp: NType::CarFormApt,
+            ntyp: NType::CarFormDny,
         };
 
         db.update::<Option<Noti<PenCarD>>>((dbi.data.userinfo.id.to_raw(), Id::String(id)))

@@ -26,9 +26,7 @@ use std::{
 };
 
 use crate::{
-    carform_upload::carform_noti,
-    live_chat::live_chat,
-    structures::{wserror, AccMode, Dbt, Event, WSReq, WSResp, DB},
+    carform_upload::carform_noti, driver_register::drivereg_noti, live_chat::live_chat, structures::{wserror, AccMode, Dbt, Event, WSReq, WSResp, DB}
 };
 
 pub async fn wsserver() {
@@ -65,9 +63,12 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
             let query_result = Arc::new(Mutex::new(Value::default()));
             let carf_notis = Arc::new(AtomicBool::new(false));
             let carf_notir = Arc::new(Mutex::new(None));
+            let dreg_notis = Arc::new(AtomicBool::new(false));
+            let dreg_notir = Arc::new(Mutex::new(None));
 
             tokio::spawn(live_chat(query_state.clone(), query_result.clone(), db));
             tokio::spawn(carform_noti(db, carf_notis.clone(), carf_notir.clone()));
+            tokio::spawn(drivereg_noti(db, dreg_notis.clone(), dreg_notir.clone()));
 
             loop {
                 tokio::select! {
@@ -95,7 +96,15 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                                      data: carf_notir.lock().await.clone().unwrap()
                                  };
                                  ws_sender.send(Message::text(serde_json::to_string_pretty(&resp).unwrap())).await.unwrap();
-                             }
+                            }
+
+                            if dreg_notis.swap(false, Ordering::Relaxed) {
+                                 let resp = WSResp {
+                                     event: Event::DregFormNoti,
+                                     data: dreg_notir.lock().await.clone().unwrap()
+                                 };
+                                 ws_sender.send(Message::text(serde_json::to_string_pretty(&resp).unwrap())).await.unwrap();
+                            }
 
                          }
                 }

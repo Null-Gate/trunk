@@ -35,6 +35,8 @@ pub enum NType {
     Bac,
     Bdn,
     AvaCar,
+    DriverRegForm,
+    DriverRegApt,
     OwnCarForm,
     CarFormApt,
     CDriver,

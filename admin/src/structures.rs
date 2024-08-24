@@ -32,6 +32,7 @@ pub enum Event {
     Csc,
     Auth,
     CarFormNoti,
+    DregFormNoti,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Default, Clone)]
@@ -75,6 +76,24 @@ pub enum NType {
     AvaCar,
     OwnCarForm,
     CarFormApt,
+    CarFormDny,
+    DriverRegForm,
+    DriverRegApt,
+    DriverRegDny,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PenDReg {
+    pub pstat: PState,
+    pub data: DbDriverInfo,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DbDriverInfo {
+    pub license_num: String,
+    pub license_pic: String,
+    pub exp_details: String,
+    pub userinfo: Thing,
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]

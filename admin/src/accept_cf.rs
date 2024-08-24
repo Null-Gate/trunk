@@ -6,6 +6,7 @@ use crate::structures::{DbCarInfo, DbUserInfo, NType, Noti, OwnTB, PState, PenCa
 #[put("/accept/carf/{id}")]
 pub async fn apt_cf(path: Path<String>) -> HttpResponse {
     let db = DB.get().await;
+    db.use_ns("ns").use_db("db").await.unwrap();
     let id = path.into_inner();
 
     if let Some(mut dbi) = db

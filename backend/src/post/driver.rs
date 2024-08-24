@@ -1,23 +1,23 @@
 use actix_multipart::form::MultipartForm;
 use actix_web::{post, web::Path as WebPath, HttpResponse};
 use argon2::verify_encoded;
-use chrono::{TimeDelta, Utc};
 use image::{
     ImageFormat::{Jpeg, Png},
     ImageReader as Reader,
 };
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use surrealdb::sql::{Id, Thing};
 
 use crate::{
     extra::functions::{internal_error, save_img},
     structures::{
         auth::Claims,
-        dbstruct::{DbDriverInfo, DbUserInfo, Roles},
-        extrastruct::{DriverForm, Resp, DB, JWT_SECRET},
+        dbstruct::{DbDriverInfo, DbUserInfo, PState, PenDReg, Roles},
+        extrastruct::{DriverForm, Resp, DB, JWT_SECRET}, wsstruct::{NType, Noti},
     },
 };
 
+#[allow(clippy::future_not_send)]
 #[allow(clippy::pedantic)]
 #[post("/forms/driver/{token}")]
 async fn driver(
@@ -43,7 +43,7 @@ async fn driver(
                 ))
                 .await
             {
-                Ok(Some(mut user)) => {
+                Ok(Some(user)) => {
                     if user.pik_role.contains(&Roles::Driver) {
                         return HttpResponse::AlreadyReported()
                             .json(Resp::new("Sorry User has been already uploaded as driver!"));
@@ -88,11 +88,26 @@ async fn driver(
                                 exp_details: form.exp_details.0,
                                 userinfo: Thing {
                                     tb: "tb_user".into(),
-                                    id: Id::String(user_info.username.to_string()),
+                                    id: Id::String(user_info.username.clone()),
                                 },
                             };
 
-                            match db
+                            let pdreg = PenDReg {
+                                pstat: PState::Pending,
+                                data: driver_info,
+                            };
+
+                            let nt = Noti {
+                                data: pdreg.clone(),
+                                ntyp: NType::DriverRegForm
+                            };
+
+                            db.create::<Option<DbDriverInfo>>(("tb_pend_driver", Id::String(user_info.username.clone()))).content(pdreg).await.unwrap().unwrap();
+
+                            db.create::<Option<Noti<PenDReg>>>((user_info.username, Id::rand())).content(nt).await.unwrap().unwrap();
+                            HttpResponse::Ok().await.unwrap()
+
+                            /*match db
                                 .create::<Option<DbDriverInfo>>((
                                     "tb_driver",
                                     Id::String(user_info.username.to_string()),
@@ -140,7 +155,7 @@ async fn driver(
                                 }
                                 Ok(None) => internal_error("None Driver Error"),
                                 Err(e) => internal_error(e),
-                            }
+                            }*/
                         }
                         Err(e) => internal_error(e),
                     }

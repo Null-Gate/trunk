@@ -3,6 +3,8 @@ use std::{fs::File, io::BufReader};
 use accept_cf::apt_cf;
 use admin_ws::wsserver;
 use deny_cf::dny_cf;
+use accept_dreg::apt_dreg;
+use deny_dreg::dny_dreg;
 use tracing::Level;
 
 use actix_web::{web, App, HttpServer, Responder};
@@ -54,6 +56,8 @@ pub async fn main() -> std::io::Result<()> {
             .default_service(web::to(root_page))
             .service(apt_cf)
             .service(dny_cf)
+            .service(apt_dreg)
+            .service(dny_dreg)
     })
     .bind_rustls_0_23(
         (

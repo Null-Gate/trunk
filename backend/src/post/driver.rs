@@ -103,7 +103,7 @@ async fn driver(
                                 ntyp: NType::DriverRegForm,
                             };
 
-                            db.create::<Option<DbDriverInfo>>((
+                            db.create::<Option<PenDReg>>((
                                 "tb_pend_driver",
                                 Id::String(user_info.username.clone()),
                             ))

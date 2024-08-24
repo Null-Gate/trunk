@@ -13,8 +13,6 @@ async fn dny_dreg(path: Path<String>) -> HttpResponse {
 
     DELETE type::thing($tbthing);
 
-    CREATE type::thing($uthing) CONTENT type::object($othing);
-
     COMMIT TRANSACTION;
     "#;
 
@@ -33,15 +31,15 @@ async fn dny_dreg(path: Path<String>) -> HttpResponse {
                 id: Id::rand(),
             },
         ))
-        .bind((
-            "othing",
-            Noti {
-                data: "The Driver Registration Has Been Denied!",
-                ntyp: NType::DriverRegDny,
-            },
-        ))
         .await
         .unwrap();
+
+    let nt = Noti {
+        data: "The Driver Registration Has Been Denied!",
+        ntyp: NType::DriverRegDny,
+    };
+
+    db.create::<Option<Noti<String>>>((path.to_string(), Id::rand())).content(nt).await.unwrap().unwrap();
 
     HttpResponse::Ok().await.unwrap()
 }

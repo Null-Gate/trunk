@@ -15,6 +15,8 @@ async fn apt_dreg(path: Path<String>) -> HttpResponse {
 
     UPDATE type::thing($dthing) SET pik_role += 'Driver';
 
+    CREATE type::thing($uthing) SET data = $data, ntyp = $ntyp;
+
     COMMIT TRANSACTION;
     "#;
 
@@ -33,14 +35,21 @@ async fn apt_dreg(path: Path<String>) -> HttpResponse {
                 id: Id::String(path.to_string()),
             },
         ))
+        .bind((
+            "uthing",
+            Thing {
+                tb: path.to_string(),
+                id: Id::rand()
+            }
+        ))
+        .bind(
+            Noti {
+                data: "The Driver Registration Has Been Approved!",
+                ntyp: NType::DriverRegApt,
+            }
+        )
         .await
         .unwrap();
-    let nt = Noti {
-        data: "The Driver Registration Has Been Approved!",
-        ntyp: NType::DriverRegApt,
-    };
-
-    db.create::<Option<Noti<String>>>((path.to_string(), Id::rand())).content(nt).await.unwrap().unwrap();
 
     HttpResponse::Ok().await.unwrap()
 }

@@ -77,7 +77,7 @@ pub async fn save_img(img: TempFile) -> Result<String, HttpResponse> {
     let pic_path = if let Some(img_name) = img.file_name {
         let img_name = format!("{}-{img_name}", GenString::new().gen_string(10, 30));
         let img_dir = format!("{dir}/{img_name}");
-        (img_dir, format!("https://kargate.site/pics{img_name}"))
+        (img_dir, format!("https://kargate.site/pics/{img_name}"))
     } else {
         return Err(HttpResponse::BadRequest().json(Resp::new(
             "Sorry You have to provide the name of the image!",

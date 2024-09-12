@@ -52,7 +52,7 @@ const NewFeedScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      const ws = new WebSocket(`ws://54.169.162.141:9000/${user?.token}`);
+      const ws = new WebSocket(`ws://34.83.96.230:9692/noti/_/${user?.token}`);
 
       ws.onopen = () => {
         // Request different data by sending a message to the server
@@ -97,10 +97,10 @@ const NewFeedScreen = () => {
           renderItem={({ item }) => {
             return (
               <Post
-                creator={item.in.id.String}
-                title={item.data.package_name}
-                content={item.data.pkg_details}
-                imgs={item.data.package_pic}
+                creator={item?.in?.id?.String}
+                title={item?.data?.package_name}
+                content={item?.data?.pkg_details}
+                imgs={item?.data?.package_pic}
                 onPressOption={openPostModal}
               />
             );

@@ -1,0 +1,89 @@
+// {
+//   "request": {
+//     "trigger": {
+//       "remoteMessage": {
+//         "originalPriority": 2,
+//         "sentTime": 1725873389758,
+//         "notification": {
+//           "usesDefaultVibrateSettings": false,
+//           "color": null,
+//           "channelId": null,
+//           "visibility": null, 
+//           "sound": null,
+//           "tag": null,
+//           "bodyLocalizationArgs": null,
+//           "imageUrl": null,
+//           "title": "KarGate",
+//           "vibrateTimings": null,
+//           "ticker": null,
+//           "eventTime": null,
+//           "body": "blar",
+//           "titleLocalizationKey": null,
+//           "notificationPriority": null,
+//           "icon": null,
+//           "usesDefaultLightSettings": false,
+//           "sticky": false,
+//           "link": null,
+//           "titleLocalizationArgs": null,
+//           "bodyLocalizationKey": null,
+//           "usesDefaultSound": false,
+//           "clickAction": null,
+//           "localOnly": false,
+//           "lightSettings": null,
+//           "notificationCount": null
+//         },
+//         "data": {
+//           "channelId": "default",
+//           "message": "blar",
+//           "title": "KarGate",
+//           "body": "{}",
+//           "scopeKey": "@minthiha/trunk",
+//           "experienceId": "@minthiha/trunk",
+//           "projectId": "aedc72dc-1dd3-45fd-97b1-858e449b2a86"
+//         },
+//         "to": null,
+//         "ttl": 0,
+//         "collapseKey": "host.exp.exponent",
+//         "messageType": null,
+//         "priority": 2,
+//         "from": "367315174693",
+//         "messageId": "0:1725873389768574%0ac519e60ac519e6"
+//       },
+//       "channelId": "default",
+//       "type": "push"
+//     },
+//     "content": {
+//       "title": "KarGate",
+//       "badge": null,
+//       "autoDismiss": true,
+//       "data": {},
+//       "body": "blar",
+//       "sound": "default",
+//       "sticky": false,
+//       "subtitle": null
+//     },
+//     "identifier": "0:1725873389768574%0ac519e60ac519e6"
+//   },
+//   "date": 1725873389758
+// }
+
+[
+  {
+    "id": { "tb": "driver3", "id": { "String": "f3c2gmmgl6j56vr1xphp" } },
+    "data": {
+      "data": {
+        "exp_details": "asdasdsasa",
+        "license_num": "dassa",
+        "license_pic": "https://kargate.site/picsA7CWx6HNGMWanY60Ti92aff29OuxJ2OLNwUGEwHs-423735748_7176891482386501_7503464269423585408_n.jpg",
+        "userinfo": { "tb": "tb_user", "id": { "String": "driver3" } }
+      },
+      "pstat": "Pending"
+    },
+    "ntyp": "DriverRegForm"
+  },
+  {
+    "id": { "tb": "driver3", "id": { "String": "wwnbo2d9dlx8z701k0zq" } },
+    "data": "The Driver Registration Has Been Approved!",
+    "ntyp": "DriverRegApt"
+  }
+]

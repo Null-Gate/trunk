@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "93752002455",
+    "project_id": "kargate-9b842",
+    "storage_bucket": "kargate-9b842.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:93752002455:android:67449ad53348293155a6d2",
+        "android_client_info": {
+          "package_name": "com.minthiha.trunk"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxdVDw35Vw5LE4R0iUOpc13ONwtaIy67k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

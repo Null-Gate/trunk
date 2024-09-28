@@ -6,7 +6,7 @@ use actix_web::{
     HttpResponse,
 };
 use argon2::hash_encoded;
-use surrealdb::{sql::Id, Surreal};
+use surrealdb::{sql::Id, RecordId, Surreal};
 
 use crate::{
     extra::functions::internal_error,
@@ -20,26 +20,18 @@ use crate::{
 #[post("/sign_up")]
 pub async fn signup(info: Json<Signup>) -> HttpResponse {
     let rand_salt = GenString::new().gen_string(20, 100);
-    let idk = info.username.clone();
     let db = DB.get().await;
     db.use_ns("ns").use_db("db").await.unwrap();
-    let d = tokio::spawn(async {
-        let db = DB.get().await;
-        db.use_ns("ns").use_db("db").await.unwrap();
-        db.select::<Option<DbUserInfo>>(("tb_user", Id::String(idk)))
-            .await
-    });
-    /*.await
-    {
-        Ok(Some(_)) => {
-            return HttpResponse::NotAcceptable().json(Resp::new("User Already exits!"));
-        }
-        Err(e) => {
-            return internal_error(e);
-        }
-        Ok(None) => {}
-    }*/
-
+    let sql = r"
+        LET $ut = type::thing($uthing);
+        LET $select = SELECT * FROM $ut;
+        IF $ut.id != [] {
+            RETURN NONE;
+        } ELSE {
+            RETURN CREATE $ut SET username = $username, password = $password, fullname = $fullname, pik_role = $pik_role;
+        };
+    ";
+    
     if contains_special_chars(&info.username) {
         return HttpResponse::NotAcceptable().json(Resp::new(
             "Sorry Only lowercase eng latters and number are allow for username.",
@@ -58,25 +50,17 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
                 password: hash,
                 pik_role: vec![],
             };
+            let mut resul = db.query(sql).bind((
+                "uthing",
+                RecordId::from_table_key("tb_user", &info.username)
+            )).bind(user_info).await.unwrap();
 
-            let i: Option<DbUserInfo> = d.await.unwrap().unwrap();
-            if i.is_none() {
-                match db
-                    .create::<Option<DbUserInfo>>((
-                        "tb_user",
-                        Id::String(info.username.to_string()),
-                    ))
-                    .content(user_info)
-                    .await
-                {
-                    Ok(Some(_)) => {
-                        return HttpResponse::Ok().json(Resp::new("All Good Account Is Created!"))
-                    }
-                    Ok(None) => return internal_error("None User Error"),
-                    Err(e) => return internal_error(e),
-                }
-            };
-            HttpResponse::NotAcceptable().json(Resp::new("User Already exits!"))
+            let qres: Option<DbUserInfo> = resul.take(0).unwrap();
+            if qres.is_none() {
+                HttpResponse::NotAcceptable().json(Resp::new("Sorry User Already Exits!"))
+            } else {
+                HttpResponse::Ok().json(Resp::new("All Good Acc Is Created!!"))
+            }
         }
         Err(e) => internal_error(e),
     }

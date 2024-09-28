@@ -2,7 +2,7 @@
 use actix_web::HttpResponse;
 use rand::distributions::{Alphanumeric, DistString};
 use serde_json::Value;
-use surrealdb::sql::{Id, Thing};
+use surrealdb::{sql::{Id, Thing}, RecordId};
 
 use crate::{
     extra::functions::internal_error,
@@ -66,7 +66,7 @@ impl CarPostForm {
         };
 
         match db
-            .select::<Option<DbCarInfo>>(("tb_car", Id::String(self.car_id.clone())))
+            .select::<Option<DbCarInfo>>(RecordId::from_table_key("tb_car", self.car_id))
             .await
         {
             Ok(Some(data)) => Ok(Post {

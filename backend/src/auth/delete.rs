@@ -1,7 +1,7 @@
 use actix_web::{delete, web::Path, HttpResponse};
 use argon2::verify_encoded;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
-use surrealdb::sql::Id;
+use surrealdb::RecordId;
 
 use crate::{
     extra::functions::internal_error,
@@ -27,9 +27,9 @@ pub async fn delete(jwt: Path<String>) -> HttpResponse {
         Ok(token_info) => {
             let user_info = token_info.claims.user_info;
             match db
-                .select::<Option<DbUserInfo>>((
+                .select::<Option<DbUserInfo>>(RecordId::from_table_key(
                     "tb_user",
-                    Id::String(user_info.username.to_string()),
+                    &user_info.username,
                 ))
                 .await
             {
@@ -42,9 +42,9 @@ pub async fn delete(jwt: Path<String>) -> HttpResponse {
                             }
 
                             match db
-                                .delete::<Option<DbUserInfo>>((
+                                .delete::<Option<DbUserInfo>>(RecordId::from_table_key(
                                     "tb_user",
-                                    Id::String(user_info.username.to_string()),
+                                    &user_info.username,
                                 ))
                                 .await
                             {

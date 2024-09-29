@@ -19,17 +19,21 @@ use crate::{
 
 #[post("/sign_up")]
 pub async fn signup(info: Json<Signup>) -> HttpResponse {
-    let rand_salt = GenString::new().gen_string(20, 100);
     let db = DB.get().await;
     db.use_ns("ns").use_db("db").await.unwrap();
     let sql = r"
+        BEGIN TRANSACTION;
+
         LET $ut = type::thing($uthing);
         LET $select = SELECT * FROM $ut;
+
         IF $ut.id != [] {
             RETURN NONE;
         } ELSE {
-            RETURN CREATE $ut SET username = $username, password = $password, fullname = $fullname, pik_role = $pik_role;
+            RETURN CREATE $ut SET username = $username, password = crypto::argon2::generate($password), fullname = $fullname, pik_role = $pik_role;
         };
+
+        COMMIT TRANSACTION;
     ";
     
     if contains_special_chars(&info.username) {
@@ -38,31 +42,24 @@ pub async fn signup(info: Json<Signup>) -> HttpResponse {
         ));
     }
 
-    match hash_encoded(
-        info.password.as_bytes(),
-        rand_salt.as_bytes(),
-        &ARGON_CONFIG,
-    ) {
-        Ok(hash) => {
-            let user_info = DbUserInfo {
-                username: info.username.clone(),
-                fullname: info.fullname.clone(),
-                password: hash,
-                pik_role: vec![],
-            };
-            let mut resul = db.query(sql).bind((
-                "uthing",
-                RecordId::from_table_key("tb_user", &info.username)
-            )).bind(user_info).await.unwrap();
+    let user_info = DbUserInfo {
+        username: info.username.clone(),
+        fullname: info.fullname.clone(),
+        password: info.password.clone(),
+        pik_role: vec![],
+    };
 
-            let qres: Option<DbUserInfo> = resul.take(0).unwrap();
-            if qres.is_none() {
-                HttpResponse::NotAcceptable().json(Resp::new("Sorry User Already Exits!"))
-            } else {
-                HttpResponse::Ok().json(Resp::new("All Good Acc Is Created!!"))
-            }
-        }
-        Err(e) => internal_error(e),
+    let mut resul = db.query(sql).bind((
+        "uthing",
+        RecordId::from_table_key("tb_user", &info.username)
+    )).bind(user_info).await.unwrap();
+
+    let qres: Option<DbUserInfo> = resul.take(0).unwrap();
+
+    if qres.is_none() {
+        HttpResponse::NotAcceptable().json(Resp::new("Sorry User Already Exits!"))
+    } else {
+        HttpResponse::Ok().json(Resp::new("All Good Acc Is Created!!"))
     }
 }
 

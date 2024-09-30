@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::RecordId;
 
 use super::{
     car::{CargoD, DbCarInfo},
@@ -36,12 +36,12 @@ pub struct DbDriverInfo {
     pub license_num: String,
     pub license_pic: String,
     pub exp_details: String,
-    pub userinfo: Thing,
+    pub userinfo: RecordId,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PenCarD {
-    pub id: Thing,
+    pub id: RecordId,
     pub pstat: PState,
     pub data: DbCarInfo,
 }
@@ -63,7 +63,7 @@ pub struct DbUserInfo {
 
 #[derive(Serialize, Deserialize)]
 pub struct PkgPsts {
-    pub owner: Thing,
+    pub owner: RecordId,
     pub pkg_data: PostD<DbPackageInfo>,
     pub bcargo: CargoD,
 }

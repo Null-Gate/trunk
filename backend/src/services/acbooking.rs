@@ -1,5 +1,5 @@
 use actix_web::{post, web::Path, HttpResponse};
-use surrealdb::sql::Id;
+use surrealdb::{RecordId, Uuid};
 
 use crate::{
     extra::functions::{ct_user, internal_error},
@@ -24,12 +24,15 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
     match ct_user(&parts.1).await {
         Ok((_, cuser)) => {
             match db
-                .select::<Option<Noti<BookTB>>>((&cuser.username, Id::String(parts.0.clone())))
+                .select::<Option<Noti<BookTB>>>(RecordId::from_table_key(&cuser.username, &parts.0))
                 .await
             {
                 Ok(Some(_)) => {
                     match db
-                        .delete::<Option<Noti<BookTB>>>((&cuser.username, Id::String(parts.0)))
+                        .delete::<Option<Noti<BookTB>>>(RecordId::from_table_key(
+                            &cuser.username,
+                            &parts.0,
+                        ))
                         .await
                     {
                         Ok(Some(smt)) => {
@@ -41,9 +44,9 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                                 ntyp: NType::Bac,
                                 data: stat,
                             };
-                            db.create::<Option<Noti<BookStat>>>((
-                                smt.data.utr.id.to_raw(),
-                                Id::rand(),
+                            db.create::<Option<Noti<BookStat>>>(RecordId::from_table_key(
+                                smt.data.utr.key().to_string(),
+                                Uuid::new_v4().as_simple().to_string(),
                             ))
                             .content(nt)
                             .await
@@ -51,21 +54,24 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                             .unwrap();
                             let (pid, uid, cdt, pdt) = if smt.data.btype == BType::Pkg {
                                 (
-                                    smt.data.out.id.to_raw(),
+                                    smt.data.out.key().to_string(),
                                     smt.data.utn,
                                     smt.data.r#in,
                                     smt.data.out_info,
                                 )
                             } else {
                                 (
-                                    smt.data.r#in.id.to_raw(),
+                                    smt.data.r#in.key().to_string(),
                                     smt.data.utr,
                                     smt.data.out,
                                     smt.data.in_info,
                                 )
                             };
                             let bcargo: CargoD = db
-                                .select::<Option<CargoD>>(("tb_cargo", cdt.id))
+                                .select::<Option<CargoD>>(RecordId::from_table_key(
+                                    "tb_cargo",
+                                    cdt.key().to_string(),
+                                ))
                                 .await
                                 .unwrap()
                                 .unwrap();
@@ -74,7 +80,7 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                                 pkg_data: serde_json::from_value(pdt).unwrap(),
                                 bcargo,
                             };
-                            db.create::<Option<PkgPsts>>(("tb_bkpkg", Id::String(pid)))
+                            db.create::<Option<PkgPsts>>(RecordId::from_table_key("tb_bkpkg", pid))
                                 .content(pkgpsts)
                                 .await
                                 .unwrap()

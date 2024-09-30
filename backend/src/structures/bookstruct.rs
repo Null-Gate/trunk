@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use surrealdb::sql::Thing;
+use surrealdb::RecordId;
 
 use super::post::PostD;
 
@@ -25,13 +25,13 @@ pub enum BStat {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct BookTB {
-    pub r#in: Thing,
+    pub r#in: RecordId,
     pub in_info: Value,
-    pub out: Thing,
+    pub out: RecordId,
     pub out_info: Value,
     pub btype: BType,
-    pub utn: Thing,
-    pub utr: Thing,
+    pub utn: RecordId,
+    pub utr: RecordId,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -42,10 +42,10 @@ pub struct BookStat {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GBookTB<L, V> {
-    pub r#in: Thing,
+    pub r#in: RecordId,
     pub in_info: PostD<L>,
-    pub out: Thing,
+    pub out: RecordId,
     pub out_info: PostD<V>,
-    pub utn: Thing,
-    pub utr: Thing,
+    pub utn: RecordId,
+    pub utr: RecordId,
 }

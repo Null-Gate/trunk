@@ -6,7 +6,8 @@ use image::{
     ImageReader as Reader,
 };
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
-use surrealdb::sql::{Id, Thing};
+use surrealdb::RecordId;
+use uuid::Uuid;
 
 use crate::{
     extra::functions::{internal_error, save_img},
@@ -38,9 +39,9 @@ async fn driver(
         Ok(token_info) => {
             let user_info = token_info.claims.user_info;
             match db
-                .select::<Option<DbUserInfo>>((
+                .select::<Option<DbUserInfo>>(RecordId::from_table_key(
                     "tb_user",
-                    Id::String(user_info.username.to_string()),
+                    &user_info.username,
                 ))
                 .await
             {
@@ -87,10 +88,7 @@ async fn driver(
                                 license_num: form.license_num.into_inner(),
                                 license_pic: pic_url,
                                 exp_details: form.exp_details.0,
-                                userinfo: Thing {
-                                    tb: "tb_user".into(),
-                                    id: Id::String(user_info.username.clone()),
-                                },
+                                userinfo: RecordId::from_table_key("tb_user", &user_info.username),
                             };
 
                             let pdreg = PenDReg {
@@ -103,20 +101,23 @@ async fn driver(
                                 ntyp: NType::DriverRegForm,
                             };
 
-                            db.create::<Option<PenDReg>>((
+                            db.create::<Option<PenDReg>>(RecordId::from_table_key(
                                 "tb_pend_driver",
-                                Id::String(user_info.username.clone()),
+                                &user_info.username,
                             ))
                             .content(pdreg)
                             .await
                             .unwrap()
                             .unwrap();
 
-                            db.create::<Option<Noti<PenDReg>>>((user_info.username, Id::rand()))
-                                .content(nt)
-                                .await
-                                .unwrap()
-                                .unwrap();
+                            db.create::<Option<Noti<PenDReg>>>(RecordId::from_table_key(
+                                user_info.username,
+                                Uuid::new_v4().simple().to_string(),
+                            ))
+                            .content(nt)
+                            .await
+                            .unwrap()
+                            .unwrap();
                             HttpResponse::Ok().await.unwrap()
 
                             /*match db

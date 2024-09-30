@@ -4,7 +4,7 @@ use actix_multipart::form::tempfile::TempFile;
 use actix_web::{get, web::Path, HttpResponse};
 use argon2::verify_encoded;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use surrealdb::sql::Id;
+use surrealdb::RecordId;
 use tokio::fs;
 use tracing::error;
 
@@ -37,13 +37,13 @@ pub fn verify_password(password: &str, hash: &str) -> Result<(), HttpResponse> {
     }
 }
 
-pub async fn check_user(username: String) -> Result<DbUserInfo, HttpResponse> {
+pub async fn check_user(username: &str) -> Result<DbUserInfo, HttpResponse> {
     let db = DB.get().await;
     if let Err(e) = db.use_ns("ns").use_db("db").await {
         return Err(internal_error(e));
     }
     match db
-        .select::<Option<DbUserInfo>>(("tb_user", Id::from(username)))
+        .select::<Option<DbUserInfo>>(RecordId::from_table_key("tb_user", username))
         .await
     {
         Ok(Some(user)) => Ok(user),
@@ -106,7 +106,7 @@ pub async fn get_cache_dir() -> String {
 #[allow(clippy::future_not_send)]
 pub async fn ct_user(token: &str) -> Result<(DbUserInfo, DbUserInfo), HttpResponse> {
     match decode_token(token) {
-        Ok(tuser_info) => match check_user(tuser_info.username.clone()).await {
+        Ok(tuser_info) => match check_user(&tuser_info.username).await {
             Ok(cuser_info) => match verify_password(&tuser_info.password, &cuser_info.password) {
                 Ok(()) => Ok((tuser_info, cuser_info)),
                 Err(e) => Err(e),

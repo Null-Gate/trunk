@@ -1,22 +1,18 @@
-#![allow(unused_imports)]
 use actix_multipart::form::MultipartForm;
 use actix_web::{post, web::Path as WebPath, HttpResponse};
-use chrono::{TimeDelta, Utc};
 use image::{
     ImageFormat::{Jpeg, Png},
     ImageReader as Reader,
 };
-use jsonwebtoken::{encode, EncodingKey, Header};
-use surrealdb::sql::{Id, Thing};
+use surrealdb::RecordId;
+use uuid::Uuid;
 
 use crate::{
     extra::functions::{check_user, decode_token, internal_error, save_img, verify_password},
     structures::{
-        auth::Claims,
         car::{CarForm, DbCarInfo},
-        dbstruct::{DbUserInfo, PState, PenCar, Roles},
-        extrastruct::{Resp, DB, JWT_SECRET},
-        post::OwnTB,
+        dbstruct::{PState, PenCar},
+        extrastruct::{Resp, DB},
         wsstruct::{NType, Noti},
     },
 };
@@ -31,7 +27,7 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
     }
 
     match decode_token(&token) {
-        Ok(user_info) => match check_user(user_info.username.clone()).await {
+        Ok(user_info) => match check_user(&user_info.username).await {
             Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(_) => {
                     match Reader::open(form.owner_proof.file.path()) {
@@ -59,18 +55,15 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         }
                     };
 
-                    let id = Id::rand();
+                    let id = Uuid::new_v4().simple();
 
                     let car_info = DbCarInfo {
                         license_num: form.license_num.0,
-                        car_id: id.clone(),
+                        car_id: id.to_string(),
                         owner_proof: pic_url,
                         car_details: form.car_details.0,
                         is_available: false,
-                        userinfo: Thing {
-                            tb: "tb_user".into(),
-                            id: Id::String(user_info.username.clone()),
-                        },
+                        userinfo: RecordId::from_table_key("tb_user", &user_info.username),
                     };
 
                     let pcont = PenCar {
@@ -83,16 +76,22 @@ async fn car(MultipartForm(form): MultipartForm<CarForm>, token: WebPath<String>
                         ntyp: NType::OwnCarForm,
                     };
 
-                    db.create::<Option<PenCar>>(("tb_pend_car", id))
-                        .content(pcont)
-                        .await
-                        .unwrap()
-                        .unwrap();
-                    db.create::<Option<Noti<PenCar>>>((user_info.username, Id::rand()))
-                        .content(nt)
-                        .await
-                        .unwrap()
-                        .unwrap();
+                    db.create::<Option<PenCar>>(RecordId::from_table_key(
+                        "tb_pend_car",
+                        id.to_string(),
+                    ))
+                    .content(pcont)
+                    .await
+                    .unwrap()
+                    .unwrap();
+                    db.create::<Option<Noti<PenCar>>>(RecordId::from_table_key(
+                        user_info.username,
+                        Uuid::new_v4().simple().to_string(),
+                    ))
+                    .content(nt)
+                    .await
+                    .unwrap()
+                    .unwrap();
                     HttpResponse::Ok().await.unwrap()
 
                     /*match db

@@ -1,5 +1,6 @@
 use actix_web::{post, web::Path, HttpResponse};
-use surrealdb::sql::Id;
+use surrealdb::RecordId;
+use uuid::Uuid;
 
 use crate::{
     extra::functions::{ct_user, internal_error},
@@ -22,12 +23,15 @@ pub async fn dnbooking(parts: Path<(String, String)>) -> HttpResponse {
     match ct_user(&parts.1).await {
         Ok((_, cuser)) => {
             match db
-                .select::<Option<Noti<BookTB>>>((&cuser.username, Id::String(parts.0.clone())))
+                .select::<Option<Noti<BookTB>>>(RecordId::from_table_key(&cuser.username, &parts.0))
                 .await
             {
                 Ok(Some(_)) => {
                     match db
-                        .delete::<Option<Noti<BookTB>>>((cuser.username, Id::String(parts.0)))
+                        .delete::<Option<Noti<BookTB>>>(RecordId::from_table_key(
+                            &cuser.username,
+                            &parts.0,
+                        ))
                         .await
                     {
                         Ok(Some(smt)) => {
@@ -39,9 +43,9 @@ pub async fn dnbooking(parts: Path<(String, String)>) -> HttpResponse {
                                 ntyp: NType::Bdn,
                                 data: stat,
                             };
-                            db.create::<Option<Noti<BookStat>>>((
-                                smt.data.utr.id.to_raw(),
-                                Id::rand(),
+                            db.create::<Option<Noti<BookStat>>>(RecordId::from_table_key(
+                                smt.data.utr.key().to_string(),
+                                Uuid::new_v4().simple().to_string(),
                             ))
                             .content(nt)
                             .await

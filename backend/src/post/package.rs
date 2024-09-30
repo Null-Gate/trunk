@@ -7,7 +7,8 @@ use image::{
     ImageReader as Reader,
 };
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use surrealdb::sql::{Id, Thing};
+use surrealdb::RecordId;
+use uuid::Uuid;
 
 use crate::{
     extra::functions::{internal_error, save_img},
@@ -39,9 +40,9 @@ async fn package(
         Ok(token_info) => {
             let user_info = token_info.claims.user_info;
             match db
-                .select::<Option<DbUserInfo>>((
+                .select::<Option<DbUserInfo>>(RecordId::from_table_key(
                     "tb_user",
-                    Id::String(user_info.username.to_string()),
+                    &user_info.username,
                 ))
                 .await
             {
@@ -86,17 +87,11 @@ async fn package(
                                 pkg_details: form.pkg_details.0,
                             };
 
-                            let id = Id::rand();
+                            let id = Uuid::new_v4().as_simple().to_string();
 
                             let post_car_ava = Post {
-                                r#in: Thing {
-                                    tb: "tb_user".into(),
-                                    id: Id::String(user_info.username.to_string()),
-                                },
-                                out: Thing {
-                                    tb: "tb_package".into(),
-                                    id: id.clone(),
-                                },
+                                r#in: RecordId::from_table_key("tb_user", &user_info.username),
+                                out: RecordId::from_table_key("tb_package", &id),
                                 ptdate: 0,
                                 from_where: form.from_where.into_inner(),
                                 to_where: form.to_where.into_inner(),

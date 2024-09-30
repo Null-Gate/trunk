@@ -1,6 +1,6 @@
 use actix_web::{get, web::Path, HttpResponse};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use surrealdb::sql::{Id, Thing};
+use surrealdb::RecordId;
 
 use crate::{
     extra::functions::{ct_user, internal_error},
@@ -35,19 +35,13 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
 
     let urs = db.query(uql).bind((
         "uthing",
-        Thing {
-            id: Id::String(duser.username.clone()),
-            tb: "tb_user".to_string(),
-        },
+        RecordId::from_table_key("tb_user", &duser.username),
     ));
 
     let ors = if let Some(oql) = oql {
         Some(db.query(oql).bind((
             "othing",
-            Thing {
-                id: Id::String(duser.username.clone()),
-                tb: "tb_user".to_string(),
-            },
+            RecordId::from_table_key("tb_user", &duser.username),
         )))
     } else {
         None
@@ -56,10 +50,7 @@ pub async fn get_cargos(token: Path<String>) -> HttpResponse {
     let drs = if let Some(dql) = dql {
         Some(db.query(dql).bind((
             "dthing",
-            Thing {
-                id: Id::String(duser.username),
-                tb: "tb_user".to_string(),
-            },
+            RecordId::from_table_key("tb_user", &duser.username),
         )))
     } else {
         None

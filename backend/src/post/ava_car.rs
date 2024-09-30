@@ -6,7 +6,8 @@ use actix_web::{
     HttpResponse,
 };
 use chrono::{TimeDelta, Utc};
-use surrealdb::sql::{Id, Thing};
+use surrealdb::RecordId;
+use uuid::Uuid;
 
 use crate::{
     extra::functions::{check_user, decode_token, encode_token, internal_error, verify_password},
@@ -29,11 +30,11 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
         return internal_error(e);
     }
     match decode_token(&token) {
-        Ok(user_info) => match check_user(user_info.username.clone()).await {
+        Ok(user_info) => match check_user(&user_info.username).await {
             Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
                     match db
-                        .select::<Option<OwnTB>>(("tb_own", Id::String(post.car_id.clone())))
+                        .select::<Option<OwnTB>>(RecordId::from_table_key("tb_own", &post.car_id))
                         .await
                     {
                         Ok(Some(_)) => {
@@ -46,19 +47,25 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                     }
 
                     let idk: DbUserInfo = db
-                        .select::<Option<DbUserInfo>>((
+                        .select::<Option<DbUserInfo>>(RecordId::from_table_key(
                             "tb_user",
-                            Id::String(post.driver_id.clone()),
+                            &post.driver_id,
                         ))
                         .await
                         .unwrap()
                         .unwrap();
                     let cidk: Option<CargoD> = db
-                        .select::<Option<CargoD>>(("tb_cargo", Id::String(post.car_id.clone())))
+                        .select::<Option<CargoD>>(RecordId::from_table_key(
+                            "tb_cargo",
+                            &post.car_id,
+                        ))
                         .await
                         .unwrap();
                     let didk: Option<CargoD> = db
-                        .select::<Option<CargoD>>(("tb_dond", Id::String(post.driver_id.clone())))
+                        .select::<Option<CargoD>>(RecordId::from_table_key(
+                            "tb_dond",
+                            &post.driver_id,
+                        ))
                         .await
                         .unwrap();
 
@@ -68,18 +75,9 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                     }
 
                     let cargo_data = Cargo {
-                        driver: Thing {
-                            tb: "tb_user".to_string(),
-                            id: Id::String(post.driver_id.clone()),
-                        },
-                        owner: Thing {
-                            tb: "tb_user".to_string(),
-                            id: Id::String(user_info.username.clone()),
-                        },
-                        car: Thing {
-                            tb: "tb_car".to_string(),
-                            id: Id::String(post.car_id.clone()),
-                        },
+                        driver: RecordId::from_table_key("tb_user", &post.driver_id),
+                        owner: RecordId::from_table_key("tb_user", &user_info.username),
+                        car: RecordId::from_table_key("tb_car".to_string(), &post.car_id),
                         pdata: post.to_db_post(&user_info.username).await.unwrap(),
                         casta: PaSta::Pend,
                         stloc: post.from_where.clone(),
@@ -87,9 +85,9 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         ctloc: SLoc::default(),
                         tlocs: BTreeMap::new(),
                     };
-                    db.create::<Option<PostD<DbCarInfo>>>((
+                    db.create::<Option<PostD<DbCarInfo>>>(RecordId::from_table_key(
                         "tb_car_post",
-                        Id::String(post.car_id.clone()),
+                        &post.car_id,
                     ))
                     .content(post.to_db_post(&user_info.username).await.unwrap())
                     .await
@@ -103,36 +101,33 @@ async fn post_car(token: Path<String>, post: Json<CarPostForm>) -> HttpResponse 
                         data: cargo_data.clone(),
                         ntyp: NType::CDriver,
                     };
-                    db.create::<Option<Cargo>>(("tb_cargo", Id::String(post.car_id.clone())))
+                    db.create::<Option<Cargo>>(RecordId::from_table_key("tb_cargo", &post.car_id))
                         .content(cargo_data)
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Noti<Cargo>>>((&user_info.username, Id::rand()))
-                        .content(ont)
-                        .await
-                        .unwrap()
-                        .unwrap();
-                    db.create::<Option<Noti<Cargo>>>((&post.driver_id, Id::rand()))
-                        .content(dnt)
-                        .await
-                        .unwrap()
-                        .unwrap();
+                    db.create::<Option<Noti<Cargo>>>(RecordId::from_table_key(
+                        &user_info.username,
+                        Uuid::new_v4().as_simple().to_string(),
+                    ))
+                    .content(ont)
+                    .await
+                    .unwrap()
+                    .unwrap();
+                    db.create::<Option<Noti<Cargo>>>((
+                        &post.driver_id,
+                        Uuid::new_v4().simple().to_string(),
+                    ))
+                    .content(dnt)
+                    .await
+                    .unwrap()
+                    .unwrap();
                     let acdata = AcData {
-                        driver: Thing {
-                            tb: "tb_user".to_string(),
-                            id: Id::String(post.driver_id.clone()),
-                        },
-                        owner: Thing {
-                            tb: "tb_user".to_string(),
-                            id: Id::String(user_info.username.clone()),
-                        },
-                        cargo: Thing {
-                            tb: "tb_cargo".to_string(),
-                            id: Id::String(post.car_id.clone()),
-                        },
+                        driver: RecordId::from_table_key("tb_user", &post.driver_id),
+                        owner: RecordId::from_table_key("tb_user", &user_info.username),
+                        cargo: RecordId::from_table_key("tb_cargo", &post.car_id),
                     };
-                    db.create::<Option<AcData>>((&post.car_id, Id::from("cargo")))
+                    db.create::<Option<AcData>>(RecordId::from_table_key(&post.car_id, "cargo"))
                         .content(acdata)
                         .await
                         .unwrap()

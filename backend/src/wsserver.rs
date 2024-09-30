@@ -12,7 +12,7 @@ use chrono::Utc;
 use futures_util::{SinkExt, StreamExt};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde_json::Value;
-use surrealdb::{sql::Id, Notification, Surreal};
+use surrealdb::{Notification, RecordId, Surreal};
 use tokio::{
     net::{TcpListener, TcpStream},
     sync::Mutex,
@@ -129,8 +129,8 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                                     }
 
                                     let ctloc: SLoc = serde_json::from_str(msg.to_text().unwrap()).unwrap();
-                                    let mut cargodt: Cargo = db.select::<Option<Cargo>>(("tb_cargo", Id::String(cargod.clone()))).await.unwrap().unwrap();
-                                    if cargodt.driver.id.to_string() != db_user_info.lock().await.username {
+                                    let mut cargodt: Cargo = db.select::<Option<Cargo>>(RecordId::from_table_key("tb_cargo", &cargod)).await.unwrap().unwrap();
+                                    if cargodt.driver.key().to_string() != db_user_info.lock().await.username {
                                         ws_sender.send(Message::Close(Some(CloseFrame {
                                             code: CloseCode::Policy,
                                             reason: "Sorry You Are Not A Driver Of This Car".into(),
@@ -138,7 +138,7 @@ pub async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()
                                     }
                                     cargodt.tlocs.insert(Utc::now().timestamp(), ctloc.clone());
                                     cargodt.ctloc = ctloc;
-                                    db.update::<Option<Cargo>>(("tb_cargo", Id::String(cargod.clone()))).content(cargodt).await.unwrap().unwrap();
+                                    db.update::<Option<Cargo>>(RecordId::from_table_key("tb_cargo", &cargod)).content(cargodt).await.unwrap().unwrap();
                                 }
                             }
                         }
@@ -241,9 +241,9 @@ async fn check_ws(
         )
         .unwrap();
         let cuserinfo: DbUserInfo = db
-            .select::<Option<DbUserInfo>>((
+            .select::<Option<DbUserInfo>>(RecordId::from_table_key(
                 "tb_user",
-                Id::String(tuserinfo.claims.user_info.username.to_string()),
+                &tuserinfo.claims.user_info.username,
             ))
             .await
             .unwrap()
@@ -270,7 +270,7 @@ async fn get_loc(
     ctstat: Arc<AtomicBool>,
 ) {
     let mut stream = db
-        .select(("tb_cargo", Id::String(cargod)))
+        .select(RecordId::from_table_key("tb_cargo", &cargod))
         .live()
         .await
         .unwrap();

@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::RecordId;
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub enum Vote {
@@ -9,15 +9,15 @@ pub enum Vote {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct VRelate {
-    pub id: Thing,
-    pub r#in: Thing,
-    pub out: Thing,
+    pub id: RecordId,
+    pub r#in: RecordId,
+    pub out: RecordId,
     pub vote: Vote,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct VoteTB {
-    pub r#in: Thing,
-    pub out: Thing,
+    pub r#in: RecordId,
+    pub out: RecordId,
     pub vote: Vote,
 }

@@ -2,18 +2,18 @@ use std::collections::BTreeMap;
 
 use actix_multipart::form::{tempfile::TempFile, text::Text, MultipartForm};
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::{Id, Thing};
+use surrealdb::RecordId;
 
 use super::{post::Post, wsstruct::SLoc};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbCarInfo {
-    pub car_id: Id,
+    pub car_id: String,
     pub license_num: String,
     pub owner_proof: String,
     pub car_details: String,
     pub is_available: bool,
-    pub userinfo: Thing,
+    pub userinfo: RecordId,
 }
 
 #[derive(MultipartForm)]
@@ -43,9 +43,9 @@ pub enum PaSta {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Cargo {
-    pub driver: Thing,
-    pub owner: Thing,
-    pub car: Thing,
+    pub driver: RecordId,
+    pub owner: RecordId,
+    pub car: RecordId,
     pub pdata: Post<DbCarInfo>,
     pub casta: PaSta,
     pub stloc: SLoc,
@@ -56,10 +56,10 @@ pub struct Cargo {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CargoD {
-    pub id: Thing,
-    pub driver: Thing,
-    pub owner: Thing,
-    pub car: Thing,
+    pub id: RecordId,
+    pub driver: RecordId,
+    pub owner: RecordId,
+    pub car: RecordId,
     pub pdata: Post<DbCarInfo>,
     pub casta: PaSta,
     pub stloc: SLoc,
@@ -70,7 +70,7 @@ pub struct CargoD {
 
 #[derive(Serialize, Deserialize)]
 pub struct AcData {
-    pub driver: Thing,
-    pub owner: Thing,
-    pub cargo: Thing,
+    pub driver: RecordId,
+    pub owner: RecordId,
+    pub cargo: RecordId,
 }

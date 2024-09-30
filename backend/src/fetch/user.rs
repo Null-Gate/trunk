@@ -1,6 +1,6 @@
 use actix_web::{get, web::Path, HttpResponse};
 use serde_json::{json, Value};
-use surrealdb::sql::{Id, Thing};
+use surrealdb::RecordId;
 
 use crate::{
     extra::functions::internal_error,
@@ -15,7 +15,7 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
     }
 
     match db
-        .select::<Option<DbUserInfo>>(("tb_user", Id::from(id.as_str())))
+        .select::<Option<DbUserInfo>>(RecordId::from_table_key("tb_user", id.as_str()))
         .await
     {
         Ok(Some(user)) => {
@@ -26,10 +26,7 @@ async fn fetch_user(id: Path<String>) -> HttpResponse {
                 .query(postsql)
                 .bind((
                     "thing",
-                    Thing {
-                        id: Id::from(id.as_str()),
-                        tb: "tb_user".into(),
-                    },
+                    RecordId::from_table_key("tb_user", id.into_inner()),
                 ))
                 .await
                 .unwrap();

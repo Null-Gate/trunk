@@ -1,6 +1,7 @@
 use actix_web::{get, web::Path, HttpResponse};
 use serde_json::Value;
-use surrealdb::sql::{Id, Thing};
+use surrealdb::RecordId;
+use uuid::Uuid;
 
 use crate::{
     extra::functions::{check_user, decode_token, internal_error, verify_password},
@@ -21,7 +22,7 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
     }
 
     match decode_token(&paths.2) {
-        Ok(user_info) => match check_user(user_info.username.clone()).await {
+        Ok(user_info) => match check_user(&user_info.username).await {
             Ok(user) => match verify_password(&user_info.password, &user.password) {
                 Ok(()) => {
                     let cuery = "SELECT * FROM tb_vote WHERE (in = type::thing($uthing) AND out = type::thing($pthing));";
@@ -31,18 +32,9 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                         .query(iuery)
                         .bind((
                             "uthing",
-                            Thing {
-                                tb: "tb_user".into(),
-                                id: Id::from(user_info.username.to_string()),
-                            },
+                            RecordId::from_table_key("tb_user", &user_info.username),
                         ))
-                        .bind((
-                            "pthing",
-                            Thing {
-                                tb: "tb_post".into(),
-                                id: Id::from(&paths.1),
-                            },
-                        ))
+                        .bind(("pthing", RecordId::from_table_key("tb_post", &paths.1)))
                         .await
                         .unwrap();
 
@@ -70,7 +62,9 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                             }
 
                             match db
-                                .update::<Option<Post<Value>>>(("tb_post", Id::from(&paths.1)))
+                                .update::<Option<Post<Value>>>(RecordId::from_table_key(
+                                    "tb_post", &paths.1,
+                                ))
                                 .content(post)
                                 .await
                             {
@@ -98,7 +92,9 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                             }
 
                             match db
-                                .update::<Option<Post<Value>>>(("tb_post", Id::from(&paths.1)))
+                                .update::<Option<Post<Value>>>(RecordId::from_table_key(
+                                    "tb_post", &paths.1,
+                                ))
                                 .content(post)
                                 .await
                             {
@@ -118,19 +114,16 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                     };
 
                     let tdata = VoteTB {
-                        r#in: Thing {
-                            tb: "tb_user".into(),
-                            id: Id::String(user_info.username.to_string()),
-                        },
-                        out: Thing {
-                            tb: "tb_post".into(),
-                            id: Id::String(paths.1.to_string()),
-                        },
+                        r#in: RecordId::from_table_key("tb_user", &user_info.username),
+                        out: RecordId::from_table_key("tb_post", &paths.1),
                         vote,
                     };
 
                     let cel = match db
-                        .create::<Option<VRelate>>(("tb_vote", Id::rand()))
+                        .create::<Option<VRelate>>(RecordId::from_table_key(
+                            "tb_vote",
+                            Uuid::new_v4().simple().to_string(),
+                        ))
                         .content(tdata)
                         .await
                     {
@@ -148,7 +141,9 @@ pub async fn up_vote(paths: Path<(String, String, String)>) -> HttpResponse {
                         }
 
                         match db
-                            .update::<Option<Post<Value>>>(("tb_post", Id::from(&paths.1)))
+                            .update::<Option<Post<Value>>>(RecordId::from_table_key(
+                                "tb_post", &paths.1,
+                            ))
                             .content(post)
                             .await
                         {

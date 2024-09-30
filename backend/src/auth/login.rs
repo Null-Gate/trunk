@@ -1,4 +1,5 @@
 use actix_web::{post, web::Json, HttpResponse};
+use argon2::verify_encoded;
 use chrono::{TimeDelta, Utc};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde_json::json;
@@ -20,67 +21,51 @@ pub async fn login(info: Json<Login>) -> HttpResponse {
         return internal_error(e);
     }
 
-    let sql = r#"
-        BEGIN TRANSACTION;
+    match db
+        .select::<Option<DbUserInfo>>(RecordId::from_table_key("tb_user", &info.username))
+        .await
+    {
+        Ok(Some(user_info)) => {
+            match verify_encoded(&user_info.password, info.password.as_bytes()) {
+                Ok(stat) => {
+                    if !stat {
+                        return HttpResponse::NotAcceptable()
+                            .json(Resp::new("Sorry Wrong Password!"));
+                    }
 
-        let $ut = type::thing($uthing);
-        let $select = SELECT * FROM type::thing($uthing);
+                    let exp = usize::try_from(
+                        (Utc::now() + TimeDelta::try_days(9_999_999).unwrap()).timestamp(),
+                    )
+                    .unwrap();
+                    let mut token_userinfo = DbUserInfo {
+                        username: user_info.username,
+                        fullname: user_info.fullname,
+                        password: info.password.clone(),
+                        pik_role: user_info.pik_role,
+                    };
 
-        IF $select == [] {
-            RETURN NONE;
+                    let claims = Claims {
+                        user_info: token_userinfo.clone(),
+                        exp,
+                    };
+                    encode(
+                        &Header::default(),
+                        &claims,
+                        &EncodingKey::from_secret(JWT_SECRET),
+                    )
+                    .map_or_else(internal_error, |token| {
+                        token_userinfo.password = user_info.password;
+                        let value = json! ({
+                            "user_details": token_userinfo,
+                            "token": token,
+                        });
+                        HttpResponse::Ok().json(value)
+                    })
+                }
+                Err(e) => internal_error(e),
+            }
         }
-
-        IF !crypto::argon2::compare($select.password, $password) {
-            THROW "Password Not Match";
-        } ELSE {
-            RETURN $select;
-        };
-
-        COMMIT TRANSACTION;
-    "#;
-
-    let mut resul = db.query(sql)
-        .bind((
-            "uthing",
-            RecordId::from_table_key("tb_user", &info.username)
-        ))
-        .bind(info.0.clone()).await.unwrap();
-
-    let exp = usize::try_from(
-        (Utc::now() + TimeDelta::try_days(9_999_999).unwrap()).timestamp(),
-    ).unwrap();
-
-    let tres: Option<Result<DbUserInfo, String>> = resul.take(0).unwrap();
-
-    if tres.is_none() {
-        return HttpResponse::NotFound().json(Resp::new("Sorry User Not Found!!"));
+        Ok(None) => HttpResponse::Unauthorized().json(Resp::new("User Not Found!")),
+        Err(e) => internal_error(e),
     }
-
-    if let Some(Ok(user_info)) = tres {
-        let mut token_userinfo = DbUserInfo {
-            username: user_info.username,
-            fullname: user_info.fullname,
-            password: info.password.clone(),
-            pik_role: user_info.pik_role,
-        };
-
-        let claims = Claims {
-            user_info: token_userinfo.clone(),
-            exp,
-        };
-        encode(
-            &Header::default(),
-            &claims,
-            &EncodingKey::from_secret(JWT_SECRET),
-        )
-        .map_or_else(internal_error, |token| {
-            token_userinfo.password = user_info.password;
-            let value = json! ({
-                "user_details": token_userinfo,
-                "token": token,
-            });
-            return HttpResponse::Ok().json(value);
-        });
-    };
-    HttpResponse::NotAcceptable().json(Resp::new("Sorry Wrong Password!!"))
 }

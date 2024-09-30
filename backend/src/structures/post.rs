@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::RecordId;
 
 use super::wsstruct::SLoc;
 
@@ -12,8 +12,8 @@ pub enum PType {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Post<T> {
     pub ptdate: u64,
-    pub r#in: Thing,
-    pub out: Thing,
+    pub r#in: RecordId,
+    pub out: RecordId,
     pub from_where: SLoc,
     pub to_where: SLoc,
     pub date_to_go: String,
@@ -26,10 +26,10 @@ pub struct Post<T> {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PostD<T> {
-    pub id: Thing,
+    pub id: RecordId,
     pub ptdate: u64,
-    pub r#in: Thing,
-    pub out: Thing,
+    pub r#in: RecordId,
+    pub out: RecordId,
     pub from_where: SLoc,
     pub to_where: SLoc,
     pub date_to_go: String,
@@ -42,6 +42,6 @@ pub struct PostD<T> {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OwnTB {
-    pub r#in: Thing,
-    pub out: Thing,
+    pub r#in: RecordId,
+    pub out: RecordId,
 }

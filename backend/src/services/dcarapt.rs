@@ -1,5 +1,5 @@
 use actix_web::{put, web::Path, HttpResponse};
-use surrealdb::{opt::PatchOp, sql::Id};
+use surrealdb::{opt::PatchOp, RecordId};
 
 use crate::{
     extra::functions::{ct_user, internal_error},
@@ -25,23 +25,23 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
     match ct_user(token).await {
         Ok((_, duser)) => {
             match db
-                .select::<Option<Noti<Cargo>>>((&duser.username, Id::String(id.clone())))
+                .select::<Option<Noti<Cargo>>>(RecordId::from_table_key(&duser.username, &id))
                 .await
                 .unwrap()
             {
                 Some(mut ntcargo) => {
                     ntcargo.ntyp = NType::CDriverApt;
                     let nt = db
-                        .update::<Option<Noti<Cargo>>>((
-                            &ntcargo.data.owner.id.to_raw(),
-                            Id::String(id.clone()),
+                        .update::<Option<Noti<Cargo>>>(RecordId::from_table_key(
+                            ntcargo.data.owner.key().to_string(),
+                            &id,
                         ))
-                        .content(&ntcargo)
+                        .content(ntcargo.clone())
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<PostD<DbCarInfo>>>(("tb_post", Id::String(id.clone())))
-                        .content(&nt.data.pdata)
+                    db.create::<Option<PostD<DbCarInfo>>>(RecordId::from_table_key("tb_post", &id))
+                        .content(nt.data.pdata.clone())
                         .await
                         .unwrap()
                         .unwrap();
@@ -50,16 +50,22 @@ pub async fn driver_acpt_car(pdata: Path<(String, String)>) -> HttpResponse {
                         .await
                         .unwrap()
                         .unwrap();
-                    db.create::<Option<Cargo>>(("tb_dond", Id::String(duser.username)))
-                        .content(nt.data)
-                        .await
-                        .unwrap()
-                        .unwrap();
-                    db.update::<Option<Cargo>>(("tb_cargo", ntcargo.data.car.id))
-                        .patch(PatchOp::add("casta", PaSta::OnGo))
-                        .await
-                        .unwrap()
-                        .unwrap();
+                    db.create::<Option<Cargo>>(RecordId::from_table_key(
+                        "tb_dond",
+                        &duser.username,
+                    ))
+                    .content(nt.data)
+                    .await
+                    .unwrap()
+                    .unwrap();
+                    db.update::<Option<Cargo>>(RecordId::from_table_key(
+                        "tb_cargo",
+                        ntcargo.data.car.key().to_string(),
+                    ))
+                    .patch(PatchOp::add("casta", PaSta::OnGo))
+                    .await
+                    .unwrap()
+                    .unwrap();
                     HttpResponse::Ok().await.unwrap()
                 }
                 None => HttpResponse::NoContent().await.unwrap(),

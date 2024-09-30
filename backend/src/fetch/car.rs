@@ -1,5 +1,5 @@
 use actix_web::{get, web::Path, HttpResponse};
-use surrealdb::sql::Id;
+use surrealdb::RecordId;
 
 use crate::{
     extra::functions::internal_error,
@@ -14,7 +14,7 @@ pub async fn fetch_car(id: Path<String>) -> HttpResponse {
     }
 
     match db
-        .select::<Option<DbCarInfo>>(("tb_car", Id::from(id.as_str())))
+        .select::<Option<DbCarInfo>>(RecordId::from_table_key("tb_car", id.into_inner()))
         .await
     {
         Ok(Some(car)) => HttpResponse::Ok().json(car),

@@ -17,7 +17,7 @@ use services::dnbooking::dnbooking;
 use services::getcargos::get_cargos;
 use services::voting::up_vote;
 use std::path::Path;
-use std::{fs::File, io::BufReader};
+//use std::{fs::File, io::BufReader};
 use structures::extrastruct::DATA_PATH;
 use tokio::fs;
 use tracing::Level;
@@ -41,7 +41,7 @@ async fn main() -> std::io::Result<()> {
         .with_line_number(true)
         .init();
 
-    rustls::crypto::aws_lc_rs::default_provider()
+    /*rustls::crypto::aws_lc_rs::default_provider()
         .install_default()
         .unwrap();
     let mut certs_file = BufReader::new(File::open(dotenvy::var("CERT_FILE").unwrap()).unwrap());
@@ -59,7 +59,7 @@ async fn main() -> std::io::Result<()> {
     let tls_config = rustls::ServerConfig::builder()
         .with_no_client_auth()
         .with_single_cert(tls_certs, rustls::pki_types::PrivateKeyDer::Pkcs8(tls_key))
-        .unwrap();
+        .unwrap();*/
 
     let dir = format!("{}/user_assets", DATA_PATH.as_str());
     if !Path::new(&dir).exists() {
@@ -92,12 +92,11 @@ async fn main() -> std::io::Result<()> {
             .service(get_cargos)
             .wrap(cors)
     })
-    .bind_rustls_0_23(
+    .bind(
         (
             dotenvy::var("TRUNK_HOST").unwrap(),
             dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap(),
         ),
-        tls_config,
     )?
     .run()
     .await;

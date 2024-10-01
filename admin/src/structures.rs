@@ -4,6 +4,7 @@ use async_once::AsyncOnce;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use surrealdb::{
+    opt::auth::Root,
     engine::remote::ws::{Client, Ws}, RecordId, Surreal
 };
 use tracing::error;
@@ -12,7 +13,14 @@ pub type Dbt = Client;
 
 lazy_static! {
     pub static ref DB: AsyncOnce<Surreal<Dbt>> =
-        AsyncOnce::new(async { Surreal::new::<Ws>("127.0.0.1:6677").await.unwrap() });
+        AsyncOnce::new(async {
+            let db = Surreal::new::<Ws>("127.0.0.1:6677").await.unwrap();
+            db.signin(Root {
+                username: "root",
+                password: "root"
+            }).await.unwrap();
+            db
+        });
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

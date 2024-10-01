@@ -1,4 +1,4 @@
-use std::{fs::File, io::BufReader};
+//use std::{fs::File, io::BufReader};
 
 use accept_cf::apt_cf;
 use admin_ws::wsserver;
@@ -32,7 +32,7 @@ pub async fn main() -> std::io::Result<()> {
     rustls::crypto::aws_lc_rs::default_provider()
         .install_default()
         .unwrap();
-    let mut certs_file = BufReader::new(File::open(dotenvy::var("CERT_FILE").unwrap()).unwrap());
+    /*let mut certs_file = BufReader::new(File::open(dotenvy::var("CERT_FILE").unwrap()).unwrap());
     let mut key_file = BufReader::new(File::open(dotenvy::var("KEY_FILE").unwrap()).unwrap());
 
     let tls_certs = rustls_pemfile::certs(&mut certs_file)
@@ -47,7 +47,7 @@ pub async fn main() -> std::io::Result<()> {
     let tls_config = rustls::ServerConfig::builder()
         .with_no_client_auth()
         .with_single_cert(tls_certs, rustls::pki_types::PrivateKeyDer::Pkcs8(tls_key))
-        .unwrap();
+        .unwrap();*/
 
     tokio::spawn(wsserver());
 
@@ -59,12 +59,11 @@ pub async fn main() -> std::io::Result<()> {
             .service(apt_dreg)
             .service(dny_dreg)
     })
-    .bind_rustls_0_23(
+    .bind(
         (
             dotenvy::var("ADMIN_HOST").unwrap(),
             dotenvy::var("ADMIN_PORT").unwrap().parse().unwrap(),
-        ),
-        tls_config,
+        )
     )?
     .run()
     .await

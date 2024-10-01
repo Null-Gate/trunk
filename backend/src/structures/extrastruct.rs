@@ -5,6 +5,7 @@ use lazy_static::lazy_static;
 use rand::rngs::ThreadRng;
 use serde::{Deserialize, Serialize};
 use surrealdb::{
+    opt::auth::Root,
     engine::remote::ws::{Client, Ws},
     Surreal,
 };
@@ -18,7 +19,14 @@ lazy_static! {
         dotenvy::var("TRUNK_PORT").unwrap().parse().unwrap()
     );
     pub static ref DB: AsyncOnce<Surreal<Dbt>> =
-        AsyncOnce::new(async { Surreal::new::<Ws>("127.0.0.1:6677").await.unwrap() });
+        AsyncOnce::new(async {
+            let db = Surreal::new::<Ws>("127.0.0.1:6677").await.unwrap();
+            db.signin(Root {
+                username: "root",
+                password: "root"
+            }).await.unwrap();
+            db
+        });
 }
 
 pub static ARGON_CONFIG: Config = {

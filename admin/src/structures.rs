@@ -4,9 +4,7 @@ use async_once::AsyncOnce;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use surrealdb::{
-    engine::remote::ws::{Client, Ws},
-    sql::{Id, Thing},
-    Surreal,
+    engine::remote::ws::{Client, Ws}, RecordId, Surreal
 };
 use tracing::error;
 
@@ -19,12 +17,12 @@ lazy_static! {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbCarInfo {
-    pub car_id: Id,
+    pub car_id: String,
     pub license_num: String,
     pub owner_proof: String,
     pub car_details: String,
     pub is_available: bool,
-    pub userinfo: Thing,
+    pub userinfo: RecordId,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
@@ -59,7 +57,7 @@ pub struct WSResp<T> {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Msg {
-    pub id: Thing,
+    pub id: RecordId,
     pub msg: (AccMode, String),
 }
 
@@ -95,7 +93,7 @@ pub struct DbDriverInfo {
     pub license_num: String,
     pub license_pic: String,
     pub exp_details: String,
-    pub userinfo: Thing,
+    pub userinfo: RecordId,
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -106,8 +104,8 @@ pub enum Roles {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OwnTB {
-    pub r#in: Thing,
-    pub out: Thing,
+    pub r#in: RecordId,
+    pub out: RecordId,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Eq, Debug, Default)]
@@ -132,7 +130,7 @@ pub struct PenCar {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PenCarD {
-    pub id: Thing,
+    pub id: RecordId,
     pub pstat: PState,
     pub data: DbCarInfo,
 }
@@ -140,10 +138,11 @@ pub struct PenCarD {
 impl Default for Msg {
     fn default() -> Self {
         Self {
-            id: Thing {
-                tb: "tb_user".into(),
-                id: Id::from("test"),
-            },
+            id: RecordId::from_table_key(
+                "tb_user",
+                "test"
+                
+            ),
             msg: (AccMode::default(), "".into()),
         }
     }

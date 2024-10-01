@@ -1,5 +1,5 @@
 use actix_web::{put, web::Path, HttpResponse};
-use surrealdb::sql::{Id, Thing};
+use surrealdb::{RecordId, Uuid};
 
 use crate::structures::{
     DbCarInfo, DbUserInfo, NType, Noti, OwnTB, PState, PenCar, PenCarD, Roles, DB,
@@ -12,7 +12,7 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
 
     if let Some(mut dbi) = db
-        .delete::<Option<PenCarD>>(("tb_pend_car", Id::String(id.clone())))
+        .delete::<Option<PenCarD>>(RecordId::from_table_key("tb_pend_car", &id))
         .await
         .unwrap()
     {
@@ -25,10 +25,10 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
 
         let rel = OwnTB {
             r#in: dbi.data.userinfo.clone(),
-            out: Thing {
-                tb: "tb_car".into(),
-                id: Id::String(id.clone()),
-            },
+            out: RecordId::from_table_key(
+                "tb_car",
+                &id,
+            )
         };
 
         let mut userinfo: DbUserInfo = db
@@ -37,13 +37,13 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
             .unwrap()
             .unwrap();
 
-        db.create::<Option<DbCarInfo>>(("tb_car", Id::String(id.clone())))
+        db.create::<Option<DbCarInfo>>(RecordId::from_table_key("tb_car", &id))
             .content(dbi.data.clone())
             .await
             .unwrap()
             .unwrap();
 
-        db.create::<Option<OwnTB>>(("tb_own", Id::String(id.clone())))
+        db.create::<Option<OwnTB>>(RecordId::from_table_key("tb_own", &id))
             .content(rel)
             .await
             .unwrap()
@@ -56,7 +56,7 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
                 .unwrap()
                 .unwrap();
         }
-        db.create::<Option<Noti<PenCar>>>((dbi.data.userinfo.id.to_raw(), Id::rand()))
+        db.create::<Option<Noti<PenCar>>>(RecordId::from_table_key(dbi.data.userinfo.key().to_string(), Uuid::new_v4().simple().to_string()))
             .content(nt)
             .await
             .unwrap()

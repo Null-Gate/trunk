@@ -1,9 +1,6 @@
 use futures_util::{SinkExt, StreamExt};
 use serde_json::Value;
-use surrealdb::{
-    sql::{Id, Thing},
-    Surreal,
-};
+use surrealdb::{RecordId, Surreal};
 use tokio::{
     net::{TcpListener, TcpStream},
     sync::Mutex,
@@ -127,11 +124,10 @@ pub async fn cond_check(msg: Message, db: &Surreal<Dbt>) -> Result<Message, ()> 
                 db.query(query)
                     .bind((
                         "cscthing",
-                        Thing {
-                            tb: "tb_csc".into(),
-                            id: Id::String(text.username.unwrap()),
-                        },
-                    ))
+                        RecordId::from_table_key(
+                            "tb_csc",
+                            text.username.unwrap(),
+                    )))
                     .bind(("msg", (AccMode::Admin, msg)))
                     .await
                     .unwrap();

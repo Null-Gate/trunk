@@ -1,5 +1,5 @@
 use actix_web::{put, web::Path, HttpResponse};
-use surrealdb::sql::Id;
+use surrealdb::RecordId;
 
 use crate::structures::{NType, Noti, PState, PenCarD, DB};
 
@@ -9,7 +9,7 @@ pub async fn dny_cf(path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
 
     if let Some(mut dbi) = db
-        .delete::<Option<PenCarD>>(("tb_pend_car", Id::String(id.clone())))
+        .delete::<Option<PenCarD>>(RecordId::from_table_key("tb_pend_car", &id))
         .await
         .unwrap()
     {
@@ -20,7 +20,7 @@ pub async fn dny_cf(path: Path<String>) -> HttpResponse {
             ntyp: NType::CarFormDny,
         };
 
-        db.update::<Option<Noti<PenCarD>>>((dbi.data.userinfo.id.to_raw(), Id::String(id)))
+        db.update::<Option<Noti<PenCarD>>>(RecordId::from_table_key(dbi.data.userinfo.key().to_string(), &id))
             .content(nt)
             .await
             .unwrap()

@@ -1,5 +1,5 @@
 use actix_web::{put, web::Path, HttpResponse};
-use surrealdb::sql::{Id, Thing};
+use surrealdb::{RecordId, Uuid};
 
 use crate::structures::{NType, Noti, DB};
 
@@ -23,25 +23,22 @@ async fn apt_dreg(path: Path<String>) -> HttpResponse {
     db.query(sql)
         .bind((
             "tbthing",
-            Thing {
-                tb: "tb_pend_driver".to_string(),
-                id: Id::String(path.to_string()),
-            },
-        ))
+            RecordId::from_table_key(
+                "tb_pend_driver",
+                path.to_string(),
+        )))
         .bind((
             "dthing",
-            Thing {
-                tb: "tb_user".to_string(),
-                id: Id::String(path.to_string()),
-            },
-        ))
+            RecordId::from_table_key(
+                "tb_user",
+                path.to_string(),
+        )))
         .bind((
             "uthing",
-            Thing {
-                tb: path.to_string(),
-                id: Id::rand()
-            }
-        ))
+            RecordId::from_table_key(
+                path.into_inner(),
+                Uuid::new_v4().simple().to_string()
+        )))
         .bind(
             Noti {
                 data: "The Driver Registration Has Been Approved!",

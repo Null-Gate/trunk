@@ -101,6 +101,7 @@ async fn package(
                                 votes: Some(0),
                                 data: package_info.clone(),
                                 date_to_go: form.date_to_go.into_inner(),
+                                ava: true
                             };
 
                             match db

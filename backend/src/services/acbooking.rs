@@ -6,7 +6,7 @@ use crate::{
     structures::{
         bookstruct::{BStat, BType, BookStat, BookTB},
         car::CargoD,
-        dbstruct::PkgPsts,
+        dbstruct::{DbPackageInfo, PkgPsts},
         extrastruct::DB,
         wsstruct::{NType, Noti},
     },
@@ -80,11 +80,12 @@ async fn acbooking(parts: Path<(String, String)>) -> HttpResponse {
                                 pkg_data: serde_json::from_value(pdt).unwrap(),
                                 bcargo,
                             };
-                            db.create::<Option<PkgPsts>>(RecordId::from_table_key("tb_bkpkg", pid))
+                            db.create::<Option<PkgPsts>>(RecordId::from_table_key("tb_bkpkg", &pid))
                                 .content(pkgpsts)
                                 .await
                                 .unwrap()
                                 .unwrap();
+                            db.delete::<Option<DbPackageInfo>>(RecordId::from_table_key("tb_post", &pid)).await.unwrap().unwrap();
                             HttpResponse::Ok().await.unwrap()
                         }
                         Ok(None) => HttpResponse::NotFound().await.unwrap(),

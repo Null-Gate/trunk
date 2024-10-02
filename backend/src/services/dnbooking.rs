@@ -1,13 +1,11 @@
 use actix_web::{post, web::Path, HttpResponse};
-use surrealdb::RecordId;
+use surrealdb::{opt::PatchOp, RecordId};
 use uuid::Uuid;
 
 use crate::{
     extra::functions::{ct_user, internal_error},
     structures::{
-        bookstruct::{BStat, BookStat, BookTB},
-        extrastruct::DB,
-        wsstruct::{NType, Noti},
+        bookstruct::{BStat, BType, BookStat, BookTB}, dbstruct::DbPackageInfo, extrastruct::DB, wsstruct::{NType, Noti}
     },
 };
 
@@ -51,6 +49,9 @@ pub async fn dnbooking(parts: Path<(String, String)>) -> HttpResponse {
                             .await
                             .unwrap()
                             .unwrap();
+                            if smt.data.btype == BType::Car {
+                                db.update::<Option<DbPackageInfo>>(RecordId::from_table_key("tb_post", smt.data.r#in.key().to_string())).patch(PatchOp::replace("/ava", true)).await.unwrap().unwrap();
+                            }
                             HttpResponse::Ok().await.unwrap()
                         }
                         Ok(None) => HttpResponse::NotFound().await.unwrap(),

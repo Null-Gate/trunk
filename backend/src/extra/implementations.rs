@@ -81,6 +81,7 @@ impl CarPostForm {
                 date_to_go: self.date_to_go.clone(),
                 cper_weight: self.cper_weight,
                 cper_amount: self.cper_amount,
+                ava: true
             }),
             Ok(None) => Err(internal_error("structure 139 None DbCarIndo Error!")),
             Err(e) => Err(internal_error(e)),

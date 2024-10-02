@@ -3,7 +3,7 @@ use actix_web::{
     web::{Json, Path},
     HttpResponse,
 };
-use surrealdb::RecordId;
+use surrealdb::{opt::PatchOp, RecordId};
 use uuid::Uuid;
 
 use crate::{
@@ -13,7 +13,7 @@ use crate::{
         car::DbCarInfo,
         dbstruct::DbPackageInfo,
         extrastruct::DB,
-        post::PostD,
+        post::{Post, PostD},
         wsstruct::{NType, Noti},
     },
 };
@@ -44,8 +44,8 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                 .await
                 .unwrap()
                 .unwrap();
-            let ntdata = if info.btype == BType::Pkg {
-                BookTB {
+            let (ntdata, trb) = if info.btype == BType::Pkg {
+                (BookTB {
                     r#in: RecordId::from_table_key("tb_car_post", &info.carp_id),
                     in_info: serde_json::to_value(&db_car_info).unwrap(),
                     out: RecordId::from_table_key("tb_post", &info.pkgp_id),
@@ -53,9 +53,9 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                     btype: BType::Pkg,
                     utn: db_pkg_info.r#in,
                     utr: db_car_info.r#in,
-                }
+                }, false)
             } else {
-                BookTB {
+                (BookTB {
                     r#in: RecordId::from_table_key("tb_post", &info.pkgp_id),
                     in_info: serde_json::to_value(&db_pkg_info).unwrap(),
                     out: RecordId::from_table_key("tb_car_post", &info.carp_id),
@@ -63,7 +63,7 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                     btype: BType::Car,
                     utn: db_car_info.r#in,
                     utr: db_pkg_info.r#in,
-                }
+                }, true)
             };
 
             let content = Noti {
@@ -79,7 +79,12 @@ pub async fn book(token: Path<String>, info: Json<Booking>) -> HttpResponse {
                 .content(content)
                 .await
             {
-                Ok(Some(_)) => HttpResponse::Ok().await.unwrap(),
+                Ok(Some(_)) => {
+                    if trb {
+                        db.update::<Option<Post<DbPackageInfo>>>(RecordId::from_table_key("tb_post", &info.pkgp_id)).patch(PatchOp::replace("/ava", false)).await.unwrap().unwrap();
+                    }
+                    HttpResponse::Ok().await.unwrap()
+                },
                 Ok(None) => internal_error("Something is wrong in booking!!"),
                 Err(e) => internal_error(e),
             }

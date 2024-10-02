@@ -22,6 +22,7 @@ pub struct Post<T> {
     pub votes: Option<i64>,
     pub ptype: PType,
     pub data: T,
+    pub ava: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -38,6 +39,7 @@ pub struct PostD<T> {
     pub ptype: PType,
     pub votes: Option<i64>,
     pub data: T,
+    pub ava: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

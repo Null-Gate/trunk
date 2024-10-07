@@ -33,6 +33,7 @@ async fn dny_dreg(path: Path<String>) -> HttpResponse {
         )))
         .bind(
             Noti {
+                notimsg: String::from("The Driver Registration Has Been Denied!"),
                 data: "The Driver Registration Has Been Denied!",
                 ntyp: NType::DriverRegDny,
             }

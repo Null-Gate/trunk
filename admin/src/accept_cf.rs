@@ -19,6 +19,7 @@ pub async fn apt_cf(path: Path<String>) -> HttpResponse {
         dbi.pstat = PState::Accept;
 
         let nt = Noti {
+            notimsg: String::from("Your car registration from has been verified by admin!!"),
             data: dbi.clone(),
             ntyp: NType::CarFormApt,
         };

@@ -15,7 +15,7 @@ async fn apt_dreg(path: Path<String>) -> HttpResponse {
 
     UPDATE type::thing($dthing) SET pik_role += 'Driver';
 
-    CREATE type::thing($uthing) SET data = $data, ntyp = $ntyp;
+    CREATE type::thing($uthing) SET notimsg = $notimsg, data = $data, ntyp = $ntyp;
 
     COMMIT TRANSACTION;
     "#;
@@ -41,6 +41,7 @@ async fn apt_dreg(path: Path<String>) -> HttpResponse {
         )))
         .bind(
             Noti {
+                notimsg: String::from("The Driver Registration Has Been Approved!"),
                 data: "The Driver Registration Has Been Approved!",
                 ntyp: NType::DriverRegApt,
             }

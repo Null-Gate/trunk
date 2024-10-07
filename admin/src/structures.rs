@@ -126,6 +126,7 @@ pub struct DbUserInfo {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Noti<T> {
+    pub notimsg: String,
     pub data: T,
     pub ntyp: NType,
 }

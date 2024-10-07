@@ -16,6 +16,7 @@ pub async fn dny_cf(path: Path<String>) -> HttpResponse {
         dbi.pstat = PState::Deny;
 
         let nt = Noti {
+            notimsg: String::from("Your car registration from has been denied by admin!!"),
             data: dbi.clone(),
             ntyp: NType::CarFormDny,
         };

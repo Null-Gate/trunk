@@ -1,4 +1,3 @@
-import { Point } from "react-native-google-places-autocomplete";
 
 export type User_detail = {
   username: string;
@@ -29,6 +28,7 @@ export type Coordinate = {
 };
 
 export type ChooseLoationsProps = {
-  location: Point;
+  lat: number;
+  lng: number;
   description: string;
 };

@@ -6,26 +6,25 @@ export const createPost = async ({
   body,
 }: {
   token: string;
-  body: FormData;
+  body: any;
 }) => {
   try {
     const res = await axios.post(`${API_URL}/forms/package/${token}`, body, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
+    console.log(res.data);
     return res.data;
   } catch (error: any) {
+    // console.log(error.response);
     // For debug
     if (error.response) {
-      console.log("Response error:", error.response.data);
-      console.log("Response status:", error.response.status);
-      console.log("Response headers:", error.response.headers);
+      console.log(error.response);
+      throw new Error(error.response.data?.msg || "Server Error");
     } else if (error.request) {
-      console.log("Request error:", error.request);
+      console.log(error.request);
+      throw new Error("No response received from the server");
     } else {
-      console.log("Error", error.message);
+      throw new Error("Request error");
     }
-    throw error.response ? error.response.data : new Error("Network Error");
   }
 };

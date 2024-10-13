@@ -39,18 +39,23 @@ const PostCreateScreen = () => {
     console.log(data);
     try {
       const formData = new FormData();
+      // Assuming data.package_pic contains an image file
+      formData.append("package_pic", {
+        uri: data.package_pic[0].uri, // For React Native (file uri)
+        type: data.package_pic[0].mimeType || "image/jpeg", // Image MIME type
+        name: data.package_pic[0].fileName || `image_${Date.now()}.jpg`, // File name
+      });
       formData.append("package_name", data.package_name);
       formData.append("pkg_details", data.pkg_details);
       formData.append("cper_weight", data.cper_weight);
       formData.append("cper_amount", data.cper_amount);
       formData.append("date_to_go", data.date_to_go);
-      formData.append("from_where", "From");
-      formData.append("to_where", "to");
-      formData.append("package_pic", {
-        uri: data.package_pic[0].uri,
-        name: data.package_pic[0].fileName,
-        type: data.package_pic[0].mimeType,
-      });
+      formData.append("to_where_town", data.to_where.description);
+      formData.append("to_where_lat", data.to_where.lat);
+      formData.append("to_where_lng", data.to_where.lng);
+      formData.append("from_where_town", data.from_where.description);
+      formData.append("from_where_lat", data.from_where.lat);
+      formData.append("from_where_lng", data.from_where.lng);
 
       const result = await createPackageForm({
         token,

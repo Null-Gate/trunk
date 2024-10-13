@@ -8,6 +8,184 @@ type MapContainerProps = {
   type: "origin" | "destination";
 };
 
+const MapStyle = [
+  {
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#f5f5f5",
+      },
+    ],
+  },
+  {
+    elementType: "labels.icon",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#616161",
+      },
+    ],
+  },
+  {
+    elementType: "labels.text.stroke",
+    stylers: [
+      {
+        color: "#f5f5f5",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.land_parcel",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#bdbdbd",
+      },
+    ],
+  },
+  {
+    featureType: "poi",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#eeeeee",
+      },
+    ],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#757575",
+      },
+    ],
+  },
+  {
+    featureType: "poi.business",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#e5e5e5",
+      },
+    ],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#9e9e9e",
+      },
+    ],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#ffffff",
+      },
+    ],
+  },
+  {
+    featureType: "road.arterial",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#757575",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#dadada",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#616161",
+      },
+    ],
+  },
+  {
+    featureType: "road.local",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#9e9e9e",
+      },
+    ],
+  },
+  {
+    featureType: "transit.line",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#e5e5e5",
+      },
+    ],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#eeeeee",
+      },
+    ],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#c9c9c9",
+      },
+    ],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#9e9e9e",
+      },
+    ],
+  },
+];
+
 const MapContainer: React.FC<MapContainerProps> = ({
   isChooseFromMap,
   type,
@@ -27,8 +205,8 @@ const MapContainer: React.FC<MapContainerProps> = ({
           });
         } else if (origin) {
           MapRef.current.animateToRegion({
-            latitude: origin.location.lat,
-            longitude: origin.location.lng,
+            latitude: origin.lat,
+            longitude: origin.lng,
             latitudeDelta: 1,
             longitudeDelta: 1,
           });
@@ -41,7 +219,8 @@ const MapContainer: React.FC<MapContainerProps> = ({
     <MapView
       ref={MapRef}
       showsCompass={false}
-      style={{ height: '92%' }}
+      style={{ height: "92%" }}
+      customMapStyle={MapStyle}
       initialRegion={{
         latitude: 16.840808135276394,
         longitude: 96.17339335427003,
@@ -52,18 +231,14 @@ const MapContainer: React.FC<MapContainerProps> = ({
         if (isChooseFromMap) {
           if (type == "origin") {
             setOrigin({
-              location: {
-                lat: e.nativeEvent.coordinate.latitude,
-                lng: e.nativeEvent.coordinate.longitude,
-              },
+              lat: e.nativeEvent.coordinate.latitude,
+              lng: e.nativeEvent.coordinate.longitude,
               description: "Start of location",
             });
           } else {
             setDestination({
-              location: {
-                lat: e.nativeEvent.coordinate.latitude,
-                lng: e.nativeEvent.coordinate.longitude,
-              },
+              lat: e.nativeEvent.coordinate.latitude,
+              lng: e.nativeEvent.coordinate.longitude,
               description: "End of location",
             });
           }
@@ -71,11 +246,11 @@ const MapContainer: React.FC<MapContainerProps> = ({
       }}
     >
       {/* Origin Marker */}
-      {origin && origin.location && (
+      {origin && origin.lat && (
         <Marker
           coordinate={{
-            latitude: origin.location.lat,
-            longitude: origin.location.lng,
+            latitude: origin.lat,
+            longitude: origin.lng,
           }}
           identifier="origin"
           description={origin.description}
@@ -84,11 +259,11 @@ const MapContainer: React.FC<MapContainerProps> = ({
       )}
 
       {/* Destination Marker */}
-      {destination && destination.location && (
+      {destination && destination.lat && (
         <Marker
           coordinate={{
-            latitude: destination.location.lat,
-            longitude: destination.location.lng,
+            latitude: destination.lat,
+            longitude: destination.lng,
           }}
           identifier="destination"
           description={destination.description}
@@ -97,15 +272,15 @@ const MapContainer: React.FC<MapContainerProps> = ({
       )}
 
       {/* Direction for two Markers */}
-      {origin && origin.location && destination && destination.location && (
+      {origin && origin.lat && destination && destination.lat && (
         <MapViewDirections
           origin={{
-            latitude: origin.location.lat,
-            longitude: origin.location.lng,
+            latitude: origin.lat,
+            longitude: origin.lng,
           }}
           destination={{
-            latitude: destination.location.lat,
-            longitude: destination.location.lng,
+            latitude: destination.lat,
+            longitude: destination.lng,
           }}
           apikey={process.env.GOOGLE_MAP_API}
           strokeColor="#991602"

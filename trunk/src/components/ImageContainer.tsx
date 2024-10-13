@@ -1,49 +1,43 @@
 import React from "react";
 import {
-    View,
-    StyleSheet,
-    Image,
-    Dimensions,
-    ImageSourcePropType,
-    ViewStyle, 
-    StyleProp
+  View,
+  StyleSheet,
+  Image,
+  Dimensions,
+  ImageSourcePropType,
+  ViewStyle,
+  StyleProp,
 } from "react-native";
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 
 type ImageContainer = {
-    imageContainerStyle?: StyleProp<ViewStyle>,
-    imageSource: ImageSourcePropType
-}
+  imageContainerStyle?: StyleProp<ViewStyle>;
+  imageSource: ImageSourcePropType;
+};
 
 const ImageContainer = ({
-    imageContainerStyle = {},
-    imageSource
+  imageContainerStyle = {},
+  imageSource,
 }: ImageContainer) => {
-    return (
-        <View style={[styles.imageContainer, imageContainerStyle]}>
-            <Image
-                style={styles.iamge}
-                source={imageSource}
-            />
-        </View>
-    )
-}
+  return (
+    <View style={[styles.imageContainer, imageContainerStyle]}>
+      <Image style={styles.image} source={imageSource} />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    imageContainer: {
-        backgroundColor: "white",
-        justifyContent: "center",
-        alignItems: "center",
-        position: "relative",
-        overflow: "hidden",
-    },
-    iamge: {
-        position: "absolute",
-        width: "100%",
-        height: "100%",
-    }
+  imageContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+    objectFit:'contain'
+  },
 });
 
 export default ImageContainer;
